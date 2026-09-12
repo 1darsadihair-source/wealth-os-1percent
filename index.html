@@ -1,0 +1,2990 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>سیستم عامل ثروت و درآمد — یک درصدی‌ها</title>
+
+<meta name="theme-color" content="#0b1220">
+<meta name="description" content="سیستم عامل ثروت و درآمد یک درصدی‌ها">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --navy:#0b1220;
+  --navy2:#111c30;
+  --gold:#d4af37;
+  --gold2:#f2d675;
+  --green:#19a974;
+  --green2:#e8f7f0;
+  --red:#d64545;
+  --red2:#fff0f0;
+  --blue:#3b82f6;
+  --blue2:#edf4ff;
+  --orange:#e58a00;
+  --orange2:#fff6df;
+  --bg:#f5f7fa;
+  --card:#ffffff;
+  --text:#172033;
+  --muted:#697386;
+  --border:#e4e8ef;
+  --shadow:0 8px 30px rgba(11,18,32,.07);
+  --radius:18px;
+}
+
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html{
+  scroll-behavior:smooth;
+}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:"Vazirmatn",Tahoma,sans-serif;
+  line-height:1.8;
+}
+
+button,
+input{
+  font-family:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+.app{
+  max-width:1200px;
+  margin:auto;
+  padding-bottom:100px;
+}
+
+/* HEADER */
+.header{
+  background:linear-gradient(135deg,var(--navy),#15243c);
+  color:white;
+  padding:24px 20px 30px;
+  border-radius:0 0 28px 28px;
+  box-shadow:0 10px 35px rgba(11,18,32,.15);
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+}
+
+.brand-name{
+  font-size:14px;
+  color:var(--gold2);
+  font-weight:800;
+  letter-spacing:.5px;
+}
+
+.brand-title{
+  font-size:27px;
+  font-weight:900;
+  margin:4px 0;
+}
+
+.brand-sub{
+  font-size:13px;
+  color:#c8d1df;
+}
+
+.header-badge{
+  border:1px solid rgba(212,175,55,.5);
+  color:var(--gold2);
+  padding:7px 11px;
+  border-radius:999px;
+  font-size:11px;
+  white-space:nowrap;
+}
+
+/* MAIN */
+main{
+  padding:20px;
+}
+
+.view{
+  display:none;
+}
+
+.view.active{
+  display:block;
+}
+
+.section-title{
+  font-size:25px;
+  font-weight:900;
+  margin:0;
+}
+
+.section-sub{
+  color:var(--muted);
+  font-size:14px;
+  margin:3px 0 20px;
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:20px;
+  box-shadow:var(--shadow);
+  margin-bottom:18px;
+}
+
+.card-title{
+  font-size:17px;
+  font-weight:800;
+  margin:0 0 4px;
+}
+
+.card-subtitle{
+  color:var(--muted);
+  font-size:12px;
+  margin-bottom:17px;
+}
+
+/* GRID */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px;
+}
+
+.grid-3{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
+}
+
+.grid-4{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
+}
+
+/* INPUT */
+.field{
+  margin-bottom:14px;
+}
+
+.field:last-child{
+  margin-bottom:0;
+}
+
+label{
+  display:block;
+  font-size:13px;
+  font-weight:700;
+  margin-bottom:6px;
+}
+
+.help{
+  font-size:11px;
+  color:var(--muted);
+  margin-top:4px;
+}
+
+input{
+  width:100%;
+  border:1px solid #d9dee7;
+  background:#fffdf5;
+  border-radius:12px;
+  padding:12px 13px;
+  outline:none;
+  font-size:14px;
+  color:var(--text);
+  transition:.2s;
+}
+
+input:focus{
+  border-color:var(--gold);
+  box-shadow:0 0 0 3px rgba(212,175,55,.12);
+}
+
+/* KPI */
+.kpi{
+  padding:18px;
+  border-radius:16px;
+  border:1px solid var(--border);
+  background:white;
+}
+
+.kpi-label{
+  font-size:12px;
+  color:var(--muted);
+  margin-bottom:5px;
+}
+
+.kpi-value{
+  font-size:23px;
+  font-weight:900;
+  direction:rtl;
+  word-break:break-word;
+}
+
+.kpi-sub{
+  font-size:11px;
+  color:var(--muted);
+  margin-top:2px;
+}
+
+.kpi.main{
+  background:var(--navy);
+  color:white;
+  border-color:var(--navy);
+}
+
+.kpi.main .kpi-label,
+.kpi.main .kpi-sub{
+  color:#bfc9d8;
+}
+
+.kpi.green{
+  background:var(--green2);
+  border-color:#c9ecdd;
+}
+
+.kpi.gold{
+  background:#fff9e8;
+  border-color:#f0df9f;
+}
+
+.kpi.blue{
+  background:var(--blue2);
+  border-color:#d5e5ff;
+}
+
+.kpi.red{
+  background:var(--red2);
+  border-color:#ffd2d2;
+}
+
+/* BUTTONS */
+.btn{
+  border:none;
+  border-radius:12px;
+  padding:11px 16px;
+  font-weight:800;
+  font-size:13px;
+}
+
+.btn-primary{
+  background:var(--navy);
+  color:white;
+}
+
+.btn-gold{
+  background:var(--gold);
+  color:#161616;
+}
+
+.btn-light{
+  background:#eef1f5;
+  color:var(--text);
+}
+
+.btn-danger{
+  background:#fff0f0;
+  color:var(--red);
+}
+
+.actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:9px;
+  margin-top:17px;
+}
+
+/* INFO */
+.info{
+  border-radius:14px;
+  padding:14px 16px;
+  margin-bottom:15px;
+  font-size:13px;
+}
+
+.info.gold{
+  background:#fff9e8;
+  border:1px solid #f0df9f;
+}
+
+.info.blue{
+  background:var(--blue2);
+  border:1px solid #d5e5ff;
+}
+
+.info.green{
+  background:var(--green2);
+  border:1px solid #c9ecdd;
+}
+
+.info.red{
+  background:var(--red2);
+  border:1px solid #ffd2d2;
+}
+
+/* CHECKLIST */
+.checklist{
+  display:grid;
+  gap:8px;
+}
+
+.check{
+  background:#fafbfc;
+  border:1px solid var(--border);
+  padding:9px 12px;
+  border-radius:10px;
+  font-size:13px;
+}
+
+/* LEVER */
+.lever{
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:16px;
+  background:white;
+  position:relative;
+}
+
+.lever.winner{
+  border:2px solid var(--gold);
+  background:#fffaf0;
+}
+
+.winner-badge{
+  position:absolute;
+  left:12px;
+  top:12px;
+  background:var(--gold);
+  color:#171717;
+  font-size:10px;
+  font-weight:900;
+  padding:4px 8px;
+  border-radius:999px;
+}
+
+.lever-title{
+  font-size:15px;
+  font-weight:900;
+  margin-bottom:5px;
+}
+
+.lever-description{
+  color:var(--muted);
+  font-size:12px;
+  min-height:42px;
+}
+
+.lever-number{
+  font-size:23px;
+  font-weight:900;
+  margin-top:12px;
+}
+
+.positive{
+  color:var(--green);
+  font-weight:800;
+}
+
+/* PROGRESS */
+.progress-wrap{
+  margin-top:10px;
+}
+
+.progress{
+  height:12px;
+  background:#e8ecf1;
+  border-radius:999px;
+  overflow:hidden;
+}
+
+.progress-bar{
+  height:100%;
+  background:linear-gradient(90deg,var(--gold),var(--gold2));
+  border-radius:999px;
+  width:0%;
+  transition:.4s;
+}
+
+/* CHART */
+.chart{
+  height:230px;
+  display:flex;
+  align-items:flex-end;
+  gap:18px;
+  padding:15px 5px 5px;
+  border-bottom:1px solid var(--border);
+}
+
+.bar-wrap{
+  flex:1;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  align-items:center;
+  gap:7px;
+}
+
+.bar{
+  width:min(70px,80%);
+  border-radius:10px 10px 3px 3px;
+  background:linear-gradient(180deg,var(--gold2),var(--gold));
+  min-height:4px;
+  transition:.5s;
+}
+
+.bar-value{
+  font-size:10px;
+  color:var(--muted);
+  text-align:center;
+}
+
+.bar-label{
+  font-size:11px;
+  font-weight:700;
+}
+
+/* DECISION */
+.decision{
+  background:linear-gradient(135deg,#111c30,#0b1220);
+  color:white;
+  border-radius:20px;
+  padding:20px;
+}
+
+.decision .muted{
+  color:#aeb9ca;
+}
+
+.decision-value{
+  font-size:18px;
+  font-weight:900;
+  color:var(--gold2);
+}
+
+/* TABLE */
+.table-wrap{
+  overflow-x:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:550px;
+}
+
+th,
+td{
+  padding:11px;
+  border-bottom:1px solid var(--border);
+  text-align:right;
+  font-size:12px;
+}
+
+th{
+  background:#f8f9fb;
+  font-weight:800;
+}
+
+/* NAV */
+.bottom-nav{
+  position:fixed;
+  z-index:100;
+  bottom:0;
+  left:50%;
+  transform:translateX(-50%);
+  width:min(1200px,100%);
+  background:rgba(255,255,255,.96);
+  backdrop-filter:blur(12px);
+  border-top:1px solid var(--border);
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  padding:8px 5px max(8px,env(safe-area-inset-bottom));
+}
+
+.nav-btn{
+  border:none;
+  background:none;
+  color:#788294;
+  font-family:inherit;
+  font-size:10px;
+  font-weight:700;
+  padding:6px 2px;
+}
+
+.nav-icon{
+  display:block;
+  font-size:18px;
+  margin-bottom:2px;
+}
+
+.nav-btn.active{
+  color:var(--navy);
+}
+
+.nav-btn.active .nav-icon{
+  color:var(--gold);
+}
+
+/* SMALL */
+.small-note{
+  font-size:11px;
+  color:var(--muted);
+}
+
+.empty{
+  text-align:center;
+  color:var(--muted);
+  padding:25px;
+}
+
+.footer-note{
+  text-align:center;
+  color:#8a93a3;
+  font-size:11px;
+  padding:20px 0;
+}
+
+hr{
+  border:0;
+  border-top:1px solid var(--border);
+  margin:20px 0;
+}
+
+/* MOBILE */
+@media(max-width:760px){
+  main{
+    padding:15px;
+  }
+
+  .header{
+    padding:20px 16px 25px;
+  }
+
+  .brand-title{
+    font-size:22px;
+  }
+
+  .header-badge{
+    display:none;
+  }
+
+  .grid,
+  .grid-3,
+  .grid-4{
+    grid-template-columns:1fr;
+  }
+
+  .grid.mobile-2{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .card{
+    padding:16px;
+    border-radius:15px;
+  }
+
+  .section-title{
+    font-size:21px;
+  }
+
+  .kpi-value{
+    font-size:20px;
+  }
+
+  .bottom-nav{
+    grid-template-columns:repeat(6,1fr);
+  }
+}
+
+@media(min-width:761px){
+  .bottom-nav{
+    border-radius:18px 18px 0 0;
+  }
+}
+</style>
+</head>
+
+<body><!-- =========================================================
+     STUDENT ACCESS
+========================================================= -->
+
+<div id="student-login" style="
+  position:fixed;
+  inset:0;
+  z-index:99999;
+  background:linear-gradient(135deg,#0b1220,#15243c);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+">
+
+  <div style="
+    width:100%;
+    max-width:420px;
+    background:white;
+    border-radius:24px;
+    padding:30px 22px;
+    text-align:center;
+    box-shadow:0 25px 80px rgba(0,0,0,.35);
+  ">
+
+    <div style="
+      color:#d4af37;
+      font-weight:900;
+      font-size:14px;
+      margin-bottom:6px;
+    ">
+      یک درصدی‌ها
+    </div>
+
+    <h1 style="
+      margin:0 0 6px;
+      font-size:23px;
+      color:#172033;
+    ">
+      سیستم عامل ثروت و درآمد
+    </h1>
+
+    <p style="
+      color:#697386;
+      font-size:13px;
+      margin:0 0 22px;
+    ">
+      برای ورود، کد اختصاصی خود را وارد کنید.
+    </p>
+
+    <input
+      id="student-code"
+      type="text"
+      inputmode="numeric"
+      autocomplete="off"
+      placeholder="کد دسترسی"
+      onkeydown="if(event.key==='Enter') checkStudentCode()"
+      style="
+        width:100%;
+        padding:15px;
+        border:1px solid #d9dee7;
+        border-radius:13px;
+        text-align:center;
+        font-size:20px;
+        letter-spacing:4px;
+        box-sizing:border-box;
+        margin-bottom:12px;
+      "
+    >
+
+    <button
+      onclick="checkStudentCode()"
+      style="
+        width:100%;
+        border:0;
+        border-radius:13px;
+        padding:15px;
+        background:#0b1220;
+        color:white;
+        font-family:inherit;
+        font-weight:900;
+        font-size:14px;
+      "
+    >
+      ورود به سیستم
+    </button>
+
+    <div
+      id="login-error"
+      style="
+        color:#d64545;
+        font-size:12px;
+        margin-top:12px;
+        min-height:20px;
+      "
+    ></div>
+
+  </div>
+</div>
+
+<div class="app">
+
+<header class="header">
+  <div class="brand">
+    <div>
+      <div class="brand-name">یک درصدی‌ها</div>
+      <div class="brand-title">سیستم عامل ثروت و درآمد</div>
+      <div class="brand-sub">Revenue & Wealth Operating System</div>
+    </div>
+
+    <div class="header-badge">
+      ابزار اجرایی دوره
+    </div>
+  </div>
+</header>
+
+
+<main>
+
+<!-- ===================================================== -->
+<!-- 1. REVENUE ENGINE -->
+<!-- ===================================================== -->
+
+<section id="view-home" class="view active">
+
+  <h1 class="section-title">موتور درآمد من</h1>
+  <p class="section-sub">
+    درآمد یک عدد جادویی نیست؛ نتیجه رابطه چند متغیر قابل‌اندازه‌گیری است.
+  </p>
+
+  <div class="info gold">
+    <strong>هدف این بخش:</strong>
+    اعداد واقعی کسب‌وکارت را وارد کن تا موتور درآمدت را ببینی و بفهمی درآمد دقیقاً از کجا ساخته می‌شود.
+  </div>
+
+  <div class="card">
+    <h2 class="card-title">ورودی‌های واقعی</h2>
+    <div class="card-subtitle">
+      تا جای ممکن از میانگین واقعی ۳۰ تا ۹۰ روز گذشته استفاده کن.
+    </div>
+
+    <div class="grid">
+
+      <div class="field">
+        <label>تعداد لید ماهانه</label>
+        <input id="leads" type="number" min="0" step="1" value="1000">
+        <div class="help">تعداد لید جدید در هر ماه</div>
+      </div>
+
+      <div class="field">
+        <label>نرخ ارتباط</label>
+        <input id="contact" type="number" min="0" max="100" step="0.1" value="80">
+        <div class="help">درصد لیدهایی که با آنها ارتباط برقرار می‌شود</div>
+      </div>
+
+      <div class="field">
+        <label>نرخ تبدیل</label>
+        <input id="conversion" type="number" min="0" max="100" step="0.1" value="5">
+        <div class="help">درصد تماس‌هایی که به مشتری تبدیل می‌شوند</div>
+      </div>
+
+      <div class="field">
+        <label>میانگین ارزش هر معامله</label>
+        <input id="deal" type="number" min="0" step="1000" value="10000000">
+        <div class="help">واحد پولی را در کل فایل ثابت نگه دار</div>
+      </div>
+
+      <div class="field">
+        <label>دفعات خرید در سال</label>
+        <input id="frequency" type="number" min="0" step="0.1" value="3">
+        <div class="help">میانگین تعداد تراکنش‌های هر مشتری در سال</div>
+      </div>
+
+      <div class="field">
+        <label>حاشیه سود ناخالص</label>
+        <input id="margin" type="number" min="0" max="100" step="0.1" value="40">
+        <div class="help">درصد سود ناخالص از درآمد</div>
+      </div>
+
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" onclick="calculateAll()">محاسبه موتور درآمد</button>
+      <button class="btn btn-light" onclick="resetAll()">بازنشانی</button>
+    </div>
+  </div>
+
+
+  <div class="card">
+    <h2 class="card-title">خروجی موتور درآمد</h2>
+    <div class="card-subtitle">نتیجه محاسبات بر اساس اعداد فعلی تو</div>
+
+    <div class="grid-4">
+
+      <div class="kpi main">
+        <div class="kpi-label">درآمد سالانه</div>
+        <div class="kpi-value" id="out-annual">۰</div>
+        <div class="kpi-sub">مدل‌شده</div>
+      </div>
+
+      <div class="kpi green">
+        <div class="kpi-label">سود ناخالص سالانه</div>
+        <div class="kpi-value" id="out-profit">۰</div>
+        <div class="kpi-sub">بر اساس حاشیه سود</div>
+      </div>
+
+      <div class="kpi blue">
+        <div class="kpi-label">درآمد ماهانه</div>
+        <div class="kpi-value" id="out-monthly">۰</div>
+        <div class="kpi-sub">میانگین</div>
+      </div>
+
+      <div class="kpi gold">
+        <div class="kpi-label">مشتری سالانه</div>
+        <div class="kpi-value" id="out-buyers">۰</div>
+        <div class="kpi-sub">مشتری جدید مدل‌شده</div>
+      </div>
+
+    </div>
+
+    <div style="height:12px"></div>
+
+    <div class="grid-3">
+
+      <div class="kpi">
+        <div class="kpi-label">تراکنش سالانه</div>
+        <div class="kpi-value" id="out-tx">۰</div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-label">سود ناخالص ماهانه</div>
+        <div class="kpi-value" id="out-profit-month">۰</div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-label">تماس سالانه</div>
+        <div class="kpi-value" id="out-contacts">۰</div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <div class="card">
+    <h2 class="card-title">منطق موتور</h2>
+
+    <div class="info blue">
+      <strong>فرمول ساده:</strong><br>
+      لید × نرخ ارتباط × نرخ تبدیل × ۱۲ ماه × دفعات خرید در سال × ارزش متوسط معامله
+    </div>
+
+    <div class="checklist">
+      <div class="check">✓ از حدس خوش‌بینانه استفاده نکن.</div>
+      <div class="check">✓ اعداد پولی را با یک واحد ثابت وارد کن.</div>
+      <div class="check">✓ نرخ‌ها را به صورت درصد وارد کن.</div>
+      <div class="check">✓ اگر هنوز داده واقعی نداری، عدد را به‌عنوان «فرضیه» در نظر بگیر.</div>
+      <div class="check">✓ این ابزار درآمد را تضمین نمی‌کند؛ یک مدل محاسباتی است.</div>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ===================================================== -->
+<!-- 2. LEVERS -->
+<!-- ===================================================== -->
+
+<section id="view-levers" class="view">
+
+  <h1 class="section-title">شبیه‌ساز اهرم درآمد</h1>
+  <p class="section-sub">
+    ببین تغییر کدام متغیر بیشترین اثر را روی درآمد سالانه دارد.
+  </p>
+
+  <div class="info gold">
+    به جای اینکه کورکورانه بیشتر کار کنی، ببین کدام اهرم بیشترین اثر اقتصادی را دارد.
+  </div>
+
+  <div class="grid-4">
+
+    <div class="kpi main">
+      <div class="kpi-label">درآمد پایه</div>
+      <div class="kpi-value" id="base-revenue">۰</div>
+      <div class="kpi-sub">وضعیت فعلی</div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-label">+۲ واحد درصد تبدیل</div>
+      <div class="kpi-value" id="conv-revenue">۰</div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-label">+۱۰٪ ارزش معامله</div>
+      <div class="kpi-value" id="deal-revenue">۰</div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-label">+۲۰٪ لید</div>
+      <div class="kpi-value" id="lead-revenue">۰</div>
+    </div>
+
+  </div>
+
+  <div style="height:16px"></div>
+
+  <div class="grid-3">
+
+    <div class="lever" id="lever-conv">
+      <div class="lever-title">اهرم ۱: نرخ تبدیل</div>
+      <div class="lever-description">
+        نرخ تبدیل ۲ واحد درصد افزایش پیدا می‌کند.
+        مثال: ۵٪ → ۷٪
+      </div>
+      <div class="lever-number" id="conv-impact">۰</div>
+      <div class="small-note" id="conv-growth">۰٪ رشد</div>
+    </div>
+
+    <div class="lever" id="lever-deal">
+      <div class="lever-title">اهرم ۲: ارزش معامله</div>
+      <div class="lever-description">
+        میانگین ارزش هر معامله ۱۰٪ افزایش پیدا می‌کند.
+      </div>
+      <div class="lever-number" id="deal-impact">۰</div>
+      <div class="small-note" id="deal-growth">۰٪ رشد</div>
+    </div>
+
+    <div class="lever" id="lever-leads">
+      <div class="lever-title">اهرم ۳: تعداد لید</div>
+      <div class="lever-description">
+        تعداد لید ماهانه ۲۰٪ افزایش پیدا می‌کند.
+      </div>
+      <div class="lever-number" id="lead-impact">۰</div>
+      <div class="small-note" id="lead-growth">۰٪ رشد</div>
+    </div>
+
+  </div>
+
+  <div class="card">
+    <h2 class="card-title">اهرم برنده</h2>
+    <div class="card-subtitle">اهرم با بیشترین افزایش درآمد سالانه</div>
+
+    <div class="kpi gold">
+      <div class="kpi-label">تصمیم پیشنهادی مدل</div>
+      <div class="kpi-value" id="winner">—</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="card-title">مقایسه اثر اهرم‌ها</h2>
+
+    <div class="chart">
+      <div class="bar-wrap">
+        <div class="bar-value" id="chart-conv-value">۰</div>
+        <div class="bar" id="chart-conv" style="height:5%"></div>
+        <div class="bar-label">تبدیل</div>
+      </div>
+
+      <div class="bar-wrap">
+        <div class="bar-value" id="chart-deal-value">۰</div>
+        <div class="bar" id="chart-deal" style="height:5%"></div>
+        <div class="bar-label">ارزش معامله</div>
+      </div>
+
+      <div class="bar-wrap">
+        <div class="bar-value" id="chart-lead-value">۰</div>
+        <div class="bar" id="chart-lead" style="height:5%"></div>
+        <div class="bar-label">لید</div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ===================================================== -->
+<!-- 3. REVERSE ENGINEERING -->
+<!-- ===================================================== -->
+
+<section id="view-reverse" class="view">
+
+  <h1 class="section-title">مهندسی معکوس درآمد</h1>
+  <p class="section-sub">
+    به جای پرسیدن «چقدر درآمد دارم؟»، از هدف شروع کن و ببین چه تعداد لید لازم داری.
+  </p>
+
+  <div class="card">
+
+    <div class="field">
+      <label>درآمد هدف سالانه</label>
+      <input id="target" type="number" min="0" step="1000000" value="2000000000">
+      <div class="help">هدف درآمد سالانه موردنظر</div>
+    </div>
+
+    <hr>
+
+    <h3 class="card-title">فرضیات موتور</h3>
+    <div class="card-subtitle">
+      این موارد به صورت خودکار از موتور درآمد گرفته می‌شوند.
+    </div>
+
+    <div class="grid">
+
+      <div class="field">
+        <label>ارزش متوسط معامله</label>
+        <input id="rdeal" type="number" readonly>
+      </div>
+
+      <div class="field">
+        <label>دفعات خرید در سال</label>
+        <input id="rfreq" type="number" readonly>
+      </div>
+
+      <div class="field">
+        <label>نرخ تبدیل</label>
+        <input id="rconv" type="number" readonly>
+      </div>
+
+      <div class="field">
+        <label>نرخ ارتباط</label>
+        <input id="rcontact" type="number" readonly>
+      </div>
+
+    </div>
+  </div>
+
+
+  <div class="grid-4">
+
+    <div class="kpi main">
+      <div class="kpi-label">مشتری موردنیاز</div>
+      <div class="kpi-value" id="reverse-customers">۰</div>
+      <div class="kpi-sub">در سال</div>
+    </div>
+
+    <div class="kpi blue">
+      <div class="kpi-label">تماس موردنیاز</div>
+      <div class="kpi-value" id="reverse-contacts">۰</div>
+      <div class="kpi-sub">در سال</div>
+    </div>
+
+    <div class="kpi green">
+      <div class="kpi-label">لید موردنیاز</div>
+      <div class="kpi-value" id="reverse-leads">۰</div>
+      <div class="kpi-sub">در سال</div>
+    </div>
+
+    <div class="kpi gold">
+      <div class="kpi-label">لید ماهانه</div>
+      <div class="kpi-value" id="reverse-month">۰</div>
+      <div class="kpi-sub">در ماه</div>
+    </div>
+
+  </div>
+
+  <div style="height:15px"></div>
+
+  <div class="grid">
+
+    <div class="kpi">
+      <div class="kpi-label">لید هفتگی</div>
+      <div class="kpi-value" id="reverse-week">۰</div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-label">درآمد هدف</div>
+      <div class="kpi-value" id="reverse-target-display">۰</div>
+    </div>
+
+  </div>
+
+  <div style="height:15px"></div>
+
+  <div id="reverse-warning" class="info green">
+    با فرضیات فعلی، مدل قابل محاسبه است.
+  </div>
+
+  <div class="card">
+    <h2 class="card-title">جمله مهندسی معکوس</h2>
+
+    <div class="decision">
+      <div class="muted">نتیجه مدل:</div>
+      <p id="reverse-statement" style="margin:8px 0 0">
+        —
+      </p>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ===================================================== -->
+<!-- 4. SURVIVAL / BUFFER -->
+<!-- ===================================================== -->
+
+<section id="view-survival" class="view">
+
+  <h1 class="section-title">خط بقا و ذخیره مالی</h1>
+  <p class="section-sub">
+    قبل از رشد، باید بفهمی سیستم مالی فعلی‌ات چند ماه دوام می‌آورد.
+  </p>
+
+  <div class="info blue">
+    این بخش برای محاسبه <strong>Burn ماهانه، Burn روزانه و ذخیره نقدی موردنیاز</strong> طراحی شده است.
+  </div>
+
+  <div class="card">
+
+    <h2 class="card-title">هزینه‌های ضروری ماهانه</h2>
+    <div class="card-subtitle">
+      فقط هزینه‌هایی را وارد کن که برای ادامه زندگی یا فعالیت ضروری هستند.
+    </div>
+
+    <div class="grid">
+
+      <div class="field">
+        <label>اجاره / مسکن</label>
+        <input id="surv-rent" type="number" min="0" step="100000" value="0">
+      </div>
+
+      <div class="field">
+        <label>غذا</label>
+        <input id="surv-food" type="number" min="0" step="100000" value="0">
+      </div>
+
+      <div class="field">
+        <label>سلامت / درمان</label>
+        <input id="surv-health" type="number" min="0" step="100000" value="0">
+      </div>
+
+      <div class="field">
+        <label>حقوق / تیم</label>
+        <input id="surv-staff" type="number" min="0" step="100000" value="0">
+      </div>
+
+      <div class="field">
+        <label>قبوض و هزینه‌های ضروری</label>
+        <input id="surv-bills" type="number" min="0" step="100000" value="0">
+      </div>
+
+      <div class="field">
+        <label>نقدینگی فعلی</label>
+        <input id="surv-cash" type="number" min="0" step="100000" value="0">
+        <div class="help">پولی که اکنون برای پوشش هزینه‌ها در دسترس است</div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <div class="grid-4">
+
+    <div class="kpi main">
+      <div class="kpi-label">Burn ماهانه</div>
+      <div class="kpi-value" id="out-burn-month">۰</div>
+      <div class="kpi-sub">هزینه ضروری</div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-label">Burn روزانه</div>
+      <div class="kpi-value" id="out-burn-day">۰</div>
+      <div class="kpi-sub">تقریبی</div>
+    </div>
+
+    <div class="kpi gold">
+      <div class="kpi-label">ذخیره ۶ ماهه</div>
+      <div class="kpi-value" id="out-buffer-needed">۰</div>
+      <div class="kpi-sub">ذخیره پیشنهادی مدل</div>
+    </div>
+
+    <div class="kpi green">
+      <div class="kpi-label">ماه‌های دوام</div>
+      <div class="kpi-value" id="out-buffer-months">۰</div>
+      <div class="kpi-sub">با نقدینگی فعلی</div>
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <h2 class="card-title">پیشرفت ساخت ذخیره</h2>
+
+    <div class="grid mobile-2">
+      <div>
+        <div class="kpi-label">ذخیره فعلی</div>
+        <div class="kpi-value" id="buffer-current">۰</div>
+      </div>
+
+      <div>
+        <div class="kpi-label">هدف ذخیره ۶ ماهه</div>
+        <div class="kpi-value" id="buffer-goal">۰</div>
+      </div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress">
+        <div class="progress-bar" id="buffer-progress"></div>
+      </div>
+    </div>
+
+    <div class="small-note" id="buffer-progress-text">
+      ۰٪ از ذخیره هدف ساخته شده است.
+    </div>
+
+  </div>
+
+
+  <div id="survival-warning" class="info gold">
+    برای دیدن وضعیت، هزینه‌ها و نقدینگی را وارد کن.
+  </div>
+
+</section>
+
+
+<!-- ===================================================== -->
+<!-- 5. DASHBOARD -->
+<!-- ===================================================== -->
+
+<section id="view-dashboard" class="view">
+
+  <h1 class="section-title">داشبورد</h1>
+  <p class="section-sub">
+    تصویر یک‌صفحه‌ای از وضعیت موتور درآمد و تصمیم بعدی.
+  </p>
+
+  <div class="grid-4">
+
+    <div class="kpi main">
+      <div class="kpi-label">درآمد فعلی سالانه</div>
+      <div class="kpi-value" id="dash-current">۰</div>
+    </div>
+
+    <div class="kpi green">
+      <div class="kpi-label">سود ناخالص</div>
+      <div class="kpi-value" id="dash-profit">۰</div>
+    </div>
+
+    <div class="kpi blue">
+      <div class="kpi-label">مشتری</div>
+      <div class="kpi-value" id="dash-customers">۰</div>
+    </div>
+
+    <div class="kpi gold">
+      <div class="kpi-label">هدف درآمد</div>
+      <div class="kpi-value" id="dash-target">۰</div>
+    </div>
+
+  </div>
+
+
+  <div style="height:15px"></div>
+
+  <div class="card">
+
+    <h2 class="card-title">فاصله تا هدف</h2>
+
+    <div class="grid mobile-2">
+
+      <div>
+        <div class="kpi-label">وضعیت</div>
+        <div class="kpi-value" id="dash-gap">۰</div>
+      </div>
+
+      <div>
+        <div class="kpi-label">پیشرفت</div>
+        <div class="kpi-value" id="dash-progress">۰٪</div>
+      </div>
+
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress">
+        <div class="progress-bar" id="dash-progress-bar"></div>
+      </div>
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <h2 class="card-title">اهرم‌های رشد</h2>
+
+    <div class="chart">
+
+      <div class="bar-wrap">
+        <div class="bar-value" id="dash-bar-conv-value">۰</div>
+        <div class="bar" id="dash-bar-conv" style="height:5%"></div>
+        <div class="bar-label">تبدیل</div>
+      </div>
+
+      <div class="bar-wrap">
+        <div class="bar-value" id="dash-bar-deal-value">۰</div>
+        <div class="bar" id="dash-bar-deal" style="height:5%"></div>
+        <div class="bar-label">ارزش معامله</div>
+      </div>
+
+      <div class="bar-wrap">
+        <div class="bar-value" id="dash-bar-leads-value">۰</div>
+        <div class="bar" id="dash-bar-leads" style="height:5%"></div>
+        <div class="bar-label">لید</div>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <h2 class="card-title">تصمیم ۳۰ روز آینده</h2>
+
+    <div class="grid">
+
+      <div class="field">
+        <label>اهرم انتخابی</label>
+        <input id="decision-lever" type="text" placeholder="مثلاً افزایش نرخ تبدیل">
+      </div>
+
+      <div class="field">
+        <label>دلیل انتخاب</label>
+        <input id="decision-reason" type="text" placeholder="مثلاً بیشترین اثر درآمدی">
+      </div>
+
+      <div class="field">
+        <label>عدد فعلی</label>
+        <input id="decision-current" type="number" min="0" step="0.1" placeholder="مثلاً 5">
+      </div>
+
+      <div class="field">
+        <label>عدد هدف</label>
+        <input id="decision-goal" type="number" min="0" step="0.1" placeholder="مثلاً 7">
+      </div>
+
+      <div class="field">
+        <label>اقدام اول</label>
+        <input id="decision-action" type="text" placeholder="اولین اقدام اجرایی من">
+      </div>
+
+      <div class="field">
+        <label>تاریخ شروع</label>
+        <input id="decision-start" type="date">
+      </div>
+
+      <div class="field">
+        <label>تاریخ بازبینی</label>
+        <input id="decision-review" type="date">
+      </div>
+
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-gold" onclick="saveDecision()">ذخیره تصمیم</button>
+    </div>
+
+  </div>
+
+
+  <div class="decision">
+
+    <div class="muted">اهرم اصلی من:</div>
+    <div class="decision-value" id="dash-winner">—</div>
+
+    <hr style="border-color:rgba(255,255,255,.15)">
+
+    <div class="muted">اولین اقدام من:</div>
+    <div id="dash-action" style="font-weight:800;margin-top:4px">
+      هنوز اقدامی ثبت نشده است.
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ===================================================== -->
+<!-- 6. MY REVENUE ENGINE -->
+<!-- ===================================================== -->
+
+<section id="view-mine" class="view">
+
+  <h1 class="section-title">موتور درآمد من</h1>
+  <p class="section-sub">
+    خلاصه شخصی موتور درآمد و تصمیم ۳۰ روز آینده.
+  </p>
+
+
+  <div class="card">
+
+    <h2 class="card-title">ورودی‌های من</h2>
+
+    <div class="grid">
+
+      <div class="kpi">
+        <div class="kpi-label">لید ماهانه</div>
+        <div class="kpi-value" id="mine-leads">۰</div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-label">نرخ ارتباط</div>
+        <div class="kpi-value" id="mine-contact">۰٪</div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-label">نرخ تبدیل</div>
+        <div class="kpi-value" id="mine-conversion">۰٪</div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-label">ارزش معامله</div>
+        <div class="kpi-value" id="mine-deal">۰</div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-label">دفعات خرید سالانه</div>
+        <div class="kpi-value" id="mine-frequency">۰</div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-label">حاشیه سود</div>
+        <div class="kpi-value" id="mine-margin">۰٪</div>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <h2 class="card-title">خروجی‌های من</h2>
+
+    <div class="grid-3">
+
+      <div class="kpi main">
+        <div class="kpi-label">درآمد سالانه</div>
+        <div class="kpi-value" id="mine-annual">۰</div>
+      </div>
+
+      <div class="kpi green">
+        <div class="kpi-label">سود ناخالص سالانه</div>
+        <div class="kpi-value" id="mine-profit">۰</div>
+      </div>
+
+      <div class="kpi blue">
+        <div class="kpi-label">مشتری سالانه</div>
+        <div class="kpi-value" id="mine-buyers">۰</div>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <h2 class="card-title">اهرم اصلی من</h2>
+
+    <div class="kpi gold">
+      <div class="kpi-label">اهرم برنده</div>
+      <div class="kpi-value" id="mine-winner">—</div>
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <h2 class="card-title">مانیفست ۳۰ روزه من</h2>
+
+    <div class="decision">
+
+      <div class="muted">برای رسیدن به درآمد هدف:</div>
+
+      <p id="manifesto" style="font-weight:800">
+        هنوز اطلاعات کافی وارد نشده است.
+      </p>
+
+      <hr style="border-color:rgba(255,255,255,.15)">
+
+      <div class="muted">اولین اقدام من:</div>
+
+      <div class="decision-value" id="mine-action">
+        —
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <h2 class="card-title">تعهد شخصی</h2>
+
+    <div class="field">
+      <label>تعهد من برای ۳۰ روز آینده</label>
+      <input id="commitment" type="text"
+             placeholder="من متعهد می‌شوم که...">
+    </div>
+
+    <div class="grid mobile-2">
+
+      <div class="field">
+        <label>نام / امضا</label>
+        <input id="signature" type="text">
+      </div>
+
+      <div class="field">
+        <label>تاریخ</label>
+        <input id="signature-date" type="date">
+      </div>
+
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-gold" onclick="savePersonal()">ذخیره اطلاعات</button>
+    </div>
+
+  </div>
+
+</section>
+
+
+<div class="footer-note">
+  این ابزار یک مدل محاسباتی برای تصمیم‌گیری است و هیچ نتیجه درآمدی را تضمین نمی‌کند.
+</div>
+
+</main>
+
+
+<!-- ===================================================== -->
+<!-- BOTTOM NAV -->
+<!-- ===================================================== -->
+
+<nav class="bottom-nav">
+
+  <button class="nav-btn active" data-view="home" onclick="showView('home')">
+    <span class="nav-icon">⚙️</span>
+    موتور درآمد
+  </button>
+
+  <button class="nav-btn" data-view="levers" onclick="showView('levers')">
+    <span class="nav-icon">🎚️</span>
+    اهرم‌ها
+  </button>
+
+  <button class="nav-btn" data-view="reverse" onclick="showView('reverse')">
+    <span class="nav-icon">🔄</span>
+    معکوس
+  </button>
+
+  <button class="nav-btn" data-view="survival" onclick="showView('survival')">
+    <span class="nav-icon">🛡️</span>
+    خط بقا
+  </button>
+
+  <button class="nav-btn" data-view="dashboard" onclick="showView('dashboard')">
+    <span class="nav-icon">📊</span>
+    داشبورد
+  </button>
+
+  <button class="nav-btn" data-view="mine" onclick="showView('mine')">
+    <span class="nav-icon">👤</span>
+    من
+  </button>
+
+</nav>
+
+</div>
+
+
+<script>
+/* =========================================================
+   GLOBAL STATE
+========================================================= */
+
+const STORAGE_KEY = "yek_darsadi_wealth_os_v1";
+/* =========================================================
+   STUDENT ACCESS
+========================================================= */
+
+/*
+  کدهای اختصاصی دانشجویان
+
+  فرمت:
+  "کد": "نام دانشجو"
+*/
+
+const STUDENT_CODES = {
+
+  "741258": "دانشجو ۱",
+  "583214": "دانشجو ۲",
+  "926431": "دانشجو ۳",
+  "314725": "دانشجو ۴",
+  "864193": "دانشجو ۵"
+
+};
+
+
+function checkStudentCode(){
+
+  const input =
+    document.getElementById("student-code");
+
+  const error =
+    document.getElementById("login-error");
+
+  const code =
+    input.value.trim();
+
+
+  if(!code){
+
+    error.textContent =
+      "لطفاً کد دسترسی را وارد کنید.";
+
+    return;
+  }
+
+
+  if(STUDENT_CODES[code]){
+
+    /* ذخیره ورود روی همین دستگاه */
+    localStorage.setItem(
+      "student_access_code",
+      code
+    );
+
+
+    /* بستن صفحه ورود */
+    document.getElementById(
+      "student-login"
+    ).style.display = "none";
+
+
+    error.textContent = "";
+
+  }else{
+
+    error.textContent =
+      "کد واردشده صحیح نیست.";
+
+    input.value = "";
+
+    input.focus();
+
+  }
+
+}
+
+
+function checkStudentAccess(){
+
+  const savedCode =
+    localStorage.getItem(
+      "student_access_code"
+    );
+
+
+  if(
+    savedCode &&
+    STUDENT_CODES[savedCode]
+  ){
+
+    document.getElementById(
+      "student-login"
+    ).style.display = "none";
+
+  }
+
+}
+
+
+function logoutStudent(){
+
+  localStorage.removeItem(
+    "student_access_code"
+  );
+
+
+  document.getElementById(
+    "student-login"
+  ).style.display = "flex";
+
+
+  const input =
+    document.getElementById("student-code");
+
+  if(input){
+
+    input.value = "";
+
+    input.focus();
+
+  }
+
+}
+
+
+/* نام دانشجو */
+function getStudentName(){
+
+  const code =
+    localStorage.getItem(
+      "student_access_code"
+    );
+
+  return STUDENT_CODES[code] || "";
+
+}
+let state = {
+  core: {
+    leads: 1000,
+    contact: 80,
+    conversion: 5,
+    deal: 10000000,
+    frequency: 3,
+    margin: 40,
+    target: 2000000000
+  },
+
+  survival: {
+    rent: 0,
+    food: 0,
+    health: 0,
+    staff: 0,
+    bills: 0,
+    cash: 0
+  },
+
+  decision: {
+    lever: "",
+    reason: "",
+    current: "",
+    goal: "",
+    action: "",
+    start: "",
+    review: ""
+  },
+
+  personal: {
+    commitment: "",
+    signature: "",
+    date: ""
+  }
+};
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function num(id){
+  const el = document.getElementById(id);
+  if(!el) return 0;
+
+  const value = parseFloat(el.value);
+
+  return Number.isFinite(value) ? value : 0;
+}
+
+function money(value){
+  if(!Number.isFinite(value)) return "۰";
+
+  return new Intl.NumberFormat("fa-IR", {
+    maximumFractionDigits: 0
+  }).format(value);
+}
+
+function number(value){
+  if(!Number.isFinite(value)) return "۰";
+
+  return new Intl.NumberFormat("fa-IR", {
+    maximumFractionDigits: 2
+  }).format(value);
+}
+
+function percent(value){
+  if(!Number.isFinite(value)) return "۰٪";
+
+  return new Intl.NumberFormat("fa-IR", {
+    maximumFractionDigits: 1
+  }).format(value) + "٪";
+}
+
+function setText(id,value){
+  const el = document.getElementById(id);
+  if(el) el.textContent = value;
+}
+
+function clamp(value,min,max){
+  return Math.min(Math.max(value,min),max);
+}
+
+
+/* =========================================================
+   SAVE / LOAD
+========================================================= */
+
+function saveState(){
+
+  state.core.leads = num("leads");
+  state.core.contact = num("contact");
+  state.core.conversion = num("conversion");
+  state.core.deal = num("deal");
+  state.core.frequency = num("frequency");
+  state.core.margin = num("margin");
+  state.core.target = num("target");
+
+  state.survival.rent = num("surv-rent");
+  state.survival.food = num("surv-food");
+  state.survival.health = num("surv-health");
+  state.survival.staff = num("surv-staff");
+  state.survival.bills = num("surv-bills");
+  state.survival.cash = num("surv-cash");
+
+  try{
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+  }catch(e){
+    console.log("Storage unavailable");
+  }
+}
+
+
+function saveDecision(){
+
+  state.decision.lever =
+    document.getElementById("decision-lever").value;
+
+  state.decision.reason =
+    document.getElementById("decision-reason").value;
+
+  state.decision.current =
+    document.getElementById("decision-current").value;
+
+  state.decision.goal =
+    document.getElementById("decision-goal").value;
+
+  state.decision.action =
+    document.getElementById("decision-action").value;
+
+  state.decision.start =
+    document.getElementById("decision-start").value;
+
+  state.decision.review =
+    document.getElementById("decision-review").value;
+
+  saveState();
+
+  updateDashboard();
+
+  alert("تصمیم ۳۰ روزه ذخیره شد.");
+}
+
+
+function savePersonal(){
+
+  state.personal.commitment =
+    document.getElementById("commitment").value;
+
+  state.personal.signature =
+    document.getElementById("signature").value;
+
+  state.personal.date =
+    document.getElementById("signature-date").value;
+
+  saveState();
+
+  alert("اطلاعات شخصی ذخیره شد.");
+}
+
+
+function loadState(){
+
+  try{
+
+    const saved =
+      localStorage.getItem(STORAGE_KEY);
+
+    if(saved){
+
+      const parsed = JSON.parse(saved);
+
+      state = {
+        ...state,
+        ...parsed,
+        core:{
+          ...state.core,
+          ...(parsed.core || {})
+        },
+        survival:{
+          ...state.survival,
+          ...(parsed.survival || {})
+        },
+        decision:{
+          ...state.decision,
+          ...(parsed.decision || {})
+        },
+        personal:{
+          ...state.personal,
+          ...(parsed.personal || {})
+        }
+      };
+
+    }
+
+  }catch(e){
+    console.log("Could not load state");
+  }
+
+
+  /* CORE */
+
+  setInput("leads",state.core.leads);
+  setInput("contact",state.core.contact);
+  setInput("conversion",state.core.conversion);
+  setInput("deal",state.core.deal);
+  setInput("frequency",state.core.frequency);
+  setInput("margin",state.core.margin);
+  setInput("target",state.core.target);
+
+
+  /* SURVIVAL */
+
+  setInput("surv-rent",state.survival.rent);
+  setInput("surv-food",state.survival.food);
+  setInput("surv-health",state.survival.health);
+  setInput("surv-staff",state.survival.staff);
+  setInput("surv-bills",state.survival.bills);
+  setInput("surv-cash",state.survival.cash);
+
+
+  /* DECISION */
+
+  setInput("decision-lever",state.decision.lever);
+  setInput("decision-reason",state.decision.reason);
+  setInput("decision-current",state.decision.current);
+  setInput("decision-goal",state.decision.goal);
+  setInput("decision-action",state.decision.action);
+  setInput("decision-start",state.decision.start);
+  setInput("decision-review",state.decision.review);
+
+
+  /* PERSONAL */
+
+  setInput("commitment",state.personal.commitment);
+  setInput("signature",state.personal.signature);
+  setInput("signature-date",state.personal.date);
+}
+
+
+function setInput(id,value){
+
+  const el = document.getElementById(id);
+
+  if(el){
+    el.value = value ?? "";
+  }
+}
+
+
+/* =========================================================
+   REVENUE ENGINE
+========================================================= */
+
+function getCore(){
+
+  return {
+    leads: num("leads"),
+    contact: num("contact") / 100,
+    conversion: num("conversion") / 100,
+    deal: num("deal"),
+    frequency: num("frequency"),
+    margin: num("margin") / 100
+  };
+}
+
+
+function calculateEngine(){
+
+  const c = getCore();
+
+  const annualContacts =
+    c.leads *
+    c.contact *
+    12;
+
+  const customers =
+    annualContacts *
+    c.conversion;
+
+  const transactions =
+    customers *
+    c.frequency;
+
+  const annualRevenue =
+    transactions *
+    c.deal;
+
+  const grossProfit =
+    annualRevenue *
+    c.margin;
+
+  const monthlyRevenue =
+    annualRevenue / 12;
+
+  const monthlyProfit =
+    grossProfit / 12;
+
+
+  return {
+    annualContacts,
+    customers,
+    transactions,
+    annualRevenue,
+    grossProfit,
+    monthlyRevenue,
+    monthlyProfit
+  };
+}
+
+
+function calculateAll(){
+
+  const r = calculateEngine();
+
+  setText("out-annual",money(r.annualRevenue));
+  setText("out-profit",money(r.grossProfit));
+  setText("out-monthly",money(r.monthlyRevenue));
+  setText("out-buyers",number(r.customers));
+  setText("out-tx",number(r.transactions));
+  setText("out-profit-month",money(r.monthlyProfit));
+  setText("out-contacts",number(r.annualContacts));
+
+  saveState();
+
+  syncReverse();
+
+  updateLevers();
+
+  updateDashboard();
+
+  updateMine();
+
+  updateSurvival();
+}
+
+
+/* =========================================================
+   LEVERS
+========================================================= */
+
+function calculateLevers(){
+
+  const c = getCore();
+
+  const base =
+    c.leads *
+    c.contact *
+    c.conversion *
+    12 *
+    c.frequency *
+    c.deal;
+
+
+  /* +2 percentage points */
+  const conversionScenario =
+    c.leads *
+    c.contact *
+    Math.min(1,c.conversion + 0.02) *
+    12 *
+    c.frequency *
+    c.deal;
+
+
+  /* +10% deal */
+  const dealScenario =
+    c.leads *
+    c.contact *
+    c.conversion *
+    12 *
+    c.frequency *
+    (c.deal * 1.10);
+
+
+  /* +20% leads */
+  const leadScenario =
+    (c.leads * 1.20) *
+    c.contact *
+    c.conversion *
+    12 *
+    c.frequency *
+    c.deal;
+
+
+  return {
+    base,
+    conversionScenario,
+    dealScenario,
+    leadScenario,
+
+    conversionImpact:
+      conversionScenario - base,
+
+    dealImpact:
+      dealScenario - base,
+
+    leadImpact:
+      leadScenario - base
+  };
+}
+
+
+function updateLevers(){
+
+  const l = calculateLevers();
+
+  setText("base-revenue",money(l.base));
+
+  setText("conv-revenue",money(l.conversionScenario));
+  setText("deal-revenue",money(l.dealScenario));
+  setText("lead-revenue",money(l.leadScenario));
+
+  setText("conv-impact",money(l.conversionImpact));
+  setText("deal-impact",money(l.dealImpact));
+  setText("lead-impact",money(l.leadImpact));
+
+  const convGrowth =
+    l.base > 0 ?
+    l.conversionImpact / l.base * 100 :
+    0;
+
+  const dealGrowth =
+    l.base > 0 ?
+    l.dealImpact / l.base * 100 :
+    0;
+
+  const leadGrowth =
+    l.base > 0 ?
+    l.leadImpact / l.base * 100 :
+    0;
+
+  setText("conv-growth",percent(convGrowth) + " رشد");
+  setText("deal-growth",percent(dealGrowth) + " رشد");
+  setText("lead-growth",percent(leadGrowth) + " رشد");
+
+
+  const impacts = [
+    l.conversionImpact,
+    l.dealImpact,
+    l.leadImpact
+  ];
+
+  const maxImpact = Math.max(...impacts,1);
+
+
+  document.getElementById("chart-conv").style.height =
+    Math.max(5,(l.conversionImpact/maxImpact)*100) + "%";
+
+  document.getElementById("chart-deal").style.height =
+    Math.max(5,(l.dealImpact/maxImpact)*100) + "%";
+
+  document.getElementById("chart-lead").style.height =
+    Math.max(5,(l.leadImpact/maxImpact)*100) + "%";
+
+
+  setText("chart-conv-value",money(l.conversionImpact));
+  setText("chart-deal-value",money(l.dealImpact));
+  setText("chart-lead-value",money(l.leadImpact));
+
+
+  document.getElementById("lever-conv").classList.remove("winner");
+  document.getElementById("lever-deal").classList.remove("winner");
+  document.getElementById("lever-leads").classList.remove("winner");
+
+
+  const maxIndex =
+    impacts.indexOf(Math.max(...impacts));
+
+
+  let winner = "";
+
+  if(maxIndex === 0){
+    winner = "افزایش نرخ تبدیل +۲ واحد درصد";
+    document.getElementById("lever-conv").classList.add("winner");
+  }
+
+  if(maxIndex === 1){
+    winner = "افزایش ارزش معامله +۱۰٪";
+    document.getElementById("lever-deal").classList.add("winner");
+  }
+
+  if(maxIndex === 2){
+    winner = "افزایش لید +۲۰٪";
+    document.getElementById("lever-leads").classList.add("winner");
+  }
+
+  setText("winner",winner);
+}
+
+
+/* =========================================================
+   REVERSE ENGINEERING
+========================================================= */
+
+function syncReverse(){
+
+  setInput("rdeal",num("deal"));
+  setInput("rfreq",num("frequency"));
+  setInput("rconv",num("conversion"));
+  setInput("rcontact",num("contact"));
+
+  calculateReverse();
+}
+
+
+function calculateReverse(){
+
+  const target =
+    num("target");
+
+  const deal =
+    num("deal");
+
+  const frequency =
+    num("frequency");
+
+  const conversion =
+    num("conversion") / 100;
+
+  const contact =
+    num("contact") / 100;
+
+
+  if(
+    target <= 0 ||
+    deal <= 0 ||
+    frequency <= 0 ||
+    conversion <= 0 ||
+    contact <= 0
+  ){
+
+    setText("reverse-customers","۰");
+    setText("reverse-contacts","۰");
+    setText("reverse-leads","۰");
+    setText("reverse-month","۰");
+    setText("reverse-week","۰");
+    setText("reverse-target-display",money(target));
+
+    setText(
+      "reverse-statement",
+      "برای محاسبه مهندسی معکوس، همه فرضیات باید بزرگ‌تر از صفر باشند."
+    );
+
+    return;
+  }
+
+
+  const customers =
+    target /
+    (deal * frequency);
+
+  const contacts =
+    customers /
+    conversion;
+
+  const leads =
+    contacts /
+    contact;
+
+  const month =
+    leads / 12;
+
+  const week =
+    leads / 52;
+
+
+  setText("reverse-customers",number(customers));
+  setText("reverse-contacts",number(contacts));
+  setText("reverse-leads",number(leads));
+  setText("reverse-month",number(month));
+  setText("reverse-week",number(week));
+  setText("reverse-target-display",money(target));
+
+
+  const warning =
+    document.getElementById("reverse-warning");
+
+
+  if(week > 1000){
+
+    warning.className = "info red";
+
+    warning.textContent =
+      "هشدار: مدل برای رسیدن به هدف به بیش از ۱۰۰۰ لید در هفته نیاز دارد. قبل از افزایش حجم، اهرم‌های تبدیل، ارزش معامله و ارتباط را بررسی کن.";
+
+  }else{
+
+    warning.className = "info green";
+
+    warning.textContent =
+      "با فرضیات فعلی، مدل قابل محاسبه است. عدد لید هفتگی را با ظرفیت واقعی سیستم مقایسه کن.";
+
+  }
+
+
+  setText(
+    "reverse-statement",
+
+    "برای رسیدن به درآمد هدف " +
+    money(target) +
+    "، با فرض " +
+    money(deal) +
+    " ارزش متوسط معامله، " +
+    number(frequency) +
+    " تراکنش در سال برای هر مشتری، " +
+    percent(contact*100) +
+    " نرخ ارتباط و " +
+    percent(conversion*100) +
+    " نرخ تبدیل، به حدود " +
+    number(leads) +
+    " لید سالانه نیاز دارم؛ بنابراین باید اهرم اصلی ۳۰ روز آینده را از بین اهرم‌های رشد انتخاب و روی آن اقدام کنم."
+  );
+}
+
+
+/* =========================================================
+   SURVIVAL
+========================================================= */
+
+function calculateSurvival(){
+
+  const rent = num("surv-rent");
+  const food = num("surv-food");
+  const health = num("surv-health");
+  const staff = num("surv-staff");
+  const bills = num("surv-bills");
+  const cash = num("surv-cash");
+
+
+  const burnMonth =
+    rent +
+    food +
+    health +
+    staff +
+    bills;
+
+  const burnDay =
+    burnMonth / 30;
+
+  const bufferNeeded =
+    burnMonth * 6;
+
+  const bufferMonths =
+    burnMonth > 0 ?
+    cash / burnMonth :
+    0;
+
+  const progress =
+    bufferNeeded > 0 ?
+    clamp((cash / bufferNeeded) * 100,0,100) :
+    0;
+
+
+  setText("out-burn-month",money(burnMonth));
+  setText("out-burn-day",money(burnDay));
+  setText("out-buffer-needed",money(bufferNeeded));
+  setText("out-buffer-months",number(bufferMonths));
+
+  setText("buffer-current",money(cash));
+  setText("buffer-goal",money(bufferNeeded));
+
+  document.getElementById("buffer-progress").style.width =
+    progress + "%";
+
+  setText(
+    "buffer-progress-text",
+    percent(progress) +
+    " از ذخیره هدف ۶ ماهه ساخته شده است."
+  );
+
+
+  const warning =
+    document.getElementById("survival-warning");
+
+
+  if(burnMonth <= 0){
+
+    warning.className = "info blue";
+
+    warning.textContent =
+      "هزینه‌های ضروری ماهانه هنوز وارد نشده‌اند.";
+
+  }else if(cash < burnMonth){
+
+    warning.className = "info red";
+
+    warning.textContent =
+      "نقدینگی فعلی کمتر از یک ماه هزینه ضروری است. اولویت، ساخت حاشیه امن نقدی است.";
+
+  }else if(bufferMonths < 3){
+
+    warning.className = "info gold";
+
+    warning.textContent =
+      "حاشیه امن فعلی کمتر از ۳ ماه است. ساخت ذخیره نقدی را در اولویت قرار بده.";
+
+  }else if(bufferMonths < 6){
+
+    warning.className = "info gold";
+
+    warning.textContent =
+      "سیستم بیش از ۳ ماه دوام دارد، اما هنوز به ذخیره ۶ ماهه نرسیده است.";
+
+  }else{
+
+    warning.className = "info green";
+
+    warning.textContent =
+      "ذخیره نقدی فعلی به حداقل ۶ ماه هزینه ضروری رسیده است.";
+
+  }
+
+}
+
+
+/* =========================================================
+   DASHBOARD
+========================================================= */
+
+function updateDashboard(){
+
+  const r = calculateEngine();
+  const l = calculateLevers();
+
+  const target =
+    num("target");
+
+
+  setText("dash-current",money(r.annualRevenue));
+  setText("dash-profit",money(r.grossProfit));
+  setText("dash-customers",number(r.customers));
+  setText("dash-target",money(target));
+
+
+  const gap =
+    target - r.annualRevenue;
+
+
+  if(gap > 0){
+
+    setText(
+      "dash-gap",
+      money(gap) + " باقی‌مانده"
+    );
+
+  }else{
+
+    setText(
+      "dash-gap",
+      money(Math.abs(gap)) + " بالاتر از هدف"
+    );
+
+  }
+
+
+  const progress =
+    target > 0 ?
+    clamp((r.annualRevenue / target) * 100,0,100) :
+    0;
+
+
+  setText("dash-progress",percent(progress));
+
+  document.getElementById("dash-progress-bar").style.width =
+    progress + "%";
+
+
+  const impacts = [
+    l.conversionImpact,
+    l.dealImpact,
+    l.leadImpact
+  ];
+
+  const maxImpact =
+    Math.max(...impacts,1);
+
+
+  document.getElementById("dash-bar-conv").style.height =
+    Math.max(5,l.conversionImpact/maxImpact*100) + "%";
+
+  document.getElementById("dash-bar-deal").style.height =
+    Math.max(5,l.dealImpact/maxImpact*100) + "%";
+
+  document.getElementById("dash-bar-leads").style.height =
+    Math.max(5,l.leadImpact/maxImpact*100) + "%";
+
+
+  setText("dash-bar-conv-value",money(l.conversionImpact));
+  setText("dash-bar-deal-value",money(l.dealImpact));
+  setText("dash-bar-leads-value",money(l.leadImpact));
+
+
+  const maxIndex =
+    impacts.indexOf(Math.max(...impacts));
+
+
+  let winner = "";
+
+  if(maxIndex === 0)
+    winner = "افزایش نرخ تبدیل +۲ واحد درصد";
+
+  if(maxIndex === 1)
+    winner = "افزایش ارزش معامله +۱۰٪";
+
+  if(maxIndex === 2)
+    winner = "افزایش لید +۲۰٪";
+
+
+  setText("dash-winner",winner);
+
+
+  const savedAction =
+    state.decision.action ||
+    "هنوز اقدامی ثبت نشده است.";
+
+  setText("dash-action",savedAction);
+
+
+  /* Manifesto */
+
+  const deal = num("deal");
+  const freq = num("frequency");
+  const conv = num("conversion");
+  const contact = num("contact");
+
+  if(
+    target > 0 &&
+    deal > 0 &&
+    freq > 0 &&
+    conv > 0 &&
+    contact > 0
+  ){
+
+    const requiredCustomers =
+      target / (deal * freq);
+
+    const requiredContacts =
+      requiredCustomers / (conv/100);
+
+    const requiredLeads =
+      requiredContacts / (contact/100);
+
+
+    setText(
+      "manifesto",
+
+      "برای رسیدن به درآمد هدف " +
+      money(target) +
+      "، با فرض " +
+      money(deal) +
+      " ارزش متوسط معامله، " +
+      number(freq) +
+      " تراکنش در سال، " +
+      percent(contact) +
+      " نرخ ارتباط و " +
+      percent(conv) +
+      " نرخ تبدیل، به حدود " +
+      number(requiredLeads) +
+      " لید سالانه نیاز دارم."
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   MINE
+========================================================= */
+
+function updateMine(){
+
+  const c = getCore();
+  const r = calculateEngine();
+  const l = calculateLevers();
+
+  setText("mine-leads",number(c.leads));
+  setText("mine-contact",percent(c.contact*100));
+  setText("mine-conversion",percent(c.conversion*100));
+  setText("mine-deal",money(c.deal));
+  setText("mine-frequency",number(c.frequency));
+  setText("mine-margin",percent(c.margin*100));
+
+  setText("mine-annual",money(r.annualRevenue));
+  setText("mine-profit",money(r.grossProfit));
+  setText("mine-buyers",number(r.customers));
+
+
+  const impacts = [
+    l.conversionImpact,
+    l.dealImpact,
+    l.leadImpact
+  ];
+
+  const maxIndex =
+    impacts.indexOf(Math.max(...impacts));
+
+
+  let winner = "";
+
+  if(maxIndex === 0)
+    winner = "افزایش نرخ تبدیل +۲ واحد درصد";
+
+  if(maxIndex === 1)
+    winner = "افزایش ارزش معامله +۱۰٪";
+
+  if(maxIndex === 2)
+    winner = "افزایش لید +۲۰٪";
+
+
+  setText("mine-winner",winner);
+
+
+  const target = num("target");
+
+  if(
+    target > 0 &&
+    c.deal > 0 &&
+    c.frequency > 0 &&
+    c.conversion > 0 &&
+    c.contact > 0
+  ){
+
+    const customers =
+      target / (c.deal*c.frequency);
+
+    const contacts =
+      customers / c.conversion;
+
+    const leads =
+      contacts / c.contact;
+
+
+    setText(
+      "manifesto",
+
+      "برای رسیدن به درآمد هدف " +
+      money(target) +
+      "، با فرض " +
+      money(c.deal) +
+      " ارزش متوسط معامله، " +
+      number(c.frequency) +
+      " تراکنش در سال، " +
+      percent(c.contact*100) +
+      " نرخ ارتباط و " +
+      percent(c.conversion*100) +
+      " نرخ تبدیل، به حدود " +
+      number(leads) +
+      " لید سالانه نیاز دارم."
+    );
+
+  }
+
+
+  setText(
+    "mine-action",
+    state.decision.action || "هنوز اقدامی ثبت نشده است."
+  );
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+function showView(view){
+
+  document.querySelectorAll(".view")
+    .forEach(v => v.classList.remove("active"));
+
+  const target =
+    document.getElementById("view-" + view);
+
+  if(target)
+    target.classList.add("active");
+
+
+  document.querySelectorAll(".nav-btn")
+    .forEach(btn => {
+
+      btn.classList.toggle(
+        "active",
+        btn.dataset.view === view
+      );
+
+    });
+
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+
+
+  if(view === "reverse")
+    calculateReverse();
+
+  if(view === "dashboard")
+    updateDashboard();
+
+  if(view === "mine")
+    updateMine();
+
+  if(view === "survival")
+    updateSurvival();
+}
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+function resetAll(){
+
+  if(!confirm("همه اطلاعات این ابزار به مقادیر اولیه برگردد؟"))
+    return;
+
+
+  localStorage.removeItem(STORAGE_KEY);
+
+  state = {
+    core:{
+      leads:1000,
+      contact:80,
+      conversion:5,
+      deal:10000000,
+      frequency:3,
+      margin:40,
+      target:2000000000
+    },
+
+    survival:{
+      rent:0,
+      food:0,
+      health:0,
+      staff:0,
+      bills:0,
+      cash:0
+    },
+
+    decision:{
+      lever:"",
+      reason:"",
+      current:"",
+      goal:"",
+      action:"",
+      start:"",
+      review:""
+    },
+
+    personal:{
+      commitment:"",
+      signature:"",
+      date:""
+    }
+  };
+
+
+  loadState();
+  calculateAll();
+  calculateReverse();
+
+  alert("اطلاعات به حالت اولیه برگشت.");
+}
+
+
+/* =========================================================
+   SURVIVAL WRAPPER
+========================================================= */
+
+function updateSurvival(){
+
+  const values = [
+    "surv-rent",
+    "surv-food",
+    "surv-health",
+    "surv-staff",
+    "surv-bills",
+    "surv-cash"
+  ];
+
+  values.forEach(id => {
+
+    const el = document.getElementById(id);
+
+    if(el){
+      el.oninput = function(){
+
+        calculateSurvival();
+
+        state.survival.rent = num("surv-rent");
+        state.survival.food = num("surv-food");
+        state.survival.health = num("surv-health");
+        state.survival.staff = num("surv-staff");
+        state.survival.bills = num("surv-bills");
+        state.survival.cash = num("surv-cash");
+
+        try{
+          localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify(state)
+          );
+        }catch(e){}
+
+      };
+    }
+
+  });
+
+  calculateSurvival();
+}
+
+
+/* =========================================================
+   AUTO SAVE INPUTS
+========================================================= */
+
+function attachAutoSave(){
+
+  const ids = [
+    "leads",
+    "contact",
+    "conversion",
+    "deal",
+    "frequency",
+    "margin",
+    "target"
+  ];
+
+
+  ids.forEach(id => {
+
+    const el =
+      document.getElementById(id);
+
+    if(!el) return;
+
+    el.addEventListener("input",function(){
+
+      state.core.leads = num("leads");
+      state.core.contact = num("contact");
+      state.core.conversion = num("conversion");
+      state.core.deal = num("deal");
+      state.core.frequency = num("frequency");
+      state.core.margin = num("margin");
+      state.core.target = num("target");
+
+      try{
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify(state)
+        );
+      }catch(e){}
+
+
+      calculateAll();
+
+    });
+
+  });
+
+}
+
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+document.addEventListener("DOMContentLoaded",function(){
+
+  /* بررسی دسترسی دانشجو */
+  checkStudentAccess();
+
+  loadState();
+
+  attachAutoSave();
+
+  updateSurvival();
+
+  calculateAll();
+
+  calculateReverse();
+
+  updateLevers();
+
+  updateDashboard();
+
+  updateMine();
+
+
+  /* Default signature date */
+
+  const dateInput =
+    document.getElementById("signature-date");
+
+  if(
+    dateInput &&
+    !dateInput.value
+  ){
+
+    const today =
+      new Date()
+        .toISOString()
+        .split("T")[0];
+
+    dateInput.value = today;
+
+  }
+
+
+  /* Default decision start */
+
+  const startInput =
+    document.getElementById("decision-start");
+
+  if(
+    startInput &&
+    !startInput.value
+  ){
+
+    const today =
+      new Date()
+        .toISOString()
+        .split("T")[0];
+
+    startInput.value = today;
+
+  }
+
+
+  /* Default review = 30 days */
+
+  const reviewInput =
+    document.getElementById("decision-review");
+
+  if(
+    reviewInput &&
+    !reviewInput.value
+  ){
+
+    const date = new Date();
+
+    date.setDate(
+      date.getDate() + 30
+    );
+
+    reviewInput.value =
+      date.toISOString().split("T")[0];
+
+  }
+
+});
+</script>
+
+</body>
+</html>

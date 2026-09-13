@@ -1559,51 +1559,50 @@ const supabaseClient =
 ========================================================= */
 
 let currentStudent = null;
-let currentSession = null;
+let currentStudentCode = null;
 
 
 /* =========================================================
-   STUDENT LOGIN
+   STUDENT LOGIN / API
 ========================================================= */
+
+async function callStudentAPI(body){
+
+  const response = await fetch(
+    SUPABASE_FUNCTION_URL,
+    {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify(body)
+    }
+  );
+
+  let result = null;
+
+  try{
+    result = await response.json();
+  }catch(error){
+    throw new Error("پاسخ معتبر از سرور دریافت نشد.");
+  }
+
+  if(!response.ok || !result.success){
+    throw new Error(
+      result?.error || "عملیات انجام نشد."
+    );
+  }
+
+  return result;
+}
+
 
 async function loginStudent(code){
 
-  const response =
-    await fetch(
-      SUPABASE_FUNCTION_URL,
-      {
-        method:"POST",
-
-        headers:{
-          "Content-Type":"application/json"
-        },
-
-        body:JSON.stringify({
-          student_code:String(code).trim()
-        })
-      }
-    );
-
-
-  const result =
-    await response.json();
-
-
-  if(
-    !response.ok ||
-    !result.success
-  ){
-
-    throw new Error(
-      result.error ||
-      "ورود انجام نشد"
-    );
-
-  }
-
-
-  return result;
-
+  return await callStudentAPI({
+    action:"login",
+    student_code:String(code).trim()
+  });
 }
 
 
@@ -1625,112 +1624,51 @@ async function checkStudentCode(){
   const code =
     input.value.trim();
 
-
   if(!code){
-
     error.textContent =
       "لطفاً کد دسترسی را وارد کنید.";
-
     return;
-
   }
-
 
   error.textContent = "";
 
-
   if(button){
-
     button.disabled = true;
-
-    button.textContent =
-      "در حال ورود...";
-
+    button.textContent = "در حال ورود...";
   }
-
 
   try{
 
     const result =
       await loginStudent(code);
 
-
-    if(!result.session){
-
-      throw new Error(
-        result.error ||
-        "نشست ورود دریافت نشد."
-      );
-
-    }
-
-
-    currentStudent =
-      result.student;
-
-    currentSession =
-      result.session;
-
-
-    const {
-      data:authData,
-      error:authError
-    } =
-      await supabaseClient.auth.setSession({
-
-        access_token:
-          result.session.access_token,
-
-        refresh_token:
-          result.session.refresh_token
-
-      });
-
-
-    if(authError){
-
-      throw authError;
-
-    }
-
-
-    currentSession =
-      authData.session ||
-      result.session;
-
+    currentStudent = result.student;
+    currentStudentCode = String(code).trim();
 
     localStorage.setItem(
-      "student_session",
-      JSON.stringify(currentSession)
+      "student_code",
+      currentStudentCode
     );
-
 
     localStorage.setItem(
       "student_info",
       JSON.stringify(result.student)
     );
 
-
     document.getElementById(
       "student-login"
     ).style.display = "none";
 
-
     error.textContent = "";
-
     input.value = "";
 
-
     await loadState();
-
     calculateAll();
-
 
     console.log(
       "Student login successful:",
       result.student
     );
-
 
   }catch(errorObject){
 
@@ -1739,111 +1677,81 @@ async function checkStudentCode(){
       errorObject
     );
 
-
     error.textContent =
       errorObject.message ||
       "ورود انجام نشد. دوباره تلاش کنید.";
 
-
     input.value = "";
-
     input.focus();
-
 
   }finally{
 
     if(button){
-
       button.disabled = false;
-
-      button.textContent =
-        "ورود به سیستم";
-
+      button.textContent = "ورود به سیستم";
     }
-
   }
-
 }
 
 
 /* =========================================================
-   CHECK EXISTING SESSION
+   CHECK EXISTING STUDENT ACCESS
 ========================================================= */
 
-function checkStudentAccess(){
+async function checkStudentAccess(){
 
   try{
 
-    const savedSession =
-      localStorage.getItem(
-        "student_session"
-      );
-
+    const savedCode =
+      localStorage.getItem("student_code");
 
     const savedStudent =
-      localStorage.getItem(
-        "student_info"
+      localStorage.getItem("student_info");
+
+    if(savedCode){
+
+      const result =
+        await loginStudent(savedCode);
+
+      currentStudentCode = savedCode;
+      currentStudent = result.student;
+
+      localStorage.setItem(
+        "student_info",
+        JSON.stringify(result.student)
       );
 
+      document.getElementById(
+        "student-login"
+      ).style.display = "none";
 
-    if(
-      savedSession &&
-      savedStudent
-    ){
+      return true;
+    }
 
-      const parsedSession =
-        JSON.parse(savedSession);
-
-      const parsedStudent =
-        JSON.parse(savedStudent);
-
-
-      if(
-        parsedSession &&
-        parsedSession.expires_at &&
-        Date.now() / 1000 <
-        parsedSession.expires_at
-      ){
-
-        currentSession =
-          parsedSession;
-
-        currentStudent =
-          parsedStudent;
-
-
-        document.getElementById(
-          "student-login"
-        ).style.display = "none";
-
-
-        return true;
-
-      }
-
+    if(savedStudent){
+      localStorage.removeItem("student_info");
     }
 
   }catch(error){
 
-    console.error(
-      "Session check error:",
+    console.warn(
+      "Saved student access is no longer valid:",
       error
     );
 
   }
 
-
-  currentSession = null;
+  currentStudentCode = null;
   currentStudent = null;
 
+  localStorage.removeItem("student_code");
+  localStorage.removeItem("student_info");
 
   document.getElementById(
     "student-login"
   ).style.display = "flex";
 
-
   return false;
-
 }
 
 
@@ -1853,54 +1761,23 @@ function checkStudentAccess(){
 
 async function logoutStudent(){
 
-  try{
+  localStorage.removeItem("student_code");
+  localStorage.removeItem("student_info");
 
-    await supabaseClient.auth.signOut();
-
-  }catch(error){
-
-    console.error(
-      "Supabase logout error:",
-      error
-    );
-
-  }
-
-
-  localStorage.removeItem(
-    "student_session"
-  );
-
-
-  localStorage.removeItem(
-    "student_info"
-  );
-
-
-  currentSession = null;
-
+  currentStudentCode = null;
   currentStudent = null;
-
 
   document.getElementById(
     "student-login"
   ).style.display = "flex";
 
-
   const input =
-    document.getElementById(
-      "student-code"
-    );
-
+    document.getElementById("student-code");
 
   if(input){
-
     input.value = "";
-
     input.focus();
-
   }
-
 }
 
 
@@ -2196,114 +2073,39 @@ async function saveState(){
 
   collectStateFromInputs();
 
-
-  if(!currentStudent){
+  if(!currentStudent || !currentStudentCode){
     return;
   }
-
-
-  if(!currentSession){
-    return;
-  }
-
 
   clearTimeout(saveTimer);
 
+  saveTimer = setTimeout(async function(){
 
-  saveTimer =
-    setTimeout(
-      async function(){
+    try{
 
-        try{
+      const payload = {
+        action:"save",
+        student_code:currentStudentCode,
+        student_id:currentStudent.id,
+        personal_data:state.personal,
+        decision_data:state.decision,
+        survival_data:state.survival,
+        core_data:state.core
+      };
 
-          const {
-            data:sessionData
-          } =
-            await supabaseClient.auth.getSession();
+      await callStudentAPI(payload);
 
+      console.log("Student data saved to Supabase.");
 
-          const session =
-            sessionData?.session;
+    }catch(error){
 
+      console.error(
+        "Supabase save error:",
+        error
+      );
+    }
 
-          if(!session){
-
-            console.warn(
-              "No authenticated Supabase session."
-            );
-
-            return;
-
-          }
-
-
-          const studentId =
-            currentStudent.id;
-
-
-          const payload = {
-
-            student_id:
-              studentId,
-
-            personal_data:
-              state.personal,
-
-            decision_data:
-              state.decision,
-
-            survival_data:
-              state.survival,
-
-            core_data:
-              state.core
-
-          };
-
-
-          const {
-            error
-          } =
-            await supabaseClient
-              .from("student_data")
-              .upsert(
-                payload,
-                {
-                  onConflict:"student_id"
-                }
-              );
-
-
-          if(error){
-
-            console.error(
-              "Supabase save error:",
-              error
-            );
-
-            return;
-
-          }
-
-
-          console.log(
-            "Student data saved to Supabase."
-          );
-
-
-        }catch(error){
-
-          console.error(
-            "Save state error:",
-            error
-          );
-
-        }
-
-      },
-      700
-    );
-
+  },700);
 }
 
 
@@ -2407,81 +2209,50 @@ function savePersonal(){
 
 async function loadState(){
 
+  if(!currentStudent || !currentStudentCode){
+    return;
+  }
+
   try{
 
-    if(!currentStudent){
-      return;
-    }
+    const result = await callStudentAPI({
+      action:"load",
+      student_code:currentStudentCode,
+      student_id:currentStudent.id
+    });
 
-
-    const {
-      data,
-      error
-    } =
-      await supabaseClient
-        .from("student_data")
-        .select(
-          "personal_data, decision_data, survival_data, core_data"
-        )
-        .eq(
-          "student_id",
-          currentStudent.id
-        )
-        .maybeSingle();
-
-
-    if(error){
-
-      console.error(
-        "Supabase load error:",
-        error
-      );
-
-      return;
-
-    }
-
+    const data = result.data;
 
     if(data){
 
       state = {
-
         ...state,
-
         core:{
           ...state.core,
           ...(data.core_data || {})
         },
-
         survival:{
           ...state.survival,
           ...(data.survival_data || {})
         },
-
         decision:{
           ...state.decision,
           ...(data.decision_data || {})
         },
-
         personal:{
           ...state.personal,
           ...(data.personal_data || {})
         }
-
       };
-
     }
-
 
   }catch(error){
 
     console.error(
-      "Could not load student state:",
+      "Supabase load error:",
       error
     );
-
   }
-
 
   setInput("leads",state.core.leads);
   setInput("contact",state.core.contact);
@@ -2509,7 +2280,6 @@ async function loadState(){
   setInput("commitment",state.personal.commitment);
   setInput("signature",state.personal.signature);
   setInput("signature-date",state.personal.date);
-
 }
 
 
@@ -3588,7 +3358,7 @@ async function resetAll(){
   };
 
 
-  loadState();
+  saveState();
 
   calculateAll();
 
@@ -3753,7 +3523,7 @@ document.addEventListener(
   async function(){
 
     const loggedIn =
-      checkStudentAccess();
+      await checkStudentAccess();
 
 
     attachAutoSave();
@@ -3862,3 +3632,4 @@ document.addEventListener(
 
 </body>
 </html>
+

@@ -620,7 +620,9 @@ hr{
 </style>
 </head>
 
-<body><!-- =========================================================
+<body>
+
+<!-- =========================================================
      STUDENT ACCESS
 ========================================================= -->
 
@@ -1593,40 +1595,39 @@ hr{
 
 
 <script>
+
 /* =========================================================
-   GLOBAL STATE
+   GLOBAL CONFIG
 ========================================================= */
 
 const STORAGE_KEY = "yek_darsadi_wealth_os_v1";
+
+const SUPABASE_FUNCTION_URL =
+  "https://jugyqccamnfwrtbwmlmy.supabase.co/functions/v1/student-login";
+
+
 /* =========================================================
    STUDENT ACCESS
 ========================================================= */
 
-/*
-  کدهای اختصاصی دانشجویان
-
-  فرمت:
-  "کد": "نام دانشجو"
-*/
-
-const STUDENT_CODES = {
-
-  "741258": "دانشجو ۱",
-  "583214": "دانشجو ۲",
-  "926431": "دانشجو ۳",
-  "314725": "دانشجو ۴",
-  "864193": "دانشجو ۵"
-
-};
+let currentStudent = null;
+let currentSession = null;
 
 
-function checkStudentCode(){
+/* =========================================================
+   STUDENT LOGIN
+========================================================= */
+
+async function checkStudentCode(){
 
   const input =
     document.getElementById("student-code");
 
   const error =
     document.getElementById("login-error");
+
+  const button =
+    document.querySelector("#student-login button");
 
   const code =
     input.value.trim();
@@ -1641,16 +1642,93 @@ function checkStudentCode(){
   }
 
 
-  if(STUDENT_CODES[code]){
+  error.textContent = "";
 
-    /* ذخیره ورود روی همین دستگاه */
+
+  if(button){
+
+    button.disabled = true;
+
+    button.textContent =
+      "در حال ورود...";
+
+  }
+
+
+  try{
+
+    const response =
+      await fetch(
+        SUPABASE_FUNCTION_URL,
+        {
+          method:"POST",
+
+          headers:{
+            "Content-Type":"application/json"
+          },
+
+          body:JSON.stringify({
+            student_code:code
+          })
+        }
+      );
+
+
+    let result = {};
+
+    try{
+
+      result =
+        await response.json();
+
+    }catch(e){
+
+      result = {};
+
+    }
+
+
+    if(
+      !response.ok ||
+      !result.success ||
+      !result.session
+    ){
+
+      throw new Error(
+        result.error ||
+        "ورود انجام نشد."
+      );
+
+    }
+
+
+    currentStudent =
+      result.student;
+
+    currentSession =
+      result.session;
+
+
+    /*
+      ذخیره نشست ورود
+    */
+
     localStorage.setItem(
-      "student_access_code",
-      code
+      "student_session",
+      JSON.stringify(result.session)
     );
 
 
-    /* بستن صفحه ورود */
+    localStorage.setItem(
+      "student_info",
+      JSON.stringify(result.student)
+    );
+
+
+    /*
+      صفحه ورود بسته می‌شود
+    */
+
     document.getElementById(
       "student-login"
     ).style.display = "none";
@@ -1658,47 +1736,171 @@ function checkStudentCode(){
 
     error.textContent = "";
 
-  }else{
+
+    /*
+      پاک کردن کد از صفحه
+    */
+
+    input.value = "";
+
+
+    /*
+      بارگذاری اطلاعات فعلی ابزار
+    */
+
+    loadState();
+
+    calculateAll();
+
+
+    console.log(
+      "Student login successful:",
+      result.student
+    );
+
+
+  }catch(errorObject){
+
+    console.error(
+      "Student login error:",
+      errorObject
+    );
+
 
     error.textContent =
-      "کد واردشده صحیح نیست.";
+      errorObject.message ||
+      "ورود انجام نشد. دوباره تلاش کنید.";
+
 
     input.value = "";
 
     input.focus();
 
+
+  }finally{
+
+    if(button){
+
+      button.disabled = false;
+
+      button.textContent =
+        "ورود به سیستم";
+
+    }
+
   }
 
 }
 
+
+/* =========================================================
+   CHECK EXISTING SESSION
+========================================================= */
 
 function checkStudentAccess(){
 
-  const savedCode =
-    localStorage.getItem(
-      "student_access_code"
+  try{
+
+    const savedSession =
+      localStorage.getItem(
+        "student_session"
+      );
+
+
+    const savedStudent =
+      localStorage.getItem(
+        "student_info"
+      );
+
+
+    if(
+      savedSession &&
+      savedStudent
+    ){
+
+      const parsedSession =
+        JSON.parse(savedSession);
+
+      const parsedStudent =
+        JSON.parse(savedStudent);
+
+
+      /*
+        بررسی انقضای نشست
+      */
+
+      if(
+        parsedSession &&
+        parsedSession.expires_at &&
+        Date.now() / 1000 <
+        parsedSession.expires_at
+      ){
+
+        currentSession =
+          parsedSession;
+
+        currentStudent =
+          parsedStudent;
+
+
+        document.getElementById(
+          "student-login"
+        ).style.display = "none";
+
+
+        return true;
+
+      }
+
+    }
+
+  }catch(error){
+
+    console.error(
+      "Session check error:",
+      error
     );
-
-
-  if(
-    savedCode &&
-    STUDENT_CODES[savedCode]
-  ){
-
-    document.getElementById(
-      "student-login"
-    ).style.display = "none";
 
   }
 
+
+  /*
+    نشست معتبر وجود ندارد
+  */
+
+  currentSession = null;
+  currentStudent = null;
+
+
+  document.getElementById(
+    "student-login"
+  ).style.display = "flex";
+
+
+  return false;
+
 }
 
+
+/* =========================================================
+   LOGOUT
+========================================================= */
 
 function logoutStudent(){
 
   localStorage.removeItem(
-    "student_access_code"
+    "student_session"
   );
+
+
+  localStorage.removeItem(
+    "student_info"
+  );
+
+
+  currentSession = null;
+
+  currentStudent = null;
 
 
   document.getElementById(
@@ -1707,7 +1909,10 @@ function logoutStudent(){
 
 
   const input =
-    document.getElementById("student-code");
+    document.getElementById(
+      "student-code"
+    );
+
 
   if(input){
 
@@ -1720,52 +1925,125 @@ function logoutStudent(){
 }
 
 
-/* نام دانشجو */
+/* =========================================================
+   STUDENT NAME
+========================================================= */
+
 function getStudentName(){
 
-  const code =
-    localStorage.getItem(
-      "student_access_code"
+  if(
+    currentStudent &&
+    currentStudent.name
+  ){
+
+    return currentStudent.name;
+
+  }
+
+
+  try{
+
+    const savedStudent =
+      localStorage.getItem(
+        "student_info"
+      );
+
+
+    if(savedStudent){
+
+      const student =
+        JSON.parse(savedStudent);
+
+      return student.name || "";
+
+    }
+
+  }catch(error){
+
+    console.error(
+      "Student info error:",
+      error
     );
 
-  return STUDENT_CODES[code] || "";
+  }
+
+
+  return "";
 
 }
+
+
+/* =========================================================
+   GLOBAL STATE
+========================================================= */
+
 let state = {
+
   core: {
+
     leads: 1000,
+
     contact: 80,
+
     conversion: 5,
+
     deal: 10000000,
+
     frequency: 3,
+
     margin: 40,
+
     target: 2000000000
+
   },
+
 
   survival: {
+
     rent: 0,
+
     food: 0,
+
     health: 0,
+
     staff: 0,
+
     bills: 0,
+
     cash: 0
+
   },
+
 
   decision: {
+
     lever: "",
+
     reason: "",
+
     current: "",
+
     goal: "",
+
     action: "",
+
     start: "",
+
     review: ""
+
   },
 
+
   personal: {
+
     commitment: "",
+
     signature: "",
+
     date: ""
+
   }
+
 };
 
 
@@ -1774,45 +2052,93 @@ let state = {
 ========================================================= */
 
 function num(id){
-  const el = document.getElementById(id);
-  if(!el) return 0;
 
-  const value = parseFloat(el.value);
+  const el =
+    document.getElementById(id);
 
-  return Number.isFinite(value) ? value : 0;
+
+  if(!el)
+    return 0;
+
+
+  const value =
+    parseFloat(el.value);
+
+
+  return Number.isFinite(value)
+    ? value
+    : 0;
+
 }
+
 
 function money(value){
-  if(!Number.isFinite(value)) return "۰";
 
-  return new Intl.NumberFormat("fa-IR", {
-    maximumFractionDigits: 0
-  }).format(value);
+  if(!Number.isFinite(value))
+    return "۰";
+
+
+  return new Intl.NumberFormat(
+    "fa-IR",
+    {
+      maximumFractionDigits:0
+    }
+  ).format(value);
+
 }
+
 
 function number(value){
-  if(!Number.isFinite(value)) return "۰";
 
-  return new Intl.NumberFormat("fa-IR", {
-    maximumFractionDigits: 2
-  }).format(value);
+  if(!Number.isFinite(value))
+    return "۰";
+
+
+  return new Intl.NumberFormat(
+    "fa-IR",
+    {
+      maximumFractionDigits:2
+    }
+  ).format(value);
+
 }
+
 
 function percent(value){
-  if(!Number.isFinite(value)) return "۰٪";
 
-  return new Intl.NumberFormat("fa-IR", {
-    maximumFractionDigits: 1
-  }).format(value) + "٪";
+  if(!Number.isFinite(value))
+    return "۰٪";
+
+
+  return new Intl.NumberFormat(
+    "fa-IR",
+    {
+      maximumFractionDigits:1
+    }
+  ).format(value) + "٪";
+
 }
+
 
 function setText(id,value){
-  const el = document.getElementById(id);
-  if(el) el.textContent = value;
+
+  const el =
+    document.getElementById(id);
+
+
+  if(el)
+    el.textContent = value;
+
 }
 
+
 function clamp(value,min,max){
-  return Math.min(Math.max(value,min),max);
+
+  return Math.min(
+    Math.max(value,min),
+    max
+  );
+
 }
 
 
@@ -1822,163 +2148,382 @@ function clamp(value,min,max){
 
 function saveState(){
 
-  state.core.leads = num("leads");
-  state.core.contact = num("contact");
-  state.core.conversion = num("conversion");
-  state.core.deal = num("deal");
-  state.core.frequency = num("frequency");
-  state.core.margin = num("margin");
-  state.core.target = num("target");
+  state.core.leads =
+    num("leads");
 
-  state.survival.rent = num("surv-rent");
-  state.survival.food = num("surv-food");
-  state.survival.health = num("surv-health");
-  state.survival.staff = num("surv-staff");
-  state.survival.bills = num("surv-bills");
-  state.survival.cash = num("surv-cash");
+  state.core.contact =
+    num("contact");
+
+  state.core.conversion =
+    num("conversion");
+
+  state.core.deal =
+    num("deal");
+
+  state.core.frequency =
+    num("frequency");
+
+  state.core.margin =
+    num("margin");
+
+  state.core.target =
+    num("target");
+
+
+  state.survival.rent =
+    num("surv-rent");
+
+  state.survival.food =
+    num("surv-food");
+
+  state.survival.health =
+    num("surv-health");
+
+  state.survival.staff =
+    num("surv-staff");
+
+  state.survival.bills =
+    num("surv-bills");
+
+  state.survival.cash =
+    num("surv-cash");
+
 
   try{
-    localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(state)
+    );
+
   }catch(e){
-    console.log("Storage unavailable");
+
+    console.log(
+      "Storage unavailable"
+    );
+
   }
+
 }
 
+
+/* =========================================================
+   SAVE DECISION
+========================================================= */
 
 function saveDecision(){
 
   state.decision.lever =
-    document.getElementById("decision-lever").value;
+    document.getElementById(
+      "decision-lever"
+    ).value;
+
 
   state.decision.reason =
-    document.getElementById("decision-reason").value;
+    document.getElementById(
+      "decision-reason"
+    ).value;
+
 
   state.decision.current =
-    document.getElementById("decision-current").value;
+    document.getElementById(
+      "decision-current"
+    ).value;
+
 
   state.decision.goal =
-    document.getElementById("decision-goal").value;
+    document.getElementById(
+      "decision-goal"
+    ).value;
+
 
   state.decision.action =
-    document.getElementById("decision-action").value;
+    document.getElementById(
+      "decision-action"
+    ).value;
+
 
   state.decision.start =
-    document.getElementById("decision-start").value;
+    document.getElementById(
+      "decision-start"
+    ).value;
+
 
   state.decision.review =
-    document.getElementById("decision-review").value;
+    document.getElementById(
+      "decision-review"
+    ).value;
+
 
   saveState();
 
   updateDashboard();
 
-  alert("تصمیم ۳۰ روزه ذخیره شد.");
+  alert(
+    "تصمیم ۳۰ روزه ذخیره شد."
+  );
+
 }
 
+
+/* =========================================================
+   SAVE PERSONAL
+========================================================= */
 
 function savePersonal(){
 
   state.personal.commitment =
-    document.getElementById("commitment").value;
+    document.getElementById(
+      "commitment"
+    ).value;
+
 
   state.personal.signature =
-    document.getElementById("signature").value;
+    document.getElementById(
+      "signature"
+    ).value;
+
 
   state.personal.date =
-    document.getElementById("signature-date").value;
+    document.getElementById(
+      "signature-date"
+    ).value;
+
 
   saveState();
 
-  alert("اطلاعات شخصی ذخیره شد.");
+
+  alert(
+    "اطلاعات شخصی ذخیره شد."
+  );
+
 }
 
+
+/* =========================================================
+   LOAD STATE
+========================================================= */
 
 function loadState(){
 
   try{
 
     const saved =
-      localStorage.getItem(STORAGE_KEY);
+      localStorage.getItem(
+        STORAGE_KEY
+      );
+
 
     if(saved){
 
-      const parsed = JSON.parse(saved);
+      const parsed =
+        JSON.parse(saved);
+
 
       state = {
+
         ...state,
+
         ...parsed,
+
+
         core:{
           ...state.core,
           ...(parsed.core || {})
         },
+
+
         survival:{
           ...state.survival,
           ...(parsed.survival || {})
         },
+
+
         decision:{
           ...state.decision,
           ...(parsed.decision || {})
         },
+
+
         personal:{
           ...state.personal,
           ...(parsed.personal || {})
         }
+
       };
 
     }
 
   }catch(e){
-    console.log("Could not load state");
+
+    console.log(
+      "Could not load state"
+    );
+
   }
 
 
   /* CORE */
 
-  setInput("leads",state.core.leads);
-  setInput("contact",state.core.contact);
-  setInput("conversion",state.core.conversion);
-  setInput("deal",state.core.deal);
-  setInput("frequency",state.core.frequency);
-  setInput("margin",state.core.margin);
-  setInput("target",state.core.target);
+  setInput(
+    "leads",
+    state.core.leads
+  );
+
+
+  setInput(
+    "contact",
+    state.core.contact
+  );
+
+
+  setInput(
+    "conversion",
+    state.core.conversion
+  );
+
+
+  setInput(
+    "deal",
+    state.core.deal
+  );
+
+
+  setInput(
+    "frequency",
+    state.core.frequency
+  );
+
+
+  setInput(
+    "margin",
+    state.core.margin
+  );
+
+
+  setInput(
+    "target",
+    state.core.target
+  );
 
 
   /* SURVIVAL */
 
-  setInput("surv-rent",state.survival.rent);
-  setInput("surv-food",state.survival.food);
-  setInput("surv-health",state.survival.health);
-  setInput("surv-staff",state.survival.staff);
-  setInput("surv-bills",state.survival.bills);
-  setInput("surv-cash",state.survival.cash);
+  setInput(
+    "surv-rent",
+    state.survival.rent
+  );
+
+
+  setInput(
+    "surv-food",
+    state.survival.food
+  );
+
+
+  setInput(
+    "surv-health",
+    state.survival.health
+  );
+
+
+  setInput(
+    "surv-staff",
+    state.survival.staff
+  );
+
+
+  setInput(
+    "surv-bills",
+    state.survival.bills
+  );
+
+
+  setInput(
+    "surv-cash",
+    state.survival.cash
+  );
 
 
   /* DECISION */
 
-  setInput("decision-lever",state.decision.lever);
-  setInput("decision-reason",state.decision.reason);
-  setInput("decision-current",state.decision.current);
-  setInput("decision-goal",state.decision.goal);
-  setInput("decision-action",state.decision.action);
-  setInput("decision-start",state.decision.start);
-  setInput("decision-review",state.decision.review);
+  setInput(
+    "decision-lever",
+    state.decision.lever
+  );
+
+
+  setInput(
+    "decision-reason",
+    state.decision.reason
+  );
+
+
+  setInput(
+    "decision-current",
+    state.decision.current
+  );
+
+
+  setInput(
+    "decision-goal",
+    state.decision.goal
+  );
+
+
+  setInput(
+    "decision-action",
+    state.decision.action
+  );
+
+
+  setInput(
+    "decision-start",
+    state.decision.start
+  );
+
+
+  setInput(
+    "decision-review",
+    state.decision.review
+  );
 
 
   /* PERSONAL */
 
-  setInput("commitment",state.personal.commitment);
-  setInput("signature",state.personal.signature);
-  setInput("signature-date",state.personal.date);
+  setInput(
+    "commitment",
+    state.personal.commitment
+  );
+
+
+  setInput(
+    "signature",
+    state.personal.signature
+  );
+
+
+  setInput(
+    "signature-date",
+    state.personal.date
+  );
+
 }
 
 
 function setInput(id,value){
 
-  const el = document.getElementById(id);
+  const el =
+    document.getElementById(id);
+
 
   if(el){
-    el.value = value ?? "";
+
+    el.value =
+      value ?? "";
+
   }
+
 }
 
 
@@ -1989,71 +2534,138 @@ function setInput(id,value){
 function getCore(){
 
   return {
-    leads: num("leads"),
-    contact: num("contact") / 100,
-    conversion: num("conversion") / 100,
-    deal: num("deal"),
-    frequency: num("frequency"),
-    margin: num("margin") / 100
+
+    leads:
+      num("leads"),
+
+    contact:
+      num("contact") / 100,
+
+    conversion:
+      num("conversion") / 100,
+
+    deal:
+      num("deal"),
+
+    frequency:
+      num("frequency"),
+
+    margin:
+      num("margin") / 100
+
   };
+
 }
 
 
 function calculateEngine(){
 
-  const c = getCore();
+  const c =
+    getCore();
+
 
   const annualContacts =
     c.leads *
     c.contact *
     12;
 
+
   const customers =
     annualContacts *
     c.conversion;
+
 
   const transactions =
     customers *
     c.frequency;
 
+
   const annualRevenue =
     transactions *
     c.deal;
+
 
   const grossProfit =
     annualRevenue *
     c.margin;
 
+
   const monthlyRevenue =
     annualRevenue / 12;
+
 
   const monthlyProfit =
     grossProfit / 12;
 
 
   return {
+
     annualContacts,
+
     customers,
+
     transactions,
+
     annualRevenue,
+
     grossProfit,
+
     monthlyRevenue,
+
     monthlyProfit
+
   };
+
 }
 
 
 function calculateAll(){
 
-  const r = calculateEngine();
+  const r =
+    calculateEngine();
 
-  setText("out-annual",money(r.annualRevenue));
-  setText("out-profit",money(r.grossProfit));
-  setText("out-monthly",money(r.monthlyRevenue));
-  setText("out-buyers",number(r.customers));
-  setText("out-tx",number(r.transactions));
-  setText("out-profit-month",money(r.monthlyProfit));
-  setText("out-contacts",number(r.annualContacts));
+
+  setText(
+    "out-annual",
+    money(r.annualRevenue)
+  );
+
+
+  setText(
+    "out-profit",
+    money(r.grossProfit)
+  );
+
+
+  setText(
+    "out-monthly",
+    money(r.monthlyRevenue)
+  );
+
+
+  setText(
+    "out-buyers",
+    number(r.customers)
+  );
+
+
+  setText(
+    "out-tx",
+    number(r.transactions)
+  );
+
+
+  setText(
+    "out-profit-month",
+    money(r.monthlyProfit)
+  );
+
+
+  setText(
+    "out-contacts",
+    number(r.annualContacts)
+  );
+
 
   saveState();
 
@@ -2066,6 +2678,7 @@ function calculateAll(){
   updateMine();
 
   updateSurvival();
+
 }
 
 
@@ -2075,7 +2688,9 @@ function calculateAll(){
 
 function calculateLevers(){
 
-  const c = getCore();
+  const c =
+    getCore();
+
 
   const base =
     c.leads *
@@ -2086,17 +2701,18 @@ function calculateLevers(){
     c.deal;
 
 
-  /* +2 percentage points */
   const conversionScenario =
     c.leads *
     c.contact *
-    Math.min(1,c.conversion + 0.02) *
+    Math.min(
+      1,
+      c.conversion + 0.02
+    ) *
     12 *
     c.frequency *
     c.deal;
 
 
-  /* +10% deal */
   const dealScenario =
     c.leads *
     c.contact *
@@ -2106,7 +2722,6 @@ function calculateLevers(){
     (c.deal * 1.10);
 
 
-  /* +20% leads */
   const leadScenario =
     (c.leads * 1.20) *
     c.contact *
@@ -2117,9 +2732,13 @@ function calculateLevers(){
 
 
   return {
+
     base,
+
     conversionScenario,
+
     dealScenario,
+
     leadScenario,
 
     conversionImpact:
@@ -2130,95 +2749,233 @@ function calculateLevers(){
 
     leadImpact:
       leadScenario - base
+
   };
+
 }
 
 
 function updateLevers(){
 
-  const l = calculateLevers();
+  const l =
+    calculateLevers();
 
-  setText("base-revenue",money(l.base));
 
-  setText("conv-revenue",money(l.conversionScenario));
-  setText("deal-revenue",money(l.dealScenario));
-  setText("lead-revenue",money(l.leadScenario));
+  setText(
+    "base-revenue",
+    money(l.base)
+  );
 
-  setText("conv-impact",money(l.conversionImpact));
-  setText("deal-impact",money(l.dealImpact));
-  setText("lead-impact",money(l.leadImpact));
+
+  setText(
+    "conv-revenue",
+    money(l.conversionScenario)
+  );
+
+
+  setText(
+    "deal-revenue",
+    money(l.dealScenario)
+  );
+
+
+  setText(
+    "lead-revenue",
+    money(l.leadScenario)
+  );
+
+
+  setText(
+    "conv-impact",
+    money(l.conversionImpact)
+  );
+
+
+  setText(
+    "deal-impact",
+    money(l.dealImpact)
+  );
+
+
+  setText(
+    "lead-impact",
+    money(l.leadImpact)
+  );
+
 
   const convGrowth =
-    l.base > 0 ?
-    l.conversionImpact / l.base * 100 :
-    0;
+    l.base > 0
+    ? l.conversionImpact /
+      l.base * 100
+    : 0;
+
 
   const dealGrowth =
-    l.base > 0 ?
-    l.dealImpact / l.base * 100 :
-    0;
+    l.base > 0
+    ? l.dealImpact /
+      l.base * 100
+    : 0;
+
 
   const leadGrowth =
-    l.base > 0 ?
-    l.leadImpact / l.base * 100 :
-    0;
+    l.base > 0
+    ? l.leadImpact /
+      l.base * 100
+    : 0;
 
-  setText("conv-growth",percent(convGrowth) + " رشد");
-  setText("deal-growth",percent(dealGrowth) + " رشد");
-  setText("lead-growth",percent(leadGrowth) + " رشد");
+
+  setText(
+    "conv-growth",
+    percent(convGrowth) +
+    " رشد"
+  );
+
+
+  setText(
+    "deal-growth",
+    percent(dealGrowth) +
+    " رشد"
+  );
+
+
+  setText(
+    "lead-growth",
+    percent(leadGrowth) +
+    " رشد"
+  );
 
 
   const impacts = [
+
     l.conversionImpact,
+
     l.dealImpact,
+
     l.leadImpact
+
   ];
 
-  const maxImpact = Math.max(...impacts,1);
+
+  const maxImpact =
+    Math.max(...impacts,1);
 
 
-  document.getElementById("chart-conv").style.height =
-    Math.max(5,(l.conversionImpact/maxImpact)*100) + "%";
-
-  document.getElementById("chart-deal").style.height =
-    Math.max(5,(l.dealImpact/maxImpact)*100) + "%";
-
-  document.getElementById("chart-lead").style.height =
-    Math.max(5,(l.leadImpact/maxImpact)*100) + "%";
-
-
-  setText("chart-conv-value",money(l.conversionImpact));
-  setText("chart-deal-value",money(l.dealImpact));
-  setText("chart-lead-value",money(l.leadImpact));
+  document.getElementById(
+    "chart-conv"
+  ).style.height =
+    Math.max(
+      5,
+      (l.conversionImpact /
+      maxImpact) * 100
+    ) + "%";
 
 
-  document.getElementById("lever-conv").classList.remove("winner");
-  document.getElementById("lever-deal").classList.remove("winner");
-  document.getElementById("lever-leads").classList.remove("winner");
+  document.getElementById(
+    "chart-deal"
+  ).style.height =
+    Math.max(
+      5,
+      (l.dealImpact /
+      maxImpact) * 100
+    ) + "%";
+
+
+  document.getElementById(
+    "chart-lead"
+  ).style.height =
+    Math.max(
+      5,
+      (l.leadImpact /
+      maxImpact) * 100
+    ) + "%";
+
+
+  setText(
+    "chart-conv-value",
+    money(l.conversionImpact)
+  );
+
+
+  setText(
+    "chart-deal-value",
+    money(l.dealImpact)
+  );
+
+
+  setText(
+    "chart-lead-value",
+    money(l.leadImpact)
+  );
+
+
+  document.getElementById(
+    "lever-conv"
+  ).classList.remove("winner");
+
+
+  document.getElementById(
+    "lever-deal"
+  ).classList.remove("winner");
+
+
+  document.getElementById(
+    "lever-leads"
+  ).classList.remove("winner");
 
 
   const maxIndex =
-    impacts.indexOf(Math.max(...impacts));
+    impacts.indexOf(
+      Math.max(...impacts)
+    );
 
 
   let winner = "";
 
+
   if(maxIndex === 0){
-    winner = "افزایش نرخ تبدیل +۲ واحد درصد";
-    document.getElementById("lever-conv").classList.add("winner");
+
+    winner =
+      "افزایش نرخ تبدیل +۲ واحد درصد";
+
+
+    document.getElementById(
+      "lever-conv"
+    ).classList.add("winner");
+
   }
+
 
   if(maxIndex === 1){
-    winner = "افزایش ارزش معامله +۱۰٪";
-    document.getElementById("lever-deal").classList.add("winner");
+
+    winner =
+      "افزایش ارزش معامله +۱۰٪";
+
+
+    document.getElementById(
+      "lever-deal"
+    ).classList.add("winner");
+
   }
+
 
   if(maxIndex === 2){
-    winner = "افزایش لید +۲۰٪";
-    document.getElementById("lever-leads").classList.add("winner");
+
+    winner =
+      "افزایش لید +۲۰٪";
+
+
+    document.getElementById(
+      "lever-leads"
+    ).classList.add("winner");
+
   }
 
-  setText("winner",winner);
+
+  setText(
+    "winner",
+    winner
+  );
+
 }
 
 
@@ -2228,12 +2985,32 @@ function updateLevers(){
 
 function syncReverse(){
 
-  setInput("rdeal",num("deal"));
-  setInput("rfreq",num("frequency"));
-  setInput("rconv",num("conversion"));
-  setInput("rcontact",num("contact"));
+  setInput(
+    "rdeal",
+    num("deal")
+  );
+
+
+  setInput(
+    "rfreq",
+    num("frequency")
+  );
+
+
+  setInput(
+    "rconv",
+    num("conversion")
+  );
+
+
+  setInput(
+    "rcontact",
+    num("contact")
+  );
+
 
   calculateReverse();
+
 }
 
 
@@ -2242,40 +3019,81 @@ function calculateReverse(){
   const target =
     num("target");
 
+
   const deal =
     num("deal");
+
 
   const frequency =
     num("frequency");
 
+
   const conversion =
     num("conversion") / 100;
+
 
   const contact =
     num("contact") / 100;
 
 
   if(
+
     target <= 0 ||
+
     deal <= 0 ||
+
     frequency <= 0 ||
+
     conversion <= 0 ||
+
     contact <= 0
+
   ){
 
-    setText("reverse-customers","۰");
-    setText("reverse-contacts","۰");
-    setText("reverse-leads","۰");
-    setText("reverse-month","۰");
-    setText("reverse-week","۰");
-    setText("reverse-target-display",money(target));
+    setText(
+      "reverse-customers",
+      "۰"
+    );
+
+
+    setText(
+      "reverse-contacts",
+      "۰"
+    );
+
+
+    setText(
+      "reverse-leads",
+      "۰"
+    );
+
+
+    setText(
+      "reverse-month",
+      "۰"
+    );
+
+
+    setText(
+      "reverse-week",
+      "۰"
+    );
+
+
+    setText(
+      "reverse-target-display",
+      money(target)
+    );
+
 
     setText(
       "reverse-statement",
       "برای محاسبه مهندسی معکوس، همه فرضیات باید بزرگ‌تر از صفر باشند."
     );
 
+
     return;
+
   }
 
 
@@ -2283,43 +3101,81 @@ function calculateReverse(){
     target /
     (deal * frequency);
 
+
   const contacts =
     customers /
     conversion;
+
 
   const leads =
     contacts /
     contact;
 
+
   const month =
     leads / 12;
+
 
   const week =
     leads / 52;
 
 
-  setText("reverse-customers",number(customers));
-  setText("reverse-contacts",number(contacts));
-  setText("reverse-leads",number(leads));
-  setText("reverse-month",number(month));
-  setText("reverse-week",number(week));
-  setText("reverse-target-display",money(target));
+  setText(
+    "reverse-customers",
+    number(customers)
+  );
+
+
+  setText(
+    "reverse-contacts",
+    number(contacts)
+  );
+
+
+  setText(
+    "reverse-leads",
+    number(leads)
+  );
+
+
+  setText(
+    "reverse-month",
+    number(month)
+  );
+
+
+  setText(
+    "reverse-week",
+    number(week)
+  );
+
+
+  setText(
+    "reverse-target-display",
+    money(target)
+  );
 
 
   const warning =
-    document.getElementById("reverse-warning");
+    document.getElementById(
+      "reverse-warning"
+    );
 
 
   if(week > 1000){
 
-    warning.className = "info red";
+    warning.className =
+      "info red";
+
 
     warning.textContent =
       "هشدار: مدل برای رسیدن به هدف به بیش از ۱۰۰۰ لید در هفته نیاز دارد. قبل از افزایش حجم، اهرم‌های تبدیل، ارزش معامله و ارتباط را بررسی کن.";
 
   }else{
 
-    warning.className = "info green";
+    warning.className =
+      "info green";
+
 
     warning.textContent =
       "با فرضیات فعلی، مدل قابل محاسبه است. عدد لید هفتگی را با ظرفیت واقعی سیستم مقایسه کن.";
@@ -2343,7 +3199,9 @@ function calculateReverse(){
     " نرخ تبدیل، به حدود " +
     number(leads) +
     " لید سالانه نیاز دارم؛ بنابراین باید اهرم اصلی ۳۰ روز آینده را از بین اهرم‌های رشد انتخاب و روی آن اقدام کنم."
+
   );
+
 }
 
 
@@ -2353,12 +3211,28 @@ function calculateReverse(){
 
 function calculateSurvival(){
 
-  const rent = num("surv-rent");
-  const food = num("surv-food");
-  const health = num("surv-health");
-  const staff = num("surv-staff");
-  const bills = num("surv-bills");
-  const cash = num("surv-cash");
+  const rent =
+    num("surv-rent");
+
+
+  const food =
+    num("surv-food");
+
+
+  const health =
+    num("surv-health");
+
+
+  const staff =
+    num("surv-staff");
+
+
+  const bills =
+    num("surv-bills");
+
+
+  const cash =
+    num("surv-cash");
 
 
   const burnMonth =
@@ -2368,76 +3242,137 @@ function calculateSurvival(){
     staff +
     bills;
 
+
   const burnDay =
     burnMonth / 30;
+
 
   const bufferNeeded =
     burnMonth * 6;
 
+
   const bufferMonths =
-    burnMonth > 0 ?
-    cash / burnMonth :
-    0;
+    burnMonth > 0
+    ? cash / burnMonth
+    : 0;
+
 
   const progress =
-    bufferNeeded > 0 ?
-    clamp((cash / bufferNeeded) * 100,0,100) :
-    0;
+    bufferNeeded > 0
+    ? clamp(
+        (cash / bufferNeeded) * 100,
+        0,
+        100
+      )
+    : 0;
 
 
-  setText("out-burn-month",money(burnMonth));
-  setText("out-burn-day",money(burnDay));
-  setText("out-buffer-needed",money(bufferNeeded));
-  setText("out-buffer-months",number(bufferMonths));
+  setText(
+    "out-burn-month",
+    money(burnMonth)
+  );
 
-  setText("buffer-current",money(cash));
-  setText("buffer-goal",money(bufferNeeded));
 
-  document.getElementById("buffer-progress").style.width =
+  setText(
+    "out-burn-day",
+    money(burnDay)
+  );
+
+
+  setText(
+    "out-buffer-needed",
+    money(bufferNeeded)
+  );
+
+
+  setText(
+    "out-buffer-months",
+    number(bufferMonths)
+  );
+
+
+  setText(
+    "buffer-current",
+    money(cash)
+  );
+
+
+  setText(
+    "buffer-goal",
+    money(bufferNeeded)
+  );
+
+
+  document.getElementById(
+    "buffer-progress"
+  ).style.width =
     progress + "%";
+
 
   setText(
     "buffer-progress-text",
+
     percent(progress) +
     " از ذخیره هدف ۶ ماهه ساخته شده است."
+
   );
 
 
   const warning =
-    document.getElementById("survival-warning");
+    document.getElementById(
+      "survival-warning"
+    );
 
 
   if(burnMonth <= 0){
 
-    warning.className = "info blue";
+    warning.className =
+      "info blue";
+
 
     warning.textContent =
       "هزینه‌های ضروری ماهانه هنوز وارد نشده‌اند.";
 
-  }else if(cash < burnMonth){
+  }
 
-    warning.className = "info red";
+  else if(cash < burnMonth){
+
+    warning.className =
+      "info red";
+
 
     warning.textContent =
       "نقدینگی فعلی کمتر از یک ماه هزینه ضروری است. اولویت، ساخت حاشیه امن نقدی است.";
 
-  }else if(bufferMonths < 3){
+  }
 
-    warning.className = "info gold";
+  else if(bufferMonths < 3){
+
+    warning.className =
+      "info gold";
+
 
     warning.textContent =
       "حاشیه امن فعلی کمتر از ۳ ماه است. ساخت ذخیره نقدی را در اولویت قرار بده.";
 
-  }else if(bufferMonths < 6){
+  }
 
-    warning.className = "info gold";
+  else if(bufferMonths < 6){
+
+    warning.className =
+      "info gold";
+
 
     warning.textContent =
       "سیستم بیش از ۳ ماه دوام دارد، اما هنوز به ذخیره ۶ ماهه نرسیده است.";
 
-  }else{
+  }
 
-    warning.className = "info green";
+  else{
+
+    warning.className =
+      "info green";
+
 
     warning.textContent =
       "ذخیره نقدی فعلی به حداقل ۶ ماه هزینه ضروری رسیده است.";
@@ -2453,129 +3388,243 @@ function calculateSurvival(){
 
 function updateDashboard(){
 
-  const r = calculateEngine();
-  const l = calculateLevers();
+  const r =
+    calculateEngine();
+
+
+  const l =
+    calculateLevers();
+
 
   const target =
     num("target");
 
 
-  setText("dash-current",money(r.annualRevenue));
-  setText("dash-profit",money(r.grossProfit));
-  setText("dash-customers",number(r.customers));
-  setText("dash-target",money(target));
+  setText(
+    "dash-current",
+    money(r.annualRevenue)
+  );
+
+
+  setText(
+    "dash-profit",
+    money(r.grossProfit)
+  );
+
+
+  setText(
+    "dash-customers",
+    number(r.customers)
+  );
+
+
+  setText(
+    "dash-target",
+    money(target)
+  );
 
 
   const gap =
-    target - r.annualRevenue;
+    target -
+    r.annualRevenue;
 
 
   if(gap > 0){
 
     setText(
       "dash-gap",
-      money(gap) + " باقی‌مانده"
+      money(gap) +
+      " باقی‌مانده"
     );
 
   }else{
 
     setText(
       "dash-gap",
-      money(Math.abs(gap)) + " بالاتر از هدف"
+      money(Math.abs(gap)) +
+      " بالاتر از هدف"
     );
 
   }
 
 
   const progress =
-    target > 0 ?
-    clamp((r.annualRevenue / target) * 100,0,100) :
-    0;
+    target > 0
+    ? clamp(
+        (r.annualRevenue /
+        target) * 100,
+        0,
+        100
+      )
+    : 0;
 
 
-  setText("dash-progress",percent(progress));
+  setText(
+    "dash-progress",
+    percent(progress)
+  );
 
-  document.getElementById("dash-progress-bar").style.width =
+
+  document.getElementById(
+    "dash-progress-bar"
+  ).style.width =
     progress + "%";
 
 
   const impacts = [
+
     l.conversionImpact,
+
     l.dealImpact,
+
     l.leadImpact
+
   ];
+
 
   const maxImpact =
     Math.max(...impacts,1);
 
 
-  document.getElementById("dash-bar-conv").style.height =
-    Math.max(5,l.conversionImpact/maxImpact*100) + "%";
+  document.getElementById(
+    "dash-bar-conv"
+  ).style.height =
+    Math.max(
+      5,
+      l.conversionImpact /
+      maxImpact * 100
+    ) + "%";
 
-  document.getElementById("dash-bar-deal").style.height =
-    Math.max(5,l.dealImpact/maxImpact*100) + "%";
 
-  document.getElementById("dash-bar-leads").style.height =
-    Math.max(5,l.leadImpact/maxImpact*100) + "%";
+  document.getElementById(
+    "dash-bar-deal"
+  ).style.height =
+    Math.max(
+      5,
+      l.dealImpact /
+      maxImpact * 100
+    ) + "%";
 
 
-  setText("dash-bar-conv-value",money(l.conversionImpact));
-  setText("dash-bar-deal-value",money(l.dealImpact));
-  setText("dash-bar-leads-value",money(l.leadImpact));
+  document.getElementById(
+    "dash-bar-leads"
+  ).style.height =
+    Math.max(
+      5,
+      l.leadImpact /
+      maxImpact * 100
+    ) + "%";
+
+
+  setText(
+    "dash-bar-conv-value",
+    money(l.conversionImpact)
+  );
+
+
+  setText(
+    "dash-bar-deal-value",
+    money(l.dealImpact)
+  );
+
+
+  setText(
+    "dash-bar-leads-value",
+    money(l.leadImpact)
+  );
 
 
   const maxIndex =
-    impacts.indexOf(Math.max(...impacts));
+    impacts.indexOf(
+      Math.max(...impacts)
+    );
 
 
   let winner = "";
 
+
   if(maxIndex === 0)
-    winner = "افزایش نرخ تبدیل +۲ واحد درصد";
+
+    winner =
+      "افزایش نرخ تبدیل +۲ واحد درصد";
+
 
   if(maxIndex === 1)
-    winner = "افزایش ارزش معامله +۱۰٪";
+
+    winner =
+      "افزایش ارزش معامله +۱۰٪";
+
 
   if(maxIndex === 2)
-    winner = "افزایش لید +۲۰٪";
+
+    winner =
+      "افزایش لید +۲۰٪";
 
 
-  setText("dash-winner",winner);
+  setText(
+    "dash-winner",
+    winner
+  );
 
 
   const savedAction =
     state.decision.action ||
     "هنوز اقدامی ثبت نشده است.";
 
-  setText("dash-action",savedAction);
+
+  setText(
+    "dash-action",
+    savedAction
+  );
 
 
-  /* Manifesto */
+  const deal =
+    num("deal");
 
-  const deal = num("deal");
-  const freq = num("frequency");
-  const conv = num("conversion");
-  const contact = num("contact");
+
+  const freq =
+    num("frequency");
+
+
+  const conv =
+    num("conversion");
+
+
+  const contact =
+    num("contact");
+
 
   if(
+
     target > 0 &&
+
     deal > 0 &&
+
     freq > 0 &&
+
     conv > 0 &&
+
     contact > 0
+
   ){
 
     const requiredCustomers =
-      target / (deal * freq);
+      target /
+      (deal * freq);
+
 
     const requiredContacts =
-      requiredCustomers / (conv/100);
+      requiredCustomers /
+      (conv/100);
+
 
     const requiredLeads =
-      requiredContacts / (contact/100);
+      requiredContacts /
+      (contact/100);
 
 
     setText(
+
       "manifesto",
 
       "برای رسیدن به درآمد هدف " +
@@ -2591,6 +3640,7 @@ function updateDashboard(){
       " نرخ تبدیل، به حدود " +
       number(requiredLeads) +
       " لید سالانه نیاز دارم."
+
     );
 
   }
@@ -2604,68 +3654,151 @@ function updateDashboard(){
 
 function updateMine(){
 
-  const c = getCore();
-  const r = calculateEngine();
-  const l = calculateLevers();
+  const c =
+    getCore();
 
-  setText("mine-leads",number(c.leads));
-  setText("mine-contact",percent(c.contact*100));
-  setText("mine-conversion",percent(c.conversion*100));
-  setText("mine-deal",money(c.deal));
-  setText("mine-frequency",number(c.frequency));
-  setText("mine-margin",percent(c.margin*100));
 
-  setText("mine-annual",money(r.annualRevenue));
-  setText("mine-profit",money(r.grossProfit));
-  setText("mine-buyers",number(r.customers));
+  const r =
+    calculateEngine();
+
+
+  const l =
+    calculateLevers();
+
+
+  setText(
+    "mine-leads",
+    number(c.leads)
+  );
+
+
+  setText(
+    "mine-contact",
+    percent(c.contact*100)
+  );
+
+
+  setText(
+    "mine-conversion",
+    percent(c.conversion*100)
+  );
+
+
+  setText(
+    "mine-deal",
+    money(c.deal)
+  );
+
+
+  setText(
+    "mine-frequency",
+    number(c.frequency)
+  );
+
+
+  setText(
+    "mine-margin",
+    percent(c.margin*100)
+  );
+
+
+  setText(
+    "mine-annual",
+    money(r.annualRevenue)
+  );
+
+
+  setText(
+    "mine-profit",
+    money(r.grossProfit)
+  );
+
+
+  setText(
+    "mine-buyers",
+    number(r.customers)
+  );
 
 
   const impacts = [
+
     l.conversionImpact,
+
     l.dealImpact,
+
     l.leadImpact
+
   ];
 
+
   const maxIndex =
-    impacts.indexOf(Math.max(...impacts));
+    impacts.indexOf(
+      Math.max(...impacts)
+    );
 
 
   let winner = "";
 
+
   if(maxIndex === 0)
-    winner = "افزایش نرخ تبدیل +۲ واحد درصد";
+
+    winner =
+      "افزایش نرخ تبدیل +۲ واحد درصد";
+
 
   if(maxIndex === 1)
-    winner = "افزایش ارزش معامله +۱۰٪";
+
+    winner =
+      "افزایش ارزش معامله +۱۰٪";
+
 
   if(maxIndex === 2)
-    winner = "افزایش لید +۲۰٪";
+
+    winner =
+      "افزایش لید +۲۰٪";
 
 
-  setText("mine-winner",winner);
+  setText(
+    "mine-winner",
+    winner
+  );
 
 
-  const target = num("target");
+  const target =
+    num("target");
+
 
   if(
+
     target > 0 &&
+
     c.deal > 0 &&
+
     c.frequency > 0 &&
+
     c.conversion > 0 &&
+
     c.contact > 0
+
   ){
 
     const customers =
-      target / (c.deal*c.frequency);
+      target /
+      (c.deal*c.frequency);
+
 
     const contacts =
-      customers / c.conversion;
+      customers /
+      c.conversion;
+
 
     const leads =
-      contacts / c.contact;
+      contacts /
+      c.contact;
 
 
     setText(
+
       "manifesto",
 
       "برای رسیدن به درآمد هدف " +
@@ -2681,6 +3814,7 @@ function updateMine(){
       " نرخ تبدیل، به حدود " +
       number(leads) +
       " لید سالانه نیاز دارم."
+
     );
 
   }
@@ -2688,8 +3822,10 @@ function updateMine(){
 
   setText(
     "mine-action",
-    state.decision.action || "هنوز اقدامی ثبت نشده است."
+    state.decision.action ||
+    "هنوز اقدامی ثبت نشده است."
   );
+
 }
 
 
@@ -2699,44 +3835,77 @@ function updateMine(){
 
 function showView(view){
 
-  document.querySelectorAll(".view")
-    .forEach(v => v.classList.remove("active"));
+  document.querySelectorAll(
+    ".view"
+  )
+  .forEach(
+    v =>
+      v.classList.remove(
+        "active"
+      )
+  );
+
 
   const target =
-    document.getElementById("view-" + view);
+    document.getElementById(
+      "view-" + view
+    );
+
 
   if(target)
-    target.classList.add("active");
+
+    target.classList.add(
+      "active"
+    );
 
 
-  document.querySelectorAll(".nav-btn")
-    .forEach(btn => {
+  document.querySelectorAll(
+    ".nav-btn"
+  )
+  .forEach(
+    btn => {
 
       btn.classList.toggle(
+
         "active",
-        btn.dataset.view === view
+
+        btn.dataset.view ===
+        view
+
       );
 
-    });
+    }
+  );
 
 
   window.scrollTo({
+
     top:0,
+
     behavior:"smooth"
+
   });
 
 
   if(view === "reverse")
+
     calculateReverse();
 
+
   if(view === "dashboard")
+
     updateDashboard();
 
+
   if(view === "mine")
+
     updateMine();
 
+
   if(view === "survival")
+
     updateSurvival();
+
 }
 
 
@@ -2746,55 +3915,101 @@ function showView(view){
 
 function resetAll(){
 
-  if(!confirm("همه اطلاعات این ابزار به مقادیر اولیه برگردد؟"))
+  if(
+    !confirm(
+      "همه اطلاعات این ابزار به مقادیر اولیه برگردد؟"
+    )
+  )
+
     return;
 
 
-  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(
+    STORAGE_KEY
+  );
+
 
   state = {
+
     core:{
+
       leads:1000,
+
       contact:80,
+
       conversion:5,
+
       deal:10000000,
+
       frequency:3,
+
       margin:40,
+
       target:2000000000
+
     },
+
 
     survival:{
+
       rent:0,
+
       food:0,
+
       health:0,
+
       staff:0,
+
       bills:0,
+
       cash:0
+
     },
+
 
     decision:{
+
       lever:"",
+
       reason:"",
+
       current:"",
+
       goal:"",
+
       action:"",
+
       start:"",
+
       review:""
+
     },
 
+
     personal:{
+
       commitment:"",
+
       signature:"",
+
       date:""
+
     }
+
   };
 
 
   loadState();
+
   calculateAll();
+
   calculateReverse();
 
-  alert("اطلاعات به حالت اولیه برگشت.");
+
+  alert(
+    "اطلاعات به حالت اولیه برگشت."
+  );
+
 }
 
 
@@ -2805,43 +4020,85 @@ function resetAll(){
 function updateSurvival(){
 
   const values = [
+
     "surv-rent",
+
     "surv-food",
+
     "surv-health",
+
     "surv-staff",
+
     "surv-bills",
+
     "surv-cash"
+
   ];
 
-  values.forEach(id => {
 
-    const el = document.getElementById(id);
+  values.forEach(
 
-    if(el){
-      el.oninput = function(){
+    id => {
 
-        calculateSurvival();
+      const el =
+        document.getElementById(id);
 
-        state.survival.rent = num("surv-rent");
-        state.survival.food = num("surv-food");
-        state.survival.health = num("surv-health");
-        state.survival.staff = num("surv-staff");
-        state.survival.bills = num("surv-bills");
-        state.survival.cash = num("surv-cash");
 
-        try{
-          localStorage.setItem(
-            STORAGE_KEY,
-            JSON.stringify(state)
-          );
-        }catch(e){}
+      if(el){
 
-      };
+        el.oninput =
+          function(){
+
+            calculateSurvival();
+
+
+            state.survival.rent =
+              num("surv-rent");
+
+
+            state.survival.food =
+              num("surv-food");
+
+
+            state.survival.health =
+              num("surv-health");
+
+
+            state.survival.staff =
+              num("surv-staff");
+
+
+            state.survival.bills =
+              num("surv-bills");
+
+
+            state.survival.cash =
+              num("surv-cash");
+
+
+            try{
+
+              localStorage.setItem(
+
+                STORAGE_KEY,
+
+                JSON.stringify(state)
+
+              );
+
+            }catch(e){}
+
+          };
+
+      }
+
     }
 
-  });
+  );
+
 
   calculateSurvival();
+
 }
 
 
@@ -2852,46 +4109,92 @@ function updateSurvival(){
 function attachAutoSave(){
 
   const ids = [
+
     "leads",
+
     "contact",
+
     "conversion",
+
     "deal",
+
     "frequency",
+
     "margin",
+
     "target"
+
   ];
 
 
-  ids.forEach(id => {
+  ids.forEach(
 
-    const el =
-      document.getElementById(id);
+    id => {
 
-    if(!el) return;
-
-    el.addEventListener("input",function(){
-
-      state.core.leads = num("leads");
-      state.core.contact = num("contact");
-      state.core.conversion = num("conversion");
-      state.core.deal = num("deal");
-      state.core.frequency = num("frequency");
-      state.core.margin = num("margin");
-      state.core.target = num("target");
-
-      try{
-        localStorage.setItem(
-          STORAGE_KEY,
-          JSON.stringify(state)
-        );
-      }catch(e){}
+      const el =
+        document.getElementById(id);
 
 
-      calculateAll();
+      if(!el)
+        return;
 
-    });
 
-  });
+      el.addEventListener(
+
+        "input",
+
+        function(){
+
+          state.core.leads =
+            num("leads");
+
+
+          state.core.contact =
+            num("contact");
+
+
+          state.core.conversion =
+            num("conversion");
+
+
+          state.core.deal =
+            num("deal");
+
+
+          state.core.frequency =
+            num("frequency");
+
+
+          state.core.margin =
+            num("margin");
+
+
+          state.core.target =
+            num("target");
+
+
+          try{
+
+            localStorage.setItem(
+
+              STORAGE_KEY,
+
+              JSON.stringify(state)
+
+            );
+
+          }catch(e){}
+
+
+          calculateAll();
+
+        }
+
+      );
+
+    }
+
+  );
 
 }
 
@@ -2900,90 +4203,155 @@ function attachAutoSave(){
    INITIALIZE
 ========================================================= */
 
-document.addEventListener("DOMContentLoaded",function(){
+document.addEventListener(
 
-  /* بررسی دسترسی دانشجو */
-  checkStudentAccess();
+  "DOMContentLoaded",
 
-  loadState();
+  function(){
 
-  attachAutoSave();
+    /*
+      بررسی نشست دانشجو
+    */
 
-  updateSurvival();
-
-  calculateAll();
-
-  calculateReverse();
-
-  updateLevers();
-
-  updateDashboard();
-
-  updateMine();
+    const loggedIn =
+      checkStudentAccess();
 
 
-  /* Default signature date */
+    /*
+      اطلاعات فعلی ابزار
+    */
 
-  const dateInput =
-    document.getElementById("signature-date");
+    loadState();
 
-  if(
-    dateInput &&
-    !dateInput.value
-  ){
 
-    const today =
-      new Date()
-        .toISOString()
-        .split("T")[0];
+    attachAutoSave();
 
-    dateInput.value = today;
+    updateSurvival();
+
+    calculateAll();
+
+    calculateReverse();
+
+    updateLevers();
+
+    updateDashboard();
+
+    updateMine();
+
+
+    /*
+      اگر نشست معتبر بود،
+      اطلاعات دانشجو در کنسول قابل مشاهده است.
+    */
+
+    if(loggedIn){
+
+      console.log(
+        "Current student:",
+        currentStudent
+      );
+
+    }
+
+
+    /*
+      Default signature date
+    */
+
+    const dateInput =
+      document.getElementById(
+        "signature-date"
+      );
+
+
+    if(
+
+      dateInput &&
+
+      !dateInput.value
+
+    ){
+
+      const today =
+        new Date()
+          .toISOString()
+          .split("T")[0];
+
+
+      dateInput.value =
+        today;
+
+    }
+
+
+    /*
+      Default decision start
+    */
+
+    const startInput =
+      document.getElementById(
+        "decision-start"
+      );
+
+
+    if(
+
+      startInput &&
+
+      !startInput.value
+
+    ){
+
+      const today =
+        new Date()
+          .toISOString()
+          .split("T")[0];
+
+
+      startInput.value =
+        today;
+
+    }
+
+
+    /*
+      Default review = 30 days
+    */
+
+    const reviewInput =
+      document.getElementById(
+        "decision-review"
+      );
+
+
+    if(
+
+      reviewInput &&
+
+      !reviewInput.value
+
+    ){
+
+      const date =
+        new Date();
+
+
+      date.setDate(
+        date.getDate() + 30
+      );
+
+
+      reviewInput.value =
+        date
+          .toISOString()
+          .split("T")[0];
+
+    }
 
   }
 
+);
 
-  /* Default decision start */
-
-  const startInput =
-    document.getElementById("decision-start");
-
-  if(
-    startInput &&
-    !startInput.value
-  ){
-
-    const today =
-      new Date()
-        .toISOString()
-        .split("T")[0];
-
-    startInput.value = today;
-
-  }
-
-
-  /* Default review = 30 days */
-
-  const reviewInput =
-    document.getElementById("decision-review");
-
-  if(
-    reviewInput &&
-    !reviewInput.value
-  ){
-
-    const date = new Date();
-
-    date.setDate(
-      date.getDate() + 30
-    );
-
-    reviewInput.value =
-      date.toISOString().split("T")[0];
-
-  }
-
-});
 </script>
 
 </body>

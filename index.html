@@ -1566,6 +1566,51 @@ let currentSession = null;
    STUDENT LOGIN
 ========================================================= */
 
+async function loginStudent(code){
+
+  const response =
+    await fetch(
+      SUPABASE_FUNCTION_URL,
+      {
+        method:"POST",
+
+        headers:{
+          "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify({
+          student_code:String(code).trim()
+        })
+      }
+    );
+
+
+  const result =
+    await response.json();
+
+
+  if(
+    !response.ok ||
+    !result.success
+  ){
+
+    throw new Error(
+      result.error ||
+      "ورود انجام نشد"
+    );
+
+  }
+
+
+  return result;
+
+}
+
+
+/* =========================================================
+   LOGIN UI
+========================================================= */
+
 async function checkStudentCode(){
 
   const input =
@@ -1587,6 +1632,7 @@ async function checkStudentCode(){
       "لطفاً کد دسترسی را وارد کنید.";
 
     return;
+
   }
 
 
@@ -1605,46 +1651,15 @@ async function checkStudentCode(){
 
   try{
 
-    const response =
-      await fetch(
-        SUPABASE_FUNCTION_URL,
-        {
-          method:"POST",
-
-          headers:{
-            "Content-Type":"application/json"
-          },
-
-          body:JSON.stringify({
-            student_code:code
-          })
-        }
-      );
+    const result =
+      await loginStudent(code);
 
 
-    let result = {};
-
-    try{
-
-      result =
-        await response.json();
-
-    }catch(e){
-
-      result = {};
-
-    }
-
-
-    if(
-      !response.ok ||
-      !result.success ||
-      !result.session
-    ){
+    if(!result.session){
 
       throw new Error(
         result.error ||
-        "ورود انجام نشد."
+        "نشست ورود دریافت نشد."
       );
 
     }
@@ -1657,23 +1672,25 @@ async function checkStudentCode(){
       result.session;
 
 
-    /* ثبت نشست در Supabase Auth */
-
     const {
       data:authData,
       error:authError
     } =
       await supabaseClient.auth.setSession({
+
         access_token:
           result.session.access_token,
 
         refresh_token:
           result.session.refresh_token
+
       });
 
 
     if(authError){
+
       throw authError;
+
     }
 
 
@@ -1681,8 +1698,6 @@ async function checkStudentCode(){
       authData.session ||
       result.session;
 
-
-    /* اطلاعات نشست محلی */
 
     localStorage.setItem(
       "student_session",
@@ -2468,123 +2483,32 @@ async function loadState(){
   }
 
 
-  setInput(
-    "leads",
-    state.core.leads
-  );
+  setInput("leads",state.core.leads);
+  setInput("contact",state.core.contact);
+  setInput("conversion",state.core.conversion);
+  setInput("deal",state.core.deal);
+  setInput("frequency",state.core.frequency);
+  setInput("margin",state.core.margin);
+  setInput("target",state.core.target);
 
-  setInput(
-    "contact",
-    state.core.contact
-  );
+  setInput("surv-rent",state.survival.rent);
+  setInput("surv-food",state.survival.food);
+  setInput("surv-health",state.survival.health);
+  setInput("surv-staff",state.survival.staff);
+  setInput("surv-bills",state.survival.bills);
+  setInput("surv-cash",state.survival.cash);
 
-  setInput(
-    "conversion",
-    state.core.conversion
-  );
+  setInput("decision-lever",state.decision.lever);
+  setInput("decision-reason",state.decision.reason);
+  setInput("decision-current",state.decision.current);
+  setInput("decision-goal",state.decision.goal);
+  setInput("decision-action",state.decision.action);
+  setInput("decision-start",state.decision.start);
+  setInput("decision-review",state.decision.review);
 
-  setInput(
-    "deal",
-    state.core.deal
-  );
-
-  setInput(
-    "frequency",
-    state.core.frequency
-  );
-
-  setInput(
-    "margin",
-    state.core.margin
-  );
-
-  setInput(
-    "target",
-    state.core.target
-  );
-
-
-  setInput(
-    "surv-rent",
-    state.survival.rent
-  );
-
-  setInput(
-    "surv-food",
-    state.survival.food
-  );
-
-  setInput(
-    "surv-health",
-    state.survival.health
-  );
-
-  setInput(
-    "surv-staff",
-    state.survival.staff
-  );
-
-  setInput(
-    "surv-bills",
-    state.survival.bills
-  );
-
-  setInput(
-    "surv-cash",
-    state.survival.cash
-  );
-
-
-  setInput(
-    "decision-lever",
-    state.decision.lever
-  );
-
-  setInput(
-    "decision-reason",
-    state.decision.reason
-  );
-
-  setInput(
-    "decision-current",
-    state.decision.current
-  );
-
-  setInput(
-    "decision-goal",
-    state.decision.goal
-  );
-
-  setInput(
-    "decision-action",
-    state.decision.action
-  );
-
-  setInput(
-    "decision-start",
-    state.decision.start
-  );
-
-  setInput(
-    "decision-review",
-    state.decision.review
-  );
-
-
-  setInput(
-    "commitment",
-    state.personal.commitment
-  );
-
-  setInput(
-    "signature",
-    state.personal.signature
-  );
-
-  setInput(
-    "signature-date",
-    state.personal.date
-  );
+  setInput("commitment",state.personal.commitment);
+  setInput("signature",state.personal.signature);
+  setInput("signature-date",state.personal.date);
 
 }
 
@@ -2676,7 +2600,6 @@ function calculateEngine(){
 
 
   return {
-
     annualContacts,
     customers,
     transactions,
@@ -2684,7 +2607,6 @@ function calculateEngine(){
     grossProfit,
     monthlyRevenue,
     monthlyProfit
-
   };
 
 }
@@ -2696,40 +2618,13 @@ function calculateAll(){
     calculateEngine();
 
 
-  setText(
-    "out-annual",
-    money(r.annualRevenue)
-  );
-
-  setText(
-    "out-profit",
-    money(r.grossProfit)
-  );
-
-  setText(
-    "out-monthly",
-    money(r.monthlyRevenue)
-  );
-
-  setText(
-    "out-buyers",
-    number(r.customers)
-  );
-
-  setText(
-    "out-tx",
-    number(r.transactions)
-  );
-
-  setText(
-    "out-profit-month",
-    money(r.monthlyProfit)
-  );
-
-  setText(
-    "out-contacts",
-    number(r.annualContacts)
-  );
+  setText("out-annual",money(r.annualRevenue));
+  setText("out-profit",money(r.grossProfit));
+  setText("out-monthly",money(r.monthlyRevenue));
+  setText("out-buyers",number(r.customers));
+  setText("out-tx",number(r.transactions));
+  setText("out-profit-month",money(r.monthlyProfit));
+  setText("out-contacts",number(r.annualContacts));
 
 
   saveState();
@@ -2743,6 +2638,7 @@ function calculateAll(){
   updateMine();
 
   calculateSurvival();
+
 
 }
 
@@ -2797,24 +2693,16 @@ function calculateLevers(){
 
 
   return {
-
     base,
-
     conversionScenario,
-
     dealScenario,
-
     leadScenario,
-
     conversionImpact:
       conversionScenario - base,
-
     dealImpact:
       dealScenario - base,
-
     leadImpact:
       leadScenario - base
-
   };
 
 }
@@ -2826,40 +2714,14 @@ function updateLevers(){
     calculateLevers();
 
 
-  setText(
-    "base-revenue",
-    money(l.base)
-  );
+  setText("base-revenue",money(l.base));
+  setText("conv-revenue",money(l.conversionScenario));
+  setText("deal-revenue",money(l.dealScenario));
+  setText("lead-revenue",money(l.leadScenario));
 
-  setText(
-    "conv-revenue",
-    money(l.conversionScenario)
-  );
-
-  setText(
-    "deal-revenue",
-    money(l.dealScenario)
-  );
-
-  setText(
-    "lead-revenue",
-    money(l.leadScenario)
-  );
-
-  setText(
-    "conv-impact",
-    money(l.conversionImpact)
-  );
-
-  setText(
-    "deal-impact",
-    money(l.dealImpact)
-  );
-
-  setText(
-    "lead-impact",
-    money(l.leadImpact)
-  );
+  setText("conv-impact",money(l.conversionImpact));
+  setText("deal-impact",money(l.dealImpact));
+  setText("lead-impact",money(l.leadImpact));
 
 
   const convGrowth =
@@ -2883,31 +2745,15 @@ function updateLevers(){
     : 0;
 
 
-  setText(
-    "conv-growth",
-    percent(convGrowth) +
-    " رشد"
-  );
-
-  setText(
-    "deal-growth",
-    percent(dealGrowth) +
-    " رشد"
-  );
-
-  setText(
-    "lead-growth",
-    percent(leadGrowth) +
-    " رشد"
-  );
+  setText("conv-growth",percent(convGrowth) + " رشد");
+  setText("deal-growth",percent(dealGrowth) + " رشد");
+  setText("lead-growth",percent(leadGrowth) + " رشد");
 
 
   const impacts = [
-
     l.conversionImpact,
     l.dealImpact,
     l.leadImpact
-
   ];
 
 
@@ -2915,9 +2761,7 @@ function updateLevers(){
     Math.max(...impacts,1);
 
 
-  document.getElementById(
-    "chart-conv"
-  ).style.height =
+  document.getElementById("chart-conv").style.height =
     Math.max(
       5,
       l.conversionImpact /
@@ -2925,9 +2769,7 @@ function updateLevers(){
     ) + "%";
 
 
-  document.getElementById(
-    "chart-deal"
-  ).style.height =
+  document.getElementById("chart-deal").style.height =
     Math.max(
       5,
       l.dealImpact /
@@ -2935,9 +2777,7 @@ function updateLevers(){
     ) + "%";
 
 
-  document.getElementById(
-    "chart-lead"
-  ).style.height =
+  document.getElementById("chart-lead").style.height =
     Math.max(
       5,
       l.leadImpact /
@@ -2945,33 +2785,19 @@ function updateLevers(){
     ) + "%";
 
 
-  setText(
-    "chart-conv-value",
-    money(l.conversionImpact)
-  );
-
-  setText(
-    "chart-deal-value",
-    money(l.dealImpact)
-  );
-
-  setText(
-    "chart-lead-value",
-    money(l.leadImpact)
-  );
+  setText("chart-conv-value",money(l.conversionImpact));
+  setText("chart-deal-value",money(l.dealImpact));
+  setText("chart-lead-value",money(l.leadImpact));
 
 
-  document.getElementById(
-    "lever-conv"
-  ).classList.remove("winner");
+  document.getElementById("lever-conv")
+    .classList.remove("winner");
 
-  document.getElementById(
-    "lever-deal"
-  ).classList.remove("winner");
+  document.getElementById("lever-deal")
+    .classList.remove("winner");
 
-  document.getElementById(
-    "lever-leads"
-  ).classList.remove("winner");
+  document.getElementById("lever-leads")
+    .classList.remove("winner");
 
 
   const maxIndex =
@@ -2988,9 +2814,8 @@ function updateLevers(){
     winner =
       "افزایش نرخ تبدیل +۲ واحد درصد";
 
-    document.getElementById(
-      "lever-conv"
-    ).classList.add("winner");
+    document.getElementById("lever-conv")
+      .classList.add("winner");
 
   }
 
@@ -3000,9 +2825,8 @@ function updateLevers(){
     winner =
       "افزایش ارزش معامله +۱۰٪";
 
-    document.getElementById(
-      "lever-deal"
-    ).classList.add("winner");
+    document.getElementById("lever-deal")
+      .classList.add("winner");
 
   }
 
@@ -3012,17 +2836,13 @@ function updateLevers(){
     winner =
       "افزایش لید +۲۰٪";
 
-    document.getElementById(
-      "lever-leads"
-    ).classList.add("winner");
+    document.getElementById("lever-leads")
+      .classList.add("winner");
 
   }
 
 
-  setText(
-    "winner",
-    winner
-  );
+  setText("winner",winner);
 
 }
 
@@ -3033,26 +2853,10 @@ function updateLevers(){
 
 function syncReverse(){
 
-  setInput(
-    "rdeal",
-    num("deal")
-  );
-
-  setInput(
-    "rfreq",
-    num("frequency")
-  );
-
-  setInput(
-    "rconv",
-    num("conversion")
-  );
-
-  setInput(
-    "rcontact",
-    num("contact")
-  );
-
+  setInput("rdeal",num("deal"));
+  setInput("rfreq",num("frequency"));
+  setInput("rconv",num("conversion"));
+  setInput("rcontact",num("contact"));
 
   calculateReverse();
 
@@ -3085,35 +2889,12 @@ function calculateReverse(){
     contact <= 0
   ){
 
-    setText(
-      "reverse-customers",
-      "۰"
-    );
-
-    setText(
-      "reverse-contacts",
-      "۰"
-    );
-
-    setText(
-      "reverse-leads",
-      "۰"
-    );
-
-    setText(
-      "reverse-month",
-      "۰"
-    );
-
-    setText(
-      "reverse-week",
-      "۰"
-    );
-
-    setText(
-      "reverse-target-display",
-      money(target)
-    );
+    setText("reverse-customers","۰");
+    setText("reverse-contacts","۰");
+    setText("reverse-leads","۰");
+    setText("reverse-month","۰");
+    setText("reverse-week","۰");
+    setText("reverse-target-display",money(target));
 
     setText(
       "reverse-statement",
@@ -3148,41 +2929,16 @@ function calculateReverse(){
     leads / 52;
 
 
-  setText(
-    "reverse-customers",
-    number(customers)
-  );
-
-  setText(
-    "reverse-contacts",
-    number(contacts)
-  );
-
-  setText(
-    "reverse-leads",
-    number(leads)
-  );
-
-  setText(
-    "reverse-month",
-    number(month)
-  );
-
-  setText(
-    "reverse-week",
-    number(week)
-  );
-
-  setText(
-    "reverse-target-display",
-    money(target)
-  );
+  setText("reverse-customers",number(customers));
+  setText("reverse-contacts",number(contacts));
+  setText("reverse-leads",number(leads));
+  setText("reverse-month",number(month));
+  setText("reverse-week",number(week));
+  setText("reverse-target-display",money(target));
 
 
   const warning =
-    document.getElementById(
-      "reverse-warning"
-    );
+    document.getElementById("reverse-warning");
 
 
   if(week > 1000){
@@ -3283,35 +3039,12 @@ function calculateSurvival(){
     : 0;
 
 
-  setText(
-    "out-burn-month",
-    money(burnMonth)
-  );
-
-  setText(
-    "out-burn-day",
-    money(burnDay)
-  );
-
-  setText(
-    "out-buffer-needed",
-    money(bufferNeeded)
-  );
-
-  setText(
-    "out-buffer-months",
-    number(bufferMonths)
-  );
-
-  setText(
-    "buffer-current",
-    money(cash)
-  );
-
-  setText(
-    "buffer-goal",
-    money(bufferNeeded)
-  );
+  setText("out-burn-month",money(burnMonth));
+  setText("out-burn-day",money(burnDay));
+  setText("out-buffer-needed",money(bufferNeeded));
+  setText("out-buffer-months",number(bufferMonths));
+  setText("buffer-current",money(cash));
+  setText("buffer-goal",money(bufferNeeded));
 
 
   document.getElementById(
@@ -3402,25 +3135,10 @@ function updateDashboard(){
     num("target");
 
 
-  setText(
-    "dash-current",
-    money(r.annualRevenue)
-  );
-
-  setText(
-    "dash-profit",
-    money(r.grossProfit)
-  );
-
-  setText(
-    "dash-customers",
-    number(r.customers)
-  );
-
-  setText(
-    "dash-target",
-    money(target)
-  );
+  setText("dash-current",money(r.annualRevenue));
+  setText("dash-profit",money(r.grossProfit));
+  setText("dash-customers",number(r.customers));
+  setText("dash-target",money(target));
 
 
   const gap =
@@ -3458,10 +3176,7 @@ function updateDashboard(){
     : 0;
 
 
-  setText(
-    "dash-progress",
-    percent(progress)
-  );
+  setText("dash-progress",percent(progress));
 
 
   document.getElementById(
@@ -3471,11 +3186,9 @@ function updateDashboard(){
 
 
   const impacts = [
-
     l.conversionImpact,
     l.dealImpact,
     l.leadImpact
-
   ];
 
 
@@ -3646,58 +3359,22 @@ function updateMine(){
     calculateLevers();
 
 
-  setText(
-    "mine-leads",
-    number(c.leads)
-  );
+  setText("mine-leads",number(c.leads));
+  setText("mine-contact",percent(c.contact*100));
+  setText("mine-conversion",percent(c.conversion*100));
+  setText("mine-deal",money(c.deal));
+  setText("mine-frequency",number(c.frequency));
+  setText("mine-margin",percent(c.margin*100));
 
-  setText(
-    "mine-contact",
-    percent(c.contact*100)
-  );
-
-  setText(
-    "mine-conversion",
-    percent(c.conversion*100)
-  );
-
-  setText(
-    "mine-deal",
-    money(c.deal)
-  );
-
-  setText(
-    "mine-frequency",
-    number(c.frequency)
-  );
-
-  setText(
-    "mine-margin",
-    percent(c.margin*100)
-  );
-
-  setText(
-    "mine-annual",
-    money(r.annualRevenue)
-  );
-
-  setText(
-    "mine-profit",
-    money(r.grossProfit)
-  );
-
-  setText(
-    "mine-buyers",
-    number(r.customers)
-  );
+  setText("mine-annual",money(r.annualRevenue));
+  setText("mine-profit",money(r.grossProfit));
+  setText("mine-buyers",number(r.customers));
 
 
   const impacts = [
-
     l.conversionImpact,
     l.dealImpact,
     l.leadImpact
-
   ];
 
 
@@ -3759,7 +3436,6 @@ function updateMine(){
 
 
     setText(
-
       "manifesto",
 
       "برای رسیدن به درآمد هدف " +
@@ -4078,12 +3754,6 @@ document.addEventListener(
 
     const loggedIn =
       checkStudentAccess();
-
-
-    /*
-      loadState در شروع صفحه اجرا نمی‌شود.
-      فقط بعد از احراز هویت اجرا می‌شود.
-    */
 
 
     attachAutoSave();

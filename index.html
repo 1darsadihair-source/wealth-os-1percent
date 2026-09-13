@@ -3446,8 +3446,7 @@ function updateSurvival(){
 
 function attachAutoSave(){
 
-  const ids = [
-
+  const coreIds = [
     "leads",
     "contact",
     "conversion",
@@ -3455,60 +3454,57 @@ function attachAutoSave(){
     "frequency",
     "margin",
     "target"
-
   ];
 
+  coreIds.forEach(id => {
 
-  ids.forEach(
+    const el = document.getElementById(id);
 
-    id => {
+    if(!el) return;
 
-      const el =
-        document.getElementById(id);
+    el.addEventListener("input", function(){
 
+      state.core.leads = num("leads");
+      state.core.contact = num("contact");
+      state.core.conversion = num("conversion");
+      state.core.deal = num("deal");
+      state.core.frequency = num("frequency");
+      state.core.margin = num("margin");
+      state.core.target = num("target");
 
-      if(!el)
-        return;
+      calculateAll();
+      saveState();
+    });
+  });
 
+  const survivalIds = [
+    "surv-rent",
+    "surv-food",
+    "surv-health",
+    "surv-staff",
+    "surv-bills",
+    "surv-cash"
+  ];
 
-      el.addEventListener(
+  survivalIds.forEach(id => {
 
-        "input",
+    const el = document.getElementById(id);
 
-        function(){
+    if(!el) return;
 
-          state.core.leads =
-            num("leads");
+    el.addEventListener("input", function(){
 
-          state.core.contact =
-            num("contact");
+      state.survival.rent = num("surv-rent");
+      state.survival.food = num("surv-food");
+      state.survival.health = num("surv-health");
+      state.survival.staff = num("surv-staff");
+      state.survival.bills = num("surv-bills");
+      state.survival.cash = num("surv-cash");
 
-          state.core.conversion =
-            num("conversion");
-
-          state.core.deal =
-            num("deal");
-
-          state.core.frequency =
-            num("frequency");
-
-          state.core.margin =
-            num("margin");
-
-          state.core.target =
-            num("target");
-
-
-          calculateAll();
-
-        }
-
-      );
-
-    }
-
-  );
-
+      calculateSurvival();
+      saveState();
+    });
+  });
 }
 
 

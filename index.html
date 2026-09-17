@@ -1546,8 +1546,13 @@ const supabaseClient =
     SUPABASE_ANON_KEY,
     {
       auth:{
-        persistSession:true,
-        autoRefreshToken:true,
+        /*
+         * This app uses its own short-lived student session token.
+         * Do not let Supabase Auth create/persist a second session
+         * in localStorage or refresh it independently.
+         */
+        persistSession:false,
+        autoRefreshToken:false,
         detectSessionInUrl:false
       }
     }
@@ -1555,19 +1560,276 @@ const supabaseClient =
 
 
 /* =========================================================
-   STUDENT ACCESS
+   STUDENT ACCESS / SHORT-LIVED SESSION
 ========================================================= */
 
+const STUDENT_SESSION_TOKEN_KEY =
+  "student_session_token";
+
+const STUDENT_SESSION_EXPIRES_KEY =
+  "student_session_expires_at";
+
+const STUDENT_SESSION_INFO_KEY =
+  "student_session_info";
+
 let currentStudent = null;
-let currentStudentCode = null;
+let currentSession = null;
+let sessionReady = false;
+let authGeneration = 0;
+let saveTimer = null;
 
 
-/*
-  این متغیر بسیار مهم است.
-  تا زمانی که اطلاعات قبلی از Supabase خوانده نشده،
-  هیچ ذخیره‌ای انجام نمی‌شود.
-*/
-let appReady = false;
+/* =========================================================
+   SESSION HELPERS
+========================================================= */
+
+function getStoredStudentToken(){
+
+  try{
+    return sessionStorage.getItem(
+      STUDENT_SESSION_TOKEN_KEY
+    );
+  }catch(error){
+    return null;
+  }
+}
+
+
+function getStoredStudentExpiry(){
+
+  try{
+    return sessionStorage.getItem(
+      STUDENT_SESSION_EXPIRES_KEY
+    );
+  }catch(error){
+    return null;
+  }
+}
+
+
+function normalizeExpiresAt(value){
+
+  if(value === null || value === undefined || value === ""){
+    return null;
+  }
+
+  if(typeof value === "number" && Number.isFinite(value)){
+    return value < 100000000000
+      ? value * 1000
+      : value;
+  }
+
+  if(typeof value === "string"){
+
+    const numeric = Number(value);
+
+    if(Number.isFinite(numeric)){
+      return numeric < 100000000000
+        ? numeric * 1000
+        : numeric;
+    }
+
+    const parsed = Date.parse(value);
+
+    if(Number.isFinite(parsed)){
+      return parsed;
+    }
+  }
+
+  return null;
+}
+
+
+function getStudentSession(){
+
+  const token =
+    getStoredStudentToken();
+
+  const expiresAt =
+    normalizeExpiresAt(
+      getStoredStudentExpiry()
+    );
+
+  if(!token || !expiresAt){
+    return null;
+  }
+
+  return {
+    token,
+    expiresAt
+  };
+}
+
+
+function hasValidStudentSession(){
+
+  const session =
+    getStudentSession();
+
+  return !!(
+    session &&
+    Date.now() < session.expiresAt
+  );
+}
+
+
+function sanitizeStudentInfo(student){
+
+  if(!student || typeof student !== "object"){
+    return null;
+  }
+
+  return {
+    id: student.id || null,
+    name: typeof student.name === "string"
+      ? student.name
+      : "",
+    active: student.active === true
+  };
+}
+
+
+function readStudentSessionInfo(){
+
+  try{
+
+    const raw =
+      sessionStorage.getItem(
+        STUDENT_SESSION_INFO_KEY
+      );
+
+    if(!raw){
+      return null;
+    }
+
+    return sanitizeStudentInfo(
+      JSON.parse(raw)
+    );
+
+  }catch(error){
+    return null;
+  }
+}
+
+
+function showStudentLogin(message){
+
+  const overlay =
+    document.getElementById("student-login");
+
+  const error =
+    document.getElementById("login-error");
+
+  if(overlay){
+    overlay.style.display = "flex";
+  }
+
+  if(error && message){
+    error.textContent = message;
+  }
+}
+
+
+function clearStudentSession(message){
+
+  authGeneration++;
+  sessionReady = false;
+
+  clearTimeout(saveTimer);
+  saveTimer = null;
+
+  try{
+    sessionStorage.removeItem(
+      STUDENT_SESSION_TOKEN_KEY
+    );
+
+    sessionStorage.removeItem(
+      STUDENT_SESSION_EXPIRES_KEY
+    );
+
+    sessionStorage.removeItem(
+      STUDENT_SESSION_INFO_KEY
+    );
+
+    /* Remove credentials left by older versions. */
+    localStorage.removeItem("student_code");
+    localStorage.removeItem("student_session");
+    localStorage.removeItem("student_info");
+
+  }catch(error){
+    /* Storage cleanup should never block logout. */
+  }
+
+  currentStudent = null;
+  currentSession = null;
+
+  showStudentLogin(
+    message || "نشست شما معتبر نیست. لطفاً دوباره وارد شوید."
+  );
+}
+
+
+function storeStudentSession(result){
+
+  const token =
+    result?.session_token ||
+    result?.token ||
+    result?.session?.token ||
+    result?.session?.session_token ||
+    result?.session?.access_token;
+
+  const expiresAtRaw =
+    result?.expires_at ||
+    result?.expiresAt ||
+    result?.session?.expires_at ||
+    result?.session?.expiresAt;
+
+  const expiresAt =
+    normalizeExpiresAt(expiresAtRaw);
+
+  if(!token || !expiresAt){
+    throw new Error(
+      "پاسخ ورود ناقص است و اطلاعات نشست دریافت نشد."
+    );
+  }
+
+  try{
+
+    sessionStorage.setItem(
+      STUDENT_SESSION_TOKEN_KEY,
+      String(token)
+    );
+
+    sessionStorage.setItem(
+      STUDENT_SESSION_EXPIRES_KEY,
+      String(expiresAt)
+    );
+
+    if(result?.student){
+      sessionStorage.setItem(
+        STUDENT_SESSION_INFO_KEY,
+        JSON.stringify(
+          sanitizeStudentInfo(result.student)
+        )
+      );
+    }
+
+  }catch(error){
+    throw new Error(
+      "ذخیره نشست در مرورگر انجام نشد."
+    );
+  }
+
+  currentSession = {
+    token:String(token),
+    expiresAt
+  };
+
+  currentStudent =
+    sanitizeStudentInfo(result?.student);
+
+  sessionReady = true;
+}
 
 
 /* =========================================================
@@ -1576,61 +1838,98 @@ let appReady = false;
 
 async function callStudentAPI(body){
 
-  const response =
-    await fetch(
-      SUPABASE_FUNCTION_URL,
-      {
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json"
-        },
-        body:JSON.stringify(body)
-      }
-    );
+  const action =
+    body?.action || "";
+
+  const isLogin =
+    action === "login";
+
+  let requestBody =
+    body && typeof body === "object"
+      ? {...body}
+      : {};
+
+  /* student_code is accepted only for the login request. */
+  if(!isLogin){
+    delete requestBody.student_code;
+    delete requestBody.student_id;
+  }
+
+  let headers = {
+    "Content-Type":"application/json"
+  };
+
+  if(!isLogin){
+
+    if(!hasValidStudentSession()){
+      clearStudentSession();
+      throw new Error(
+        "نشست شما منقضی شده است."
+      );
+    }
+
+    const session =
+      getStudentSession();
+
+    headers.Authorization =
+      "Bearer " + session.token;
+  }
+
+  const response = await fetch(
+    SUPABASE_FUNCTION_URL,
+    {
+      method:"POST",
+      headers,
+      body:JSON.stringify(requestBody)
+    }
+  );
 
   let result = null;
 
   try{
-
-    result =
-      await response.json();
-
+    result = await response.json();
   }catch(error){
-
+    if(response.status === 401 && !isLogin){
+      clearStudentSession();
+    }
     throw new Error(
-      "پاسخ معتبر از سرور دریافت نشد."
+      response.status === 401
+        ? "نشست شما دیگر معتبر نیست."
+        : "پاسخ معتبر از سرور دریافت نشد."
     );
-
   }
 
-  if(
-    !response.ok ||
-    !result.success
-  ){
+  if(response.status === 401){
 
+    if(!isLogin){
+      clearStudentSession(
+        "نشست شما دیگر معتبر نیست یا دسترسی شما غیرفعال شده است."
+      );
+    }
+
+    throw new Error(
+      result?.error ||
+      "نشست شما دیگر معتبر نیست."
+    );
+  }
+
+  if(!response.ok || !result?.success){
     throw new Error(
       result?.error ||
       "عملیات انجام نشد."
     );
-
   }
 
   return result;
-
 }
 
 
 async function loginStudent(code){
 
   return await callStudentAPI({
-
     action:"login",
-
-    student_code:
-      String(code).trim()
-
+    student_code:String(code).trim()
   });
-
 }
 
 
@@ -1641,254 +1940,159 @@ async function loginStudent(code){
 async function checkStudentCode(){
 
   const input =
-    document.getElementById(
-      "student-code"
-    );
+    document.getElementById("student-code");
 
   const error =
-    document.getElementById(
-      "login-error"
-    );
+    document.getElementById("login-error");
 
   const button =
-    document.querySelector(
-      "#student-login button"
-    );
+    document.querySelector("#student-login button");
+
+  if(!input || !error){
+    return;
+  }
 
   const code =
     input.value.trim();
 
-
   if(!code){
-
     error.textContent =
       "لطفاً کد دسترسی را وارد کنید.";
-
     return;
-
   }
 
+  /* Prevent concurrent login attempts. */
+  if(button?.disabled){
+    return;
+  }
 
   error.textContent = "";
 
-
   if(button){
-
     button.disabled = true;
-
-    button.textContent =
-      "در حال ورود...";
-
+    button.textContent = "در حال ورود...";
   }
 
+  const loginGeneration =
+    authGeneration + 1;
+
+  authGeneration =
+    loginGeneration;
 
   try{
 
     const result =
       await loginStudent(code);
 
+    /* Ignore a stale login result. */
+    if(authGeneration !== loginGeneration){
+      return;
+    }
 
-    currentStudent =
-      result.student;
+    storeStudentSession(result);
 
-    currentStudentCode =
-      String(code).trim();
-
-
-    localStorage.setItem(
-      "student_code",
-      currentStudentCode
-    );
-
-
-    localStorage.setItem(
-      "student_info",
-      JSON.stringify(
-        result.student
-      )
-    );
-
+    /* The code is never persisted. */
+    try{
+      localStorage.removeItem("student_code");
+      localStorage.removeItem("student_session");
+      localStorage.removeItem("student_info");
+    }catch(storageError){}
 
     document.getElementById(
       "student-login"
-    ).style.display =
-      "none";
-
+    ).style.display = "none";
 
     error.textContent = "";
-
     input.value = "";
 
-
-    /*
-      اول اطلاعات ذخیره‌شده را می‌خوانیم.
-      بعد برنامه را آماده می‌کنیم.
-      بعد محاسبه انجام می‌شود.
-    */
-
+    /* Backend is the source of truth for the current student. */
     await loadState();
-
-
-    appReady = true;
-
-
-    attachAutoSave();
-
-    updateSurvival();
-
     calculateAll();
-
-    calculateReverse();
-
-    updateLevers();
-
-    updateDashboard();
-
-    updateMine();
-
-
-    console.log(
-      "Student login successful:",
-      result.student
-    );
-
 
   }catch(errorObject){
 
-    console.error(
-      "Student login error:",
-      errorObject
-    );
+    if(authGeneration === loginGeneration){
+      sessionReady = false;
 
+      error.textContent =
+        errorObject?.message ||
+        "ورود انجام نشد. دوباره تلاش کنید.";
 
-    error.textContent =
-      errorObject.message ||
-      "ورود انجام نشد. دوباره تلاش کنید.";
-
-
-    input.value = "";
-
-    input.focus();
-
+      input.value = "";
+      input.focus();
+    }
 
   }finally{
 
     if(button){
-
       button.disabled = false;
-
-      button.textContent =
-        "ورود به سیستم";
-
+      button.textContent = "ورود به سیستم";
     }
-
   }
-
 }
 
 
 /* =========================================================
-   CHECK EXISTING STUDENT ACCESS
+   CHECK EXISTING STUDENT SESSION
 ========================================================= */
 
 async function checkStudentAccess(){
 
+  sessionReady = false;
+
+  /* Remove credentials left by the previous authentication model. */
+  try{
+    localStorage.removeItem("student_code");
+    localStorage.removeItem("student_session");
+    localStorage.removeItem("student_info");
+  }catch(error){}
+
+  if(!hasValidStudentSession()){
+    clearStudentSession();
+    return false;
+  }
+
+  const session =
+    getStudentSession();
+
+  const savedStudent =
+    readStudentSessionInfo();
+
+  if(!session){
+    clearStudentSession();
+    return false;
+  }
+
+  currentSession = session;
+  currentStudent = savedStudent;
+  sessionReady = true;
+
+  const overlay =
+    document.getElementById("student-login");
+
+  if(overlay){
+    overlay.style.display = "none";
+  }
+
   try{
 
-    const savedCode =
-      localStorage.getItem(
-        "student_code"
-      );
+    /* Re-validate the session with the Backend on every page load. */
+    await loadState();
 
-    const savedStudent =
-      localStorage.getItem(
-        "student_info"
-      );
-
-
-    if(savedCode){
-
-      const result =
-        await loginStudent(
-          savedCode
-        );
-
-
-      currentStudentCode =
-        String(savedCode).trim();
-
-      currentStudent =
-        result.student;
-
-
-      localStorage.setItem(
-        "student_info",
-        JSON.stringify(
-          result.student
-        )
-      );
-
-
-      document.getElementById(
-        "student-login"
-      ).style.display =
-        "none";
-
-
-      /*
-        اصلاح اصلی اینجاست:
-        در ورود خودکار حتماً اطلاعات
-        ذخیره‌شده از Supabase خوانده می‌شود.
-      */
-
-      await loadState();
-
-
-      return true;
-
+    if(!hasValidStudentSession()){
+      return false;
     }
 
-
-    if(savedStudent){
-
-      localStorage.removeItem(
-        "student_info"
-      );
-
-    }
+    return true;
 
   }catch(error){
 
-    console.warn(
-      "Saved student access is no longer valid:",
-      error
+    clearStudentSession(
+      "نشست شما دیگر معتبر نیست یا دسترسی شما غیرفعال شده است."
     );
 
+    return false;
   }
-
-
-  currentStudentCode = null;
-
-  currentStudent = null;
-
-
-  localStorage.removeItem(
-    "student_code"
-  );
-
-  localStorage.removeItem(
-    "student_info"
-  );
-
-
-  document.getElementById(
-    "student-login"
-  ).style.display =
-    "flex";
-
-
-  return false;
-
 }
 
 
@@ -1898,42 +2102,40 @@ async function checkStudentAccess(){
 
 async function logoutStudent(){
 
-  appReady = false;
+  const logoutGeneration =
+    ++authGeneration;
 
-  localStorage.removeItem(
-    "student_code"
-  );
+  clearTimeout(saveTimer);
+  saveTimer = null;
+  sessionReady = false;
 
-  localStorage.removeItem(
-    "student_info"
-  );
+  const session =
+    getStudentSession();
 
+  try{
 
-  currentStudentCode = null;
+    if(session){
+      await callStudentAPI({
+        action:"logout"
+      });
+    }
 
-  currentStudent = null;
+  }catch(error){
+    /* Local cleanup below is mandatory even if Backend logout fails. */
+  }finally{
 
-
-  document.getElementById(
-    "student-login"
-  ).style.display =
-    "flex";
-
-
-  const input =
-    document.getElementById(
-      "student-code"
-    );
-
-
-  if(input){
-
-    input.value = "";
-
-    input.focus();
-
+    if(authGeneration === logoutGeneration){
+      clearStudentSession();
+    }
   }
 
+  const input =
+    document.getElementById("student-code");
+
+  if(input){
+    input.value = "";
+    input.focus();
+  }
 }
 
 
@@ -1947,44 +2149,20 @@ function getStudentName(){
     currentStudent &&
     currentStudent.name
   ){
-
     return currentStudent.name;
-
   }
 
+  const savedStudent =
+    readStudentSessionInfo();
 
-  try{
-
-    const savedStudent =
-      localStorage.getItem(
-        "student_info"
-      );
-
-
-    if(savedStudent){
-
-      const student =
-        JSON.parse(
-          savedStudent
-        );
-
-
-      return student.name || "";
-
-    }
-
-  }catch(error){
-
-    console.error(
-      "Student info error:",
-      error
-    );
-
+  if(
+    savedStudent &&
+    savedStudent.name
+  ){
+    return savedStudent.name;
   }
-
 
   return "";
-
 }
 
 
@@ -2041,14 +2219,11 @@ function num(id){
   const el =
     document.getElementById(id);
 
-
   if(!el)
     return 0;
 
-
   const value =
     parseFloat(el.value);
-
 
   return Number.isFinite(value)
     ? value
@@ -2061,7 +2236,6 @@ function money(value){
 
   if(!Number.isFinite(value))
     return "۰";
-
 
   return new Intl.NumberFormat(
     "fa-IR",
@@ -2078,7 +2252,6 @@ function number(value){
   if(!Number.isFinite(value))
     return "۰";
 
-
   return new Intl.NumberFormat(
     "fa-IR",
     {
@@ -2094,7 +2267,6 @@ function percent(value){
   if(!Number.isFinite(value))
     return "۰٪";
 
-
   return new Intl.NumberFormat(
     "fa-IR",
     {
@@ -2109,7 +2281,6 @@ function setText(id,value){
 
   const el =
     document.getElementById(id);
-
 
   if(el)
     el.textContent = value;
@@ -2179,36 +2350,30 @@ function collectStateFromInputs(){
       "decision-lever"
     )?.value || "";
 
-
   state.decision.reason =
     document.getElementById(
       "decision-reason"
     )?.value || "";
-
 
   state.decision.current =
     document.getElementById(
       "decision-current"
     )?.value || "";
 
-
   state.decision.goal =
     document.getElementById(
       "decision-goal"
     )?.value || "";
-
 
   state.decision.action =
     document.getElementById(
       "decision-action"
     )?.value || "";
 
-
   state.decision.start =
     document.getElementById(
       "decision-start"
     )?.value || "";
-
 
   state.decision.review =
     document.getElementById(
@@ -2221,12 +2386,10 @@ function collectStateFromInputs(){
       "commitment"
     )?.value || "";
 
-
   state.personal.signature =
     document.getElementById(
       "signature"
     )?.value || "";
-
 
   state.personal.date =
     document.getElementById(
@@ -2240,91 +2403,59 @@ function collectStateFromInputs(){
    SAVE STATE TO SUPABASE
 ========================================================= */
 
-let saveTimer = null;
-
-
 async function saveState(){
-
-  /*
-    جلوگیری قطعی از ذخیره قبل از loadState
-  */
-
-  if(!appReady)
-    return;
-
-
-  if(
-    !currentStudent ||
-    !currentStudentCode
-  ){
-
-    return;
-
-  }
-
 
   collectStateFromInputs();
 
+  if(!currentStudent || !sessionReady){
+    return;
+  }
 
-  clearTimeout(
-    saveTimer
-  );
+  if(!hasValidStudentSession()){
+    clearStudentSession();
+    return;
+  }
 
+  clearTimeout(saveTimer);
 
-  saveTimer =
-    setTimeout(
-      async function(){
+  const saveGeneration =
+    authGeneration;
 
-        try{
+  saveTimer = setTimeout(async function(){
 
-          const payload = {
+    /* Do not allow an old debounced save to run after logout/login. */
+    if(
+      saveGeneration !== authGeneration ||
+      !sessionReady ||
+      !currentStudent
+    ){
+      return;
+    }
 
-            action:"save",
+    if(!hasValidStudentSession()){
+      clearStudentSession();
+      return;
+    }
 
-            student_code:
-              currentStudentCode,
+    try{
 
-            student_id:
-              currentStudent.id,
+      await callStudentAPI({
+        action:"save",
+        personal_data:state.personal,
+        decision_data:state.decision,
+        survival_data:state.survival,
+        core_data:state.core
+      });
 
-            personal_data:
-              state.personal,
+    }catch(error){
 
-            decision_data:
-              state.decision,
+      /* 401 is handled centrally by callStudentAPI. */
+      if(!hasValidStudentSession()){
+        return;
+      }
+    }
 
-            survival_data:
-              state.survival,
-
-            core_data:
-              state.core
-
-          };
-
-
-          await callStudentAPI(
-            payload
-          );
-
-
-          console.log(
-            "Student data saved to Supabase."
-          );
-
-
-        }catch(error){
-
-          console.error(
-            "Supabase save error:",
-            error
-          );
-
-        }
-
-      },
-      700
-    );
-
+  },700);
 }
 
 
@@ -2428,212 +2559,96 @@ function savePersonal(){
 
 async function loadState(){
 
-  if(
-    !currentStudent ||
-    !currentStudentCode
-  ){
-
-    return;
-
+  if(!hasValidStudentSession()){
+    clearStudentSession();
+    return false;
   }
 
+  if(!sessionReady && !currentSession){
+    return false;
+  }
 
   try{
 
     const result =
       await callStudentAPI({
-
-        action:"load",
-
-        student_code:
-          currentStudentCode,
-
-        student_id:
-          currentStudent.id
-
+        action:"load"
       });
 
+    /* Prefer the student returned by the Backend over cached identity. */
+    if(result?.student){
+      currentStudent =
+        sanitizeStudentInfo(result.student);
+
+      try{
+        sessionStorage.setItem(
+          STUDENT_SESSION_INFO_KEY,
+          JSON.stringify(currentStudent)
+        );
+      }catch(error){}
+    }
 
     const data =
-      result.data;
-
+      result?.data;
 
     if(data){
 
       state = {
-
         ...state,
-
         core:{
-
           ...state.core,
-
           ...(data.core_data || {})
-
         },
-
         survival:{
-
           ...state.survival,
-
           ...(data.survival_data || {})
-
         },
-
         decision:{
-
           ...state.decision,
-
           ...(data.decision_data || {})
-
         },
-
         personal:{
-
           ...state.personal,
-
           ...(data.personal_data || {})
-
         }
-
       };
-
     }
 
   }catch(error){
 
-    console.error(
-      "Supabase load error:",
-      error
-    );
-
+    /* 401/session invalidation is handled by callStudentAPI. */
+    throw error;
   }
 
+  setInput("leads",state.core.leads);
+  setInput("contact",state.core.contact);
+  setInput("conversion",state.core.conversion);
+  setInput("deal",state.core.deal);
+  setInput("frequency",state.core.frequency);
+  setInput("margin",state.core.margin);
+  setInput("target",state.core.target);
 
-  /*
-    بسیار مهم:
-    فقط بعد از دریافت اطلاعات از دیتابیس،
-    ورودی‌های صفحه با state پر می‌شوند.
-  */
+  setInput("surv-rent",state.survival.rent);
+  setInput("surv-food",state.survival.food);
+  setInput("surv-health",state.survival.health);
+  setInput("surv-staff",state.survival.staff);
+  setInput("surv-bills",state.survival.bills);
+  setInput("surv-cash",state.survival.cash);
 
-  setInput(
-    "leads",
-    state.core.leads
-  );
+  setInput("decision-lever",state.decision.lever);
+  setInput("decision-reason",state.decision.reason);
+  setInput("decision-current",state.decision.current);
+  setInput("decision-goal",state.decision.goal);
+  setInput("decision-action",state.decision.action);
+  setInput("decision-start",state.decision.start);
+  setInput("decision-review",state.decision.review);
 
-  setInput(
-    "contact",
-    state.core.contact
-  );
+  setInput("commitment",state.personal.commitment);
+  setInput("signature",state.personal.signature);
+  setInput("signature-date",state.personal.date);
 
-  setInput(
-    "conversion",
-    state.core.conversion
-  );
-
-  setInput(
-    "deal",
-    state.core.deal
-  );
-
-  setInput(
-    "frequency",
-    state.core.frequency
-  );
-
-  setInput(
-    "margin",
-    state.core.margin
-  );
-
-  setInput(
-    "target",
-    state.core.target
-  );
-
-
-  setInput(
-    "surv-rent",
-    state.survival.rent
-  );
-
-  setInput(
-    "surv-food",
-    state.survival.food
-  );
-
-  setInput(
-    "surv-health",
-    state.survival.health
-  );
-
-  setInput(
-    "surv-staff",
-    state.survival.staff
-  );
-
-  setInput(
-    "surv-bills",
-    state.survival.bills
-  );
-
-  setInput(
-    "surv-cash",
-    state.survival.cash
-  );
-
-
-  setInput(
-    "decision-lever",
-    state.decision.lever
-  );
-
-  setInput(
-    "decision-reason",
-    state.decision.reason
-  );
-
-  setInput(
-    "decision-current",
-    state.decision.current
-  );
-
-  setInput(
-    "decision-goal",
-    state.decision.goal
-  );
-
-  setInput(
-    "decision-action",
-    state.decision.action
-  );
-
-  setInput(
-    "decision-start",
-    state.decision.start
-  );
-
-  setInput(
-    "decision-review",
-    state.decision.review
-  );
-
-
-  setInput(
-    "commitment",
-    state.personal.commitment
-  );
-
-  setInput(
-    "signature",
-    state.personal.signature
-  );
-
-  setInput(
-    "signature-date",
-    state.personal.date
-  );
-
+  sessionReady = true;
+  return true;
 }
 
 
@@ -2641,7 +2656,6 @@ function setInput(id,value){
 
   const el =
     document.getElementById(id);
-
 
   if(el){
 
@@ -2725,21 +2739,13 @@ function calculateEngine(){
 
 
   return {
-
     annualContacts,
-
     customers,
-
     transactions,
-
     annualRevenue,
-
     grossProfit,
-
     monthlyRevenue,
-
     monthlyProfit
-
   };
 
 }
@@ -2751,47 +2757,16 @@ function calculateAll(){
     calculateEngine();
 
 
-  setText(
-    "out-annual",
-    money(r.annualRevenue)
-  );
-
-  setText(
-    "out-profit",
-    money(r.grossProfit)
-  );
-
-  setText(
-    "out-monthly",
-    money(r.monthlyRevenue)
-  );
-
-  setText(
-    "out-buyers",
-    number(r.customers)
-  );
-
-  setText(
-    "out-tx",
-    number(r.transactions)
-  );
-
-  setText(
-    "out-profit-month",
-    money(r.monthlyProfit)
-  );
-
-  setText(
-    "out-contacts",
-    number(r.annualContacts)
-  );
+  setText("out-annual",money(r.annualRevenue));
+  setText("out-profit",money(r.grossProfit));
+  setText("out-monthly",money(r.monthlyRevenue));
+  setText("out-buyers",number(r.customers));
+  setText("out-tx",number(r.transactions));
+  setText("out-profit-month",money(r.monthlyProfit));
+  setText("out-contacts",number(r.annualContacts));
 
 
-  /*
-    saveState از اینجا حذف شده.
-    calculateAll فقط محاسبه می‌کند.
-  */
-
+  saveState();
 
   syncReverse();
 
@@ -2802,6 +2777,7 @@ function calculateAll(){
   updateMine();
 
   calculateSurvival();
+
 
 }
 
@@ -2856,24 +2832,16 @@ function calculateLevers(){
 
 
   return {
-
     base,
-
     conversionScenario,
-
     dealScenario,
-
     leadScenario,
-
     conversionImpact:
       conversionScenario - base,
-
     dealImpact:
       dealScenario - base,
-
     leadImpact:
       leadScenario - base
-
   };
 
 }
@@ -2885,41 +2853,14 @@ function updateLevers(){
     calculateLevers();
 
 
-  setText(
-    "base-revenue",
-    money(l.base)
-  );
+  setText("base-revenue",money(l.base));
+  setText("conv-revenue",money(l.conversionScenario));
+  setText("deal-revenue",money(l.dealScenario));
+  setText("lead-revenue",money(l.leadScenario));
 
-  setText(
-    "conv-revenue",
-    money(l.conversionScenario)
-  );
-
-  setText(
-    "deal-revenue",
-    money(l.dealScenario)
-  );
-
-  setText(
-    "lead-revenue",
-    money(l.leadScenario)
-  );
-
-
-  setText(
-    "conv-impact",
-    money(l.conversionImpact)
-  );
-
-  setText(
-    "deal-impact",
-    money(l.dealImpact)
-  );
-
-  setText(
-    "lead-impact",
-    money(l.leadImpact)
-  );
+  setText("conv-impact",money(l.conversionImpact));
+  setText("deal-impact",money(l.dealImpact));
+  setText("lead-impact",money(l.leadImpact));
 
 
   const convGrowth =
@@ -2943,46 +2884,23 @@ function updateLevers(){
     : 0;
 
 
-  setText(
-    "conv-growth",
-    percent(convGrowth) +
-    " رشد"
-  );
-
-  setText(
-    "deal-growth",
-    percent(dealGrowth) +
-    " رشد"
-  );
-
-  setText(
-    "lead-growth",
-    percent(leadGrowth) +
-    " رشد"
-  );
+  setText("conv-growth",percent(convGrowth) + " رشد");
+  setText("deal-growth",percent(dealGrowth) + " رشد");
+  setText("lead-growth",percent(leadGrowth) + " رشد");
 
 
   const impacts = [
-
     l.conversionImpact,
-
     l.dealImpact,
-
     l.leadImpact
-
   ];
 
 
   const maxImpact =
-    Math.max(
-      ...impacts,
-      1
-    );
+    Math.max(...impacts,1);
 
 
-  document.getElementById(
-    "chart-conv"
-  ).style.height =
+  document.getElementById("chart-conv").style.height =
     Math.max(
       5,
       l.conversionImpact /
@@ -2990,9 +2908,7 @@ function updateLevers(){
     ) + "%";
 
 
-  document.getElementById(
-    "chart-deal"
-  ).style.height =
+  document.getElementById("chart-deal").style.height =
     Math.max(
       5,
       l.dealImpact /
@@ -3000,9 +2916,7 @@ function updateLevers(){
     ) + "%";
 
 
-  document.getElementById(
-    "chart-lead"
-  ).style.height =
+  document.getElementById("chart-lead").style.height =
     Math.max(
       5,
       l.leadImpact /
@@ -3010,39 +2924,19 @@ function updateLevers(){
     ) + "%";
 
 
-  setText(
-    "chart-conv-value",
-    money(l.conversionImpact)
-  );
-
-  setText(
-    "chart-deal-value",
-    money(l.dealImpact)
-  );
-
-  setText(
-    "chart-lead-value",
-    money(l.leadImpact)
-  );
+  setText("chart-conv-value",money(l.conversionImpact));
+  setText("chart-deal-value",money(l.dealImpact));
+  setText("chart-lead-value",money(l.leadImpact));
 
 
-  document.getElementById(
-    "lever-conv"
-  ).classList.remove(
-    "winner"
-  );
+  document.getElementById("lever-conv")
+    .classList.remove("winner");
 
-  document.getElementById(
-    "lever-deal"
-  ).classList.remove(
-    "winner"
-  );
+  document.getElementById("lever-deal")
+    .classList.remove("winner");
 
-  document.getElementById(
-    "lever-leads"
-  ).classList.remove(
-    "winner"
-  );
+  document.getElementById("lever-leads")
+    .classList.remove("winner");
 
 
   const maxIndex =
@@ -3059,11 +2953,8 @@ function updateLevers(){
     winner =
       "افزایش نرخ تبدیل +۲ واحد درصد";
 
-    document.getElementById(
-      "lever-conv"
-    ).classList.add(
-      "winner"
-    );
+    document.getElementById("lever-conv")
+      .classList.add("winner");
 
   }
 
@@ -3073,11 +2964,8 @@ function updateLevers(){
     winner =
       "افزایش ارزش معامله +۱۰٪";
 
-    document.getElementById(
-      "lever-deal"
-    ).classList.add(
-      "winner"
-    );
+    document.getElementById("lever-deal")
+      .classList.add("winner");
 
   }
 
@@ -3087,19 +2975,13 @@ function updateLevers(){
     winner =
       "افزایش لید +۲۰٪";
 
-    document.getElementById(
-      "lever-leads"
-    ).classList.add(
-      "winner"
-    );
+    document.getElementById("lever-leads")
+      .classList.add("winner");
 
   }
 
 
-  setText(
-    "winner",
-    winner
-  );
+  setText("winner",winner);
 
 }
 
@@ -3110,26 +2992,10 @@ function updateLevers(){
 
 function syncReverse(){
 
-  setInput(
-    "rdeal",
-    num("deal")
-  );
-
-  setInput(
-    "rfreq",
-    num("frequency")
-  );
-
-  setInput(
-    "rconv",
-    num("conversion")
-  );
-
-  setInput(
-    "rcontact",
-    num("contact")
-  );
-
+  setInput("rdeal",num("deal"));
+  setInput("rfreq",num("frequency"));
+  setInput("rconv",num("conversion"));
+  setInput("rcontact",num("contact"));
 
   calculateReverse();
 
@@ -3155,55 +3021,24 @@ function calculateReverse(){
 
 
   if(
-
     target <= 0 ||
-
     deal <= 0 ||
-
     frequency <= 0 ||
-
     conversion <= 0 ||
-
     contact <= 0
-
   ){
 
-    setText(
-      "reverse-customers",
-      "۰"
-    );
-
-    setText(
-      "reverse-contacts",
-      "۰"
-    );
-
-    setText(
-      "reverse-leads",
-      "۰"
-    );
-
-    setText(
-      "reverse-month",
-      "۰"
-    );
-
-    setText(
-      "reverse-week",
-      "۰"
-    );
-
-    setText(
-      "reverse-target-display",
-      money(target)
-    );
-
+    setText("reverse-customers","۰");
+    setText("reverse-contacts","۰");
+    setText("reverse-leads","۰");
+    setText("reverse-month","۰");
+    setText("reverse-week","۰");
+    setText("reverse-target-display",money(target));
 
     setText(
       "reverse-statement",
       "برای محاسبه مهندسی معکوس، همه فرضیات باید بزرگ‌تر از صفر باشند."
     );
-
 
     return;
 
@@ -3233,41 +3068,16 @@ function calculateReverse(){
     leads / 52;
 
 
-  setText(
-    "reverse-customers",
-    number(customers)
-  );
-
-  setText(
-    "reverse-contacts",
-    number(contacts)
-  );
-
-  setText(
-    "reverse-leads",
-    number(leads)
-  );
-
-  setText(
-    "reverse-month",
-    number(month)
-  );
-
-  setText(
-    "reverse-week",
-    number(week)
-  );
-
-  setText(
-    "reverse-target-display",
-    money(target)
-  );
+  setText("reverse-customers",number(customers));
+  setText("reverse-contacts",number(contacts));
+  setText("reverse-leads",number(leads));
+  setText("reverse-month",number(month));
+  setText("reverse-week",number(week));
+  setText("reverse-target-display",money(target));
 
 
   const warning =
-    document.getElementById(
-      "reverse-warning"
-    );
+    document.getElementById("reverse-warning");
 
 
   if(week > 1000){
@@ -3368,35 +3178,12 @@ function calculateSurvival(){
     : 0;
 
 
-  setText(
-    "out-burn-month",
-    money(burnMonth)
-  );
-
-  setText(
-    "out-burn-day",
-    money(burnDay)
-  );
-
-  setText(
-    "out-buffer-needed",
-    money(bufferNeeded)
-  );
-
-  setText(
-    "out-buffer-months",
-    number(bufferMonths)
-  );
-
-  setText(
-    "buffer-current",
-    money(cash)
-  );
-
-  setText(
-    "buffer-goal",
-    money(bufferNeeded)
-  );
+  setText("out-burn-month",money(burnMonth));
+  setText("out-burn-day",money(burnDay));
+  setText("out-buffer-needed",money(bufferNeeded));
+  setText("out-buffer-months",number(bufferMonths));
+  setText("buffer-current",money(cash));
+  setText("buffer-goal",money(bufferNeeded));
 
 
   document.getElementById(
@@ -3487,25 +3274,10 @@ function updateDashboard(){
     num("target");
 
 
-  setText(
-    "dash-current",
-    money(r.annualRevenue)
-  );
-
-  setText(
-    "dash-profit",
-    money(r.grossProfit)
-  );
-
-  setText(
-    "dash-customers",
-    number(r.customers)
-  );
-
-  setText(
-    "dash-target",
-    money(target)
-  );
+  setText("dash-current",money(r.annualRevenue));
+  setText("dash-profit",money(r.grossProfit));
+  setText("dash-customers",number(r.customers));
+  setText("dash-target",money(target));
 
 
   const gap =
@@ -3543,10 +3315,7 @@ function updateDashboard(){
     : 0;
 
 
-  setText(
-    "dash-progress",
-    percent(progress)
-  );
+  setText("dash-progress",percent(progress));
 
 
   document.getElementById(
@@ -3556,21 +3325,14 @@ function updateDashboard(){
 
 
   const impacts = [
-
     l.conversionImpact,
-
     l.dealImpact,
-
     l.leadImpact
-
   ];
 
 
   const maxImpact =
-    Math.max(
-      ...impacts,
-      1
-    );
+    Math.max(...impacts,1);
 
 
   document.getElementById(
@@ -3674,17 +3436,11 @@ function updateDashboard(){
 
 
   if(
-
     target > 0 &&
-
     deal > 0 &&
-
     freq > 0 &&
-
     conv > 0 &&
-
     contact > 0
-
   ){
 
     const requiredCustomers =
@@ -3703,7 +3459,6 @@ function updateDashboard(){
 
 
     setText(
-
       "manifesto",
 
       "برای رسیدن به درآمد هدف " +
@@ -3743,61 +3498,22 @@ function updateMine(){
     calculateLevers();
 
 
-  setText(
-    "mine-leads",
-    number(c.leads)
-  );
+  setText("mine-leads",number(c.leads));
+  setText("mine-contact",percent(c.contact*100));
+  setText("mine-conversion",percent(c.conversion*100));
+  setText("mine-deal",money(c.deal));
+  setText("mine-frequency",number(c.frequency));
+  setText("mine-margin",percent(c.margin*100));
 
-  setText(
-    "mine-contact",
-    percent(c.contact*100)
-  );
-
-  setText(
-    "mine-conversion",
-    percent(c.conversion*100)
-  );
-
-  setText(
-    "mine-deal",
-    money(c.deal)
-  );
-
-  setText(
-    "mine-frequency",
-    number(c.frequency)
-  );
-
-  setText(
-    "mine-margin",
-    percent(c.margin*100)
-  );
-
-
-  setText(
-    "mine-annual",
-    money(r.annualRevenue)
-  );
-
-  setText(
-    "mine-profit",
-    money(r.grossProfit)
-  );
-
-  setText(
-    "mine-buyers",
-    number(r.customers)
-  );
+  setText("mine-annual",money(r.annualRevenue));
+  setText("mine-profit",money(r.grossProfit));
+  setText("mine-buyers",number(r.customers));
 
 
   const impacts = [
-
     l.conversionImpact,
-
     l.dealImpact,
-
     l.leadImpact
-
   ];
 
 
@@ -3836,17 +3552,11 @@ function updateMine(){
 
 
   if(
-
     target > 0 &&
-
     c.deal > 0 &&
-
     c.frequency > 0 &&
-
     c.conversion > 0 &&
-
     c.contact > 0
-
   ){
 
     const customers =
@@ -3865,7 +3575,6 @@ function updateMine(){
 
 
     setText(
-
       "manifesto",
 
       "برای رسیدن به درآمد هدف " +
@@ -4018,136 +3727,11 @@ async function resetAll(){
   };
 
 
-  setInput(
-    "leads",
-    state.core.leads
-  );
-
-  setInput(
-    "contact",
-    state.core.contact
-  );
-
-  setInput(
-    "conversion",
-    state.core.conversion
-  );
-
-  setInput(
-    "deal",
-    state.core.deal
-  );
-
-  setInput(
-    "frequency",
-    state.core.frequency
-  );
-
-  setInput(
-    "margin",
-    state.core.margin
-  );
-
-  setInput(
-    "target",
-    state.core.target
-  );
-
-
-  setInput(
-    "surv-rent",
-    state.survival.rent
-  );
-
-  setInput(
-    "surv-food",
-    state.survival.food
-  );
-
-  setInput(
-    "surv-health",
-    state.survival.health
-  );
-
-  setInput(
-    "surv-staff",
-    state.survival.staff
-  );
-
-  setInput(
-    "surv-bills",
-    state.survival.bills
-  );
-
-  setInput(
-    "surv-cash",
-    state.survival.cash
-  );
-
-
-  setInput(
-    "decision-lever",
-    ""
-  );
-
-  setInput(
-    "decision-reason",
-    ""
-  );
-
-  setInput(
-    "decision-current",
-    ""
-  );
-
-  setInput(
-    "decision-goal",
-    ""
-  );
-
-  setInput(
-    "decision-action",
-    ""
-  );
-
-  setInput(
-    "decision-start",
-    ""
-  );
-
-  setInput(
-    "decision-review",
-    ""
-  );
-
-
-  setInput(
-    "commitment",
-    ""
-  );
-
-  setInput(
-    "signature",
-    ""
-  );
-
-  setInput(
-    "signature-date",
-    ""
-  );
-
+  saveState();
 
   calculateAll();
 
   calculateReverse();
-
-
-  /*
-    بعد از آماده بودن برنامه،
-    reset واقعاً در Supabase ذخیره می‌شود.
-  */
-
-  saveState();
 
 
   alert(
@@ -4166,15 +3750,10 @@ function updateSurvival(){
   const values = [
 
     "surv-rent",
-
     "surv-food",
-
     "surv-health",
-
     "surv-staff",
-
     "surv-bills",
-
     "surv-cash"
 
   ];
@@ -4190,17 +3769,10 @@ function updateSurvival(){
 
       if(el){
 
-        /*
-          به جای oninput، این بخش listener مستقل دارد.
-          اگر listener قبلاً وجود داشته باشد،
-          با نام‌گذاری مشخص دوباره‌کاری نمی‌کنیم.
-        */
-
         el.oninput =
           function(){
 
             calculateSurvival();
-
 
             state.survival.rent =
               num("surv-rent");
@@ -4244,140 +3816,64 @@ function updateSurvival(){
 function attachAutoSave(){
 
   const coreIds = [
-
     "leads",
-
     "contact",
-
     "conversion",
-
     "deal",
-
     "frequency",
-
     "margin",
-
     "target"
-
   ];
 
+  coreIds.forEach(id => {
 
-  coreIds.forEach(
-    id => {
+    const el = document.getElementById(id);
 
-      const el =
-        document.getElementById(id);
+    if(!el) return;
 
+    el.addEventListener("input", function(){
 
-      if(!el)
-        return;
+      state.core.leads = num("leads");
+      state.core.contact = num("contact");
+      state.core.conversion = num("conversion");
+      state.core.deal = num("deal");
+      state.core.frequency = num("frequency");
+      state.core.margin = num("margin");
+      state.core.target = num("target");
 
-
-      el.oninput =
-        function(){
-
-          state.core.leads =
-            num("leads");
-
-          state.core.contact =
-            num("contact");
-
-          state.core.conversion =
-            num("conversion");
-
-          state.core.deal =
-            num("deal");
-
-          state.core.frequency =
-            num("frequency");
-
-          state.core.margin =
-            num("margin");
-
-          state.core.target =
-            num("target");
-
-
-          /*
-            calculateAll فقط محاسبه می‌کند
-            و دیگر saveState داخل آن نیست.
-          */
-
-          calculateAll();
-
-          saveState();
-
-        };
-
-    }
-  );
-
-
-  /*
-    ذخیره ورودی‌های بقا در همین تابع انجام می‌شود.
-    بنابراین نیازی نیست updateSurvival یک
-    handler دوم برای همان inputها بسازد.
-  */
+      calculateAll();
+      saveState();
+    });
+  });
 
   const survivalIds = [
-
     "surv-rent",
-
     "surv-food",
-
     "surv-health",
-
     "surv-staff",
-
     "surv-bills",
-
     "surv-cash"
-
   ];
 
+  survivalIds.forEach(id => {
 
-  survivalIds.forEach(
-    id => {
+    const el = document.getElementById(id);
 
-      const el =
-        document.getElementById(id);
+    if(!el) return;
 
+    el.addEventListener("input", function(){
 
-      if(!el)
-        return;
+      state.survival.rent = num("surv-rent");
+      state.survival.food = num("surv-food");
+      state.survival.health = num("surv-health");
+      state.survival.staff = num("surv-staff");
+      state.survival.bills = num("surv-bills");
+      state.survival.cash = num("surv-cash");
 
-
-      el.oninput =
-        function(){
-
-          state.survival.rent =
-            num("surv-rent");
-
-          state.survival.food =
-            num("surv-food");
-
-          state.survival.health =
-            num("surv-health");
-
-          state.survival.staff =
-            num("surv-staff");
-
-          state.survival.bills =
-            num("surv-bills");
-
-          state.survival.cash =
-            num("surv-cash");
-
-
-          calculateSurvival();
-
-          saveState();
-
-        };
-
-    }
-  );
-
+      calculateSurvival();
+      saveState();
+    });
+  });
 }
 
 
@@ -4386,52 +3882,29 @@ function attachAutoSave(){
 ========================================================= */
 
 document.addEventListener(
+
   "DOMContentLoaded",
+
   async function(){
-
-    /*
-      برنامه هنوز اجازه ذخیره ندارد.
-    */
-
-    appReady = false;
-
-
-    /*
-      اگر دانشجو قبلاً وارد شده باشد،
-      checkStudentAccess داخل خودش
-      loadState را انجام می‌دهد.
-    */
 
     const loggedIn =
       await checkStudentAccess();
 
 
-    /*
-      اگر دانشجو وارد نشده،
-      هنوز هیچ ذخیره‌ای فعال نمی‌کنیم.
-    */
+    attachAutoSave();
 
-    if(!loggedIn){
+    updateSurvival();
 
-      appReady = false;
+    calculateAll();
 
-      return;
+    calculateReverse();
 
-    }
+    updateLevers();
 
+    updateDashboard();
 
-    /*
-      در این نقطه loadState قبلاً کامل شده.
-      حالا برنامه اجازه ذخیره دارد.
-    */
+    updateMine();
 
-    appReady = true;
-
-
-    /*
-      تاریخ‌های پیش‌فرض فقط اگر خالی باشند
-      تنظیم می‌شوند.
-    */
 
     const dateInput =
       document.getElementById(
@@ -4505,33 +3978,6 @@ document.addEventListener(
           .split("T")[0];
 
     }
-
-
-    /*
-      بعد از loadState و تنظیم تاریخ‌ها،
-      listenerها فعال می‌شوند.
-    */
-
-    attachAutoSave();
-
-
-    updateSurvival();
-
-    calculateAll();
-
-    calculateReverse();
-
-    updateLevers();
-
-    updateDashboard();
-
-    updateMine();
-
-
-    console.log(
-      "Current student:",
-      currentStudent
-    );
 
   }
 

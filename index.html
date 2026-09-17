@@ -1562,47 +1562,75 @@ let currentStudent = null;
 let currentStudentCode = null;
 
 
+/*
+  این متغیر بسیار مهم است.
+  تا زمانی که اطلاعات قبلی از Supabase خوانده نشده،
+  هیچ ذخیره‌ای انجام نمی‌شود.
+*/
+let appReady = false;
+
+
 /* =========================================================
    STUDENT LOGIN / API
 ========================================================= */
 
 async function callStudentAPI(body){
 
-  const response = await fetch(
-    SUPABASE_FUNCTION_URL,
-    {
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify(body)
-    }
-  );
+  const response =
+    await fetch(
+      SUPABASE_FUNCTION_URL,
+      {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json"
+        },
+        body:JSON.stringify(body)
+      }
+    );
 
   let result = null;
 
   try{
-    result = await response.json();
+
+    result =
+      await response.json();
+
   }catch(error){
-    throw new Error("پاسخ معتبر از سرور دریافت نشد.");
+
+    throw new Error(
+      "پاسخ معتبر از سرور دریافت نشد."
+    );
+
   }
 
-  if(!response.ok || !result.success){
+  if(
+    !response.ok ||
+    !result.success
+  ){
+
     throw new Error(
-      result?.error || "عملیات انجام نشد."
+      result?.error ||
+      "عملیات انجام نشد."
     );
+
   }
 
   return result;
+
 }
 
 
 async function loginStudent(code){
 
   return await callStudentAPI({
+
     action:"login",
-    student_code:String(code).trim()
+
+    student_code:
+      String(code).trim()
+
   });
+
 }
 
 
@@ -1613,62 +1641,117 @@ async function loginStudent(code){
 async function checkStudentCode(){
 
   const input =
-    document.getElementById("student-code");
+    document.getElementById(
+      "student-code"
+    );
 
   const error =
-    document.getElementById("login-error");
+    document.getElementById(
+      "login-error"
+    );
 
   const button =
-    document.querySelector("#student-login button");
+    document.querySelector(
+      "#student-login button"
+    );
 
   const code =
     input.value.trim();
 
+
   if(!code){
+
     error.textContent =
       "لطفاً کد دسترسی را وارد کنید.";
+
     return;
+
   }
+
 
   error.textContent = "";
 
+
   if(button){
+
     button.disabled = true;
-    button.textContent = "در حال ورود...";
+
+    button.textContent =
+      "در حال ورود...";
+
   }
+
 
   try{
 
     const result =
       await loginStudent(code);
 
-    currentStudent = result.student;
-    currentStudentCode = String(code).trim();
+
+    currentStudent =
+      result.student;
+
+    currentStudentCode =
+      String(code).trim();
+
 
     localStorage.setItem(
       "student_code",
       currentStudentCode
     );
 
+
     localStorage.setItem(
       "student_info",
-      JSON.stringify(result.student)
+      JSON.stringify(
+        result.student
+      )
     );
+
 
     document.getElementById(
       "student-login"
-    ).style.display = "none";
+    ).style.display =
+      "none";
+
 
     error.textContent = "";
+
     input.value = "";
 
+
+    /*
+      اول اطلاعات ذخیره‌شده را می‌خوانیم.
+      بعد برنامه را آماده می‌کنیم.
+      بعد محاسبه انجام می‌شود.
+    */
+
     await loadState();
+
+
+    appReady = true;
+
+
+    attachAutoSave();
+
+    updateSurvival();
+
     calculateAll();
+
+    calculateReverse();
+
+    updateLevers();
+
+    updateDashboard();
+
+    updateMine();
+
 
     console.log(
       "Student login successful:",
       result.student
     );
+
 
   }catch(errorObject){
 
@@ -1677,20 +1760,30 @@ async function checkStudentCode(){
       errorObject
     );
 
+
     error.textContent =
       errorObject.message ||
       "ورود انجام نشد. دوباره تلاش کنید.";
 
+
     input.value = "";
+
     input.focus();
+
 
   }finally{
 
     if(button){
+
       button.disabled = false;
-      button.textContent = "ورود به سیستم";
+
+      button.textContent =
+        "ورود به سیستم";
+
     }
+
   }
+
 }
 
 
@@ -1703,33 +1796,65 @@ async function checkStudentAccess(){
   try{
 
     const savedCode =
-      localStorage.getItem("student_code");
+      localStorage.getItem(
+        "student_code"
+      );
 
     const savedStudent =
-      localStorage.getItem("student_info");
+      localStorage.getItem(
+        "student_info"
+      );
+
 
     if(savedCode){
 
       const result =
-        await loginStudent(savedCode);
+        await loginStudent(
+          savedCode
+        );
 
-      currentStudentCode = savedCode;
-      currentStudent = result.student;
+
+      currentStudentCode =
+        String(savedCode).trim();
+
+      currentStudent =
+        result.student;
+
 
       localStorage.setItem(
         "student_info",
-        JSON.stringify(result.student)
+        JSON.stringify(
+          result.student
+        )
       );
+
 
       document.getElementById(
         "student-login"
-      ).style.display = "none";
+      ).style.display =
+        "none";
+
+
+      /*
+        اصلاح اصلی اینجاست:
+        در ورود خودکار حتماً اطلاعات
+        ذخیره‌شده از Supabase خوانده می‌شود.
+      */
+
+      await loadState();
+
 
       return true;
+
     }
 
+
     if(savedStudent){
-      localStorage.removeItem("student_info");
+
+      localStorage.removeItem(
+        "student_info"
+      );
+
     }
 
   }catch(error){
@@ -1741,17 +1866,29 @@ async function checkStudentAccess(){
 
   }
 
+
   currentStudentCode = null;
+
   currentStudent = null;
 
-  localStorage.removeItem("student_code");
-  localStorage.removeItem("student_info");
+
+  localStorage.removeItem(
+    "student_code"
+  );
+
+  localStorage.removeItem(
+    "student_info"
+  );
+
 
   document.getElementById(
     "student-login"
-  ).style.display = "flex";
+  ).style.display =
+    "flex";
+
 
   return false;
+
 }
 
 
@@ -1761,23 +1898,42 @@ async function checkStudentAccess(){
 
 async function logoutStudent(){
 
-  localStorage.removeItem("student_code");
-  localStorage.removeItem("student_info");
+  appReady = false;
+
+  localStorage.removeItem(
+    "student_code"
+  );
+
+  localStorage.removeItem(
+    "student_info"
+  );
+
 
   currentStudentCode = null;
+
   currentStudent = null;
+
 
   document.getElementById(
     "student-login"
-  ).style.display = "flex";
+  ).style.display =
+    "flex";
+
 
   const input =
-    document.getElementById("student-code");
+    document.getElementById(
+      "student-code"
+    );
+
 
   if(input){
+
     input.value = "";
+
     input.focus();
+
   }
+
 }
 
 
@@ -1808,7 +1964,10 @@ function getStudentName(){
     if(savedStudent){
 
       const student =
-        JSON.parse(savedStudent);
+        JSON.parse(
+          savedStudent
+        );
+
 
       return student.name || "";
 
@@ -1882,11 +2041,14 @@ function num(id){
   const el =
     document.getElementById(id);
 
+
   if(!el)
     return 0;
 
+
   const value =
     parseFloat(el.value);
+
 
   return Number.isFinite(value)
     ? value
@@ -1899,6 +2061,7 @@ function money(value){
 
   if(!Number.isFinite(value))
     return "۰";
+
 
   return new Intl.NumberFormat(
     "fa-IR",
@@ -1915,6 +2078,7 @@ function number(value){
   if(!Number.isFinite(value))
     return "۰";
 
+
   return new Intl.NumberFormat(
     "fa-IR",
     {
@@ -1930,6 +2094,7 @@ function percent(value){
   if(!Number.isFinite(value))
     return "۰٪";
 
+
   return new Intl.NumberFormat(
     "fa-IR",
     {
@@ -1944,6 +2109,7 @@ function setText(id,value){
 
   const el =
     document.getElementById(id);
+
 
   if(el)
     el.textContent = value;
@@ -2013,30 +2179,36 @@ function collectStateFromInputs(){
       "decision-lever"
     )?.value || "";
 
+
   state.decision.reason =
     document.getElementById(
       "decision-reason"
     )?.value || "";
+
 
   state.decision.current =
     document.getElementById(
       "decision-current"
     )?.value || "";
 
+
   state.decision.goal =
     document.getElementById(
       "decision-goal"
     )?.value || "";
+
 
   state.decision.action =
     document.getElementById(
       "decision-action"
     )?.value || "";
 
+
   state.decision.start =
     document.getElementById(
       "decision-start"
     )?.value || "";
+
 
   state.decision.review =
     document.getElementById(
@@ -2049,10 +2221,12 @@ function collectStateFromInputs(){
       "commitment"
     )?.value || "";
 
+
   state.personal.signature =
     document.getElementById(
       "signature"
     )?.value || "";
+
 
   state.personal.date =
     document.getElementById(
@@ -2071,41 +2245,86 @@ let saveTimer = null;
 
 async function saveState(){
 
-  collectStateFromInputs();
+  /*
+    جلوگیری قطعی از ذخیره قبل از loadState
+  */
 
-  if(!currentStudent || !currentStudentCode){
+  if(!appReady)
     return;
+
+
+  if(
+    !currentStudent ||
+    !currentStudentCode
+  ){
+
+    return;
+
   }
 
-  clearTimeout(saveTimer);
 
-  saveTimer = setTimeout(async function(){
+  collectStateFromInputs();
 
-    try{
 
-      const payload = {
-        action:"save",
-        student_code:currentStudentCode,
-        student_id:currentStudent.id,
-        personal_data:state.personal,
-        decision_data:state.decision,
-        survival_data:state.survival,
-        core_data:state.core
-      };
+  clearTimeout(
+    saveTimer
+  );
 
-      await callStudentAPI(payload);
 
-      console.log("Student data saved to Supabase.");
+  saveTimer =
+    setTimeout(
+      async function(){
 
-    }catch(error){
+        try{
 
-      console.error(
-        "Supabase save error:",
-        error
-      );
-    }
+          const payload = {
 
-  },700);
+            action:"save",
+
+            student_code:
+              currentStudentCode,
+
+            student_id:
+              currentStudent.id,
+
+            personal_data:
+              state.personal,
+
+            decision_data:
+              state.decision,
+
+            survival_data:
+              state.survival,
+
+            core_data:
+              state.core
+
+          };
+
+
+          await callStudentAPI(
+            payload
+          );
+
+
+          console.log(
+            "Student data saved to Supabase."
+          );
+
+
+        }catch(error){
+
+          console.error(
+            "Supabase save error:",
+            error
+          );
+
+        }
+
+      },
+      700
+    );
+
 }
 
 
@@ -2209,41 +2428,76 @@ function savePersonal(){
 
 async function loadState(){
 
-  if(!currentStudent || !currentStudentCode){
+  if(
+    !currentStudent ||
+    !currentStudentCode
+  ){
+
     return;
+
   }
+
 
   try{
 
-    const result = await callStudentAPI({
-      action:"load",
-      student_code:currentStudentCode,
-      student_id:currentStudent.id
-    });
+    const result =
+      await callStudentAPI({
 
-    const data = result.data;
+        action:"load",
+
+        student_code:
+          currentStudentCode,
+
+        student_id:
+          currentStudent.id
+
+      });
+
+
+    const data =
+      result.data;
+
 
     if(data){
 
       state = {
+
         ...state,
+
         core:{
+
           ...state.core,
+
           ...(data.core_data || {})
+
         },
+
         survival:{
+
           ...state.survival,
+
           ...(data.survival_data || {})
+
         },
+
         decision:{
+
           ...state.decision,
+
           ...(data.decision_data || {})
+
         },
+
         personal:{
+
           ...state.personal,
+
           ...(data.personal_data || {})
+
         }
+
       };
+
     }
 
   }catch(error){
@@ -2252,34 +2506,134 @@ async function loadState(){
       "Supabase load error:",
       error
     );
+
   }
 
-  setInput("leads",state.core.leads);
-  setInput("contact",state.core.contact);
-  setInput("conversion",state.core.conversion);
-  setInput("deal",state.core.deal);
-  setInput("frequency",state.core.frequency);
-  setInput("margin",state.core.margin);
-  setInput("target",state.core.target);
 
-  setInput("surv-rent",state.survival.rent);
-  setInput("surv-food",state.survival.food);
-  setInput("surv-health",state.survival.health);
-  setInput("surv-staff",state.survival.staff);
-  setInput("surv-bills",state.survival.bills);
-  setInput("surv-cash",state.survival.cash);
+  /*
+    بسیار مهم:
+    فقط بعد از دریافت اطلاعات از دیتابیس،
+    ورودی‌های صفحه با state پر می‌شوند.
+  */
 
-  setInput("decision-lever",state.decision.lever);
-  setInput("decision-reason",state.decision.reason);
-  setInput("decision-current",state.decision.current);
-  setInput("decision-goal",state.decision.goal);
-  setInput("decision-action",state.decision.action);
-  setInput("decision-start",state.decision.start);
-  setInput("decision-review",state.decision.review);
+  setInput(
+    "leads",
+    state.core.leads
+  );
 
-  setInput("commitment",state.personal.commitment);
-  setInput("signature",state.personal.signature);
-  setInput("signature-date",state.personal.date);
+  setInput(
+    "contact",
+    state.core.contact
+  );
+
+  setInput(
+    "conversion",
+    state.core.conversion
+  );
+
+  setInput(
+    "deal",
+    state.core.deal
+  );
+
+  setInput(
+    "frequency",
+    state.core.frequency
+  );
+
+  setInput(
+    "margin",
+    state.core.margin
+  );
+
+  setInput(
+    "target",
+    state.core.target
+  );
+
+
+  setInput(
+    "surv-rent",
+    state.survival.rent
+  );
+
+  setInput(
+    "surv-food",
+    state.survival.food
+  );
+
+  setInput(
+    "surv-health",
+    state.survival.health
+  );
+
+  setInput(
+    "surv-staff",
+    state.survival.staff
+  );
+
+  setInput(
+    "surv-bills",
+    state.survival.bills
+  );
+
+  setInput(
+    "surv-cash",
+    state.survival.cash
+  );
+
+
+  setInput(
+    "decision-lever",
+    state.decision.lever
+  );
+
+  setInput(
+    "decision-reason",
+    state.decision.reason
+  );
+
+  setInput(
+    "decision-current",
+    state.decision.current
+  );
+
+  setInput(
+    "decision-goal",
+    state.decision.goal
+  );
+
+  setInput(
+    "decision-action",
+    state.decision.action
+  );
+
+  setInput(
+    "decision-start",
+    state.decision.start
+  );
+
+  setInput(
+    "decision-review",
+    state.decision.review
+  );
+
+
+  setInput(
+    "commitment",
+    state.personal.commitment
+  );
+
+  setInput(
+    "signature",
+    state.personal.signature
+  );
+
+  setInput(
+    "signature-date",
+    state.personal.date
+  );
+
 }
 
 
@@ -2287,6 +2641,7 @@ function setInput(id,value){
 
   const el =
     document.getElementById(id);
+
 
   if(el){
 
@@ -2370,13 +2725,21 @@ function calculateEngine(){
 
 
   return {
+
     annualContacts,
+
     customers,
+
     transactions,
+
     annualRevenue,
+
     grossProfit,
+
     monthlyRevenue,
+
     monthlyProfit
+
   };
 
 }
@@ -2388,16 +2751,47 @@ function calculateAll(){
     calculateEngine();
 
 
-  setText("out-annual",money(r.annualRevenue));
-  setText("out-profit",money(r.grossProfit));
-  setText("out-monthly",money(r.monthlyRevenue));
-  setText("out-buyers",number(r.customers));
-  setText("out-tx",number(r.transactions));
-  setText("out-profit-month",money(r.monthlyProfit));
-  setText("out-contacts",number(r.annualContacts));
+  setText(
+    "out-annual",
+    money(r.annualRevenue)
+  );
+
+  setText(
+    "out-profit",
+    money(r.grossProfit)
+  );
+
+  setText(
+    "out-monthly",
+    money(r.monthlyRevenue)
+  );
+
+  setText(
+    "out-buyers",
+    number(r.customers)
+  );
+
+  setText(
+    "out-tx",
+    number(r.transactions)
+  );
+
+  setText(
+    "out-profit-month",
+    money(r.monthlyProfit)
+  );
+
+  setText(
+    "out-contacts",
+    number(r.annualContacts)
+  );
 
 
-  saveState();
+  /*
+    saveState از اینجا حذف شده.
+    calculateAll فقط محاسبه می‌کند.
+  */
+
 
   syncReverse();
 
@@ -2408,7 +2802,6 @@ function calculateAll(){
   updateMine();
 
   calculateSurvival();
-
 
 }
 
@@ -2463,16 +2856,24 @@ function calculateLevers(){
 
 
   return {
+
     base,
+
     conversionScenario,
+
     dealScenario,
+
     leadScenario,
+
     conversionImpact:
       conversionScenario - base,
+
     dealImpact:
       dealScenario - base,
+
     leadImpact:
       leadScenario - base
+
   };
 
 }
@@ -2484,14 +2885,41 @@ function updateLevers(){
     calculateLevers();
 
 
-  setText("base-revenue",money(l.base));
-  setText("conv-revenue",money(l.conversionScenario));
-  setText("deal-revenue",money(l.dealScenario));
-  setText("lead-revenue",money(l.leadScenario));
+  setText(
+    "base-revenue",
+    money(l.base)
+  );
 
-  setText("conv-impact",money(l.conversionImpact));
-  setText("deal-impact",money(l.dealImpact));
-  setText("lead-impact",money(l.leadImpact));
+  setText(
+    "conv-revenue",
+    money(l.conversionScenario)
+  );
+
+  setText(
+    "deal-revenue",
+    money(l.dealScenario)
+  );
+
+  setText(
+    "lead-revenue",
+    money(l.leadScenario)
+  );
+
+
+  setText(
+    "conv-impact",
+    money(l.conversionImpact)
+  );
+
+  setText(
+    "deal-impact",
+    money(l.dealImpact)
+  );
+
+  setText(
+    "lead-impact",
+    money(l.leadImpact)
+  );
 
 
   const convGrowth =
@@ -2515,23 +2943,46 @@ function updateLevers(){
     : 0;
 
 
-  setText("conv-growth",percent(convGrowth) + " رشد");
-  setText("deal-growth",percent(dealGrowth) + " رشد");
-  setText("lead-growth",percent(leadGrowth) + " رشد");
+  setText(
+    "conv-growth",
+    percent(convGrowth) +
+    " رشد"
+  );
+
+  setText(
+    "deal-growth",
+    percent(dealGrowth) +
+    " رشد"
+  );
+
+  setText(
+    "lead-growth",
+    percent(leadGrowth) +
+    " رشد"
+  );
 
 
   const impacts = [
+
     l.conversionImpact,
+
     l.dealImpact,
+
     l.leadImpact
+
   ];
 
 
   const maxImpact =
-    Math.max(...impacts,1);
+    Math.max(
+      ...impacts,
+      1
+    );
 
 
-  document.getElementById("chart-conv").style.height =
+  document.getElementById(
+    "chart-conv"
+  ).style.height =
     Math.max(
       5,
       l.conversionImpact /
@@ -2539,7 +2990,9 @@ function updateLevers(){
     ) + "%";
 
 
-  document.getElementById("chart-deal").style.height =
+  document.getElementById(
+    "chart-deal"
+  ).style.height =
     Math.max(
       5,
       l.dealImpact /
@@ -2547,7 +3000,9 @@ function updateLevers(){
     ) + "%";
 
 
-  document.getElementById("chart-lead").style.height =
+  document.getElementById(
+    "chart-lead"
+  ).style.height =
     Math.max(
       5,
       l.leadImpact /
@@ -2555,19 +3010,39 @@ function updateLevers(){
     ) + "%";
 
 
-  setText("chart-conv-value",money(l.conversionImpact));
-  setText("chart-deal-value",money(l.dealImpact));
-  setText("chart-lead-value",money(l.leadImpact));
+  setText(
+    "chart-conv-value",
+    money(l.conversionImpact)
+  );
+
+  setText(
+    "chart-deal-value",
+    money(l.dealImpact)
+  );
+
+  setText(
+    "chart-lead-value",
+    money(l.leadImpact)
+  );
 
 
-  document.getElementById("lever-conv")
-    .classList.remove("winner");
+  document.getElementById(
+    "lever-conv"
+  ).classList.remove(
+    "winner"
+  );
 
-  document.getElementById("lever-deal")
-    .classList.remove("winner");
+  document.getElementById(
+    "lever-deal"
+  ).classList.remove(
+    "winner"
+  );
 
-  document.getElementById("lever-leads")
-    .classList.remove("winner");
+  document.getElementById(
+    "lever-leads"
+  ).classList.remove(
+    "winner"
+  );
 
 
   const maxIndex =
@@ -2584,8 +3059,11 @@ function updateLevers(){
     winner =
       "افزایش نرخ تبدیل +۲ واحد درصد";
 
-    document.getElementById("lever-conv")
-      .classList.add("winner");
+    document.getElementById(
+      "lever-conv"
+    ).classList.add(
+      "winner"
+    );
 
   }
 
@@ -2595,8 +3073,11 @@ function updateLevers(){
     winner =
       "افزایش ارزش معامله +۱۰٪";
 
-    document.getElementById("lever-deal")
-      .classList.add("winner");
+    document.getElementById(
+      "lever-deal"
+    ).classList.add(
+      "winner"
+    );
 
   }
 
@@ -2606,13 +3087,19 @@ function updateLevers(){
     winner =
       "افزایش لید +۲۰٪";
 
-    document.getElementById("lever-leads")
-      .classList.add("winner");
+    document.getElementById(
+      "lever-leads"
+    ).classList.add(
+      "winner"
+    );
 
   }
 
 
-  setText("winner",winner);
+  setText(
+    "winner",
+    winner
+  );
 
 }
 
@@ -2623,10 +3110,26 @@ function updateLevers(){
 
 function syncReverse(){
 
-  setInput("rdeal",num("deal"));
-  setInput("rfreq",num("frequency"));
-  setInput("rconv",num("conversion"));
-  setInput("rcontact",num("contact"));
+  setInput(
+    "rdeal",
+    num("deal")
+  );
+
+  setInput(
+    "rfreq",
+    num("frequency")
+  );
+
+  setInput(
+    "rconv",
+    num("conversion")
+  );
+
+  setInput(
+    "rcontact",
+    num("contact")
+  );
+
 
   calculateReverse();
 
@@ -2652,24 +3155,55 @@ function calculateReverse(){
 
 
   if(
+
     target <= 0 ||
+
     deal <= 0 ||
+
     frequency <= 0 ||
+
     conversion <= 0 ||
+
     contact <= 0
+
   ){
 
-    setText("reverse-customers","۰");
-    setText("reverse-contacts","۰");
-    setText("reverse-leads","۰");
-    setText("reverse-month","۰");
-    setText("reverse-week","۰");
-    setText("reverse-target-display",money(target));
+    setText(
+      "reverse-customers",
+      "۰"
+    );
+
+    setText(
+      "reverse-contacts",
+      "۰"
+    );
+
+    setText(
+      "reverse-leads",
+      "۰"
+    );
+
+    setText(
+      "reverse-month",
+      "۰"
+    );
+
+    setText(
+      "reverse-week",
+      "۰"
+    );
+
+    setText(
+      "reverse-target-display",
+      money(target)
+    );
+
 
     setText(
       "reverse-statement",
       "برای محاسبه مهندسی معکوس، همه فرضیات باید بزرگ‌تر از صفر باشند."
     );
+
 
     return;
 
@@ -2699,16 +3233,41 @@ function calculateReverse(){
     leads / 52;
 
 
-  setText("reverse-customers",number(customers));
-  setText("reverse-contacts",number(contacts));
-  setText("reverse-leads",number(leads));
-  setText("reverse-month",number(month));
-  setText("reverse-week",number(week));
-  setText("reverse-target-display",money(target));
+  setText(
+    "reverse-customers",
+    number(customers)
+  );
+
+  setText(
+    "reverse-contacts",
+    number(contacts)
+  );
+
+  setText(
+    "reverse-leads",
+    number(leads)
+  );
+
+  setText(
+    "reverse-month",
+    number(month)
+  );
+
+  setText(
+    "reverse-week",
+    number(week)
+  );
+
+  setText(
+    "reverse-target-display",
+    money(target)
+  );
 
 
   const warning =
-    document.getElementById("reverse-warning");
+    document.getElementById(
+      "reverse-warning"
+    );
 
 
   if(week > 1000){
@@ -2809,12 +3368,35 @@ function calculateSurvival(){
     : 0;
 
 
-  setText("out-burn-month",money(burnMonth));
-  setText("out-burn-day",money(burnDay));
-  setText("out-buffer-needed",money(bufferNeeded));
-  setText("out-buffer-months",number(bufferMonths));
-  setText("buffer-current",money(cash));
-  setText("buffer-goal",money(bufferNeeded));
+  setText(
+    "out-burn-month",
+    money(burnMonth)
+  );
+
+  setText(
+    "out-burn-day",
+    money(burnDay)
+  );
+
+  setText(
+    "out-buffer-needed",
+    money(bufferNeeded)
+  );
+
+  setText(
+    "out-buffer-months",
+    number(bufferMonths)
+  );
+
+  setText(
+    "buffer-current",
+    money(cash)
+  );
+
+  setText(
+    "buffer-goal",
+    money(bufferNeeded)
+  );
 
 
   document.getElementById(
@@ -2905,10 +3487,25 @@ function updateDashboard(){
     num("target");
 
 
-  setText("dash-current",money(r.annualRevenue));
-  setText("dash-profit",money(r.grossProfit));
-  setText("dash-customers",number(r.customers));
-  setText("dash-target",money(target));
+  setText(
+    "dash-current",
+    money(r.annualRevenue)
+  );
+
+  setText(
+    "dash-profit",
+    money(r.grossProfit)
+  );
+
+  setText(
+    "dash-customers",
+    number(r.customers)
+  );
+
+  setText(
+    "dash-target",
+    money(target)
+  );
 
 
   const gap =
@@ -2946,7 +3543,10 @@ function updateDashboard(){
     : 0;
 
 
-  setText("dash-progress",percent(progress));
+  setText(
+    "dash-progress",
+    percent(progress)
+  );
 
 
   document.getElementById(
@@ -2956,14 +3556,21 @@ function updateDashboard(){
 
 
   const impacts = [
+
     l.conversionImpact,
+
     l.dealImpact,
+
     l.leadImpact
+
   ];
 
 
   const maxImpact =
-    Math.max(...impacts,1);
+    Math.max(
+      ...impacts,
+      1
+    );
 
 
   document.getElementById(
@@ -3067,11 +3674,17 @@ function updateDashboard(){
 
 
   if(
+
     target > 0 &&
+
     deal > 0 &&
+
     freq > 0 &&
+
     conv > 0 &&
+
     contact > 0
+
   ){
 
     const requiredCustomers =
@@ -3090,6 +3703,7 @@ function updateDashboard(){
 
 
     setText(
+
       "manifesto",
 
       "برای رسیدن به درآمد هدف " +
@@ -3129,22 +3743,61 @@ function updateMine(){
     calculateLevers();
 
 
-  setText("mine-leads",number(c.leads));
-  setText("mine-contact",percent(c.contact*100));
-  setText("mine-conversion",percent(c.conversion*100));
-  setText("mine-deal",money(c.deal));
-  setText("mine-frequency",number(c.frequency));
-  setText("mine-margin",percent(c.margin*100));
+  setText(
+    "mine-leads",
+    number(c.leads)
+  );
 
-  setText("mine-annual",money(r.annualRevenue));
-  setText("mine-profit",money(r.grossProfit));
-  setText("mine-buyers",number(r.customers));
+  setText(
+    "mine-contact",
+    percent(c.contact*100)
+  );
+
+  setText(
+    "mine-conversion",
+    percent(c.conversion*100)
+  );
+
+  setText(
+    "mine-deal",
+    money(c.deal)
+  );
+
+  setText(
+    "mine-frequency",
+    number(c.frequency)
+  );
+
+  setText(
+    "mine-margin",
+    percent(c.margin*100)
+  );
+
+
+  setText(
+    "mine-annual",
+    money(r.annualRevenue)
+  );
+
+  setText(
+    "mine-profit",
+    money(r.grossProfit)
+  );
+
+  setText(
+    "mine-buyers",
+    number(r.customers)
+  );
 
 
   const impacts = [
+
     l.conversionImpact,
+
     l.dealImpact,
+
     l.leadImpact
+
   ];
 
 
@@ -3183,11 +3836,17 @@ function updateMine(){
 
 
   if(
+
     target > 0 &&
+
     c.deal > 0 &&
+
     c.frequency > 0 &&
+
     c.conversion > 0 &&
+
     c.contact > 0
+
   ){
 
     const customers =
@@ -3206,6 +3865,7 @@ function updateMine(){
 
 
     setText(
+
       "manifesto",
 
       "برای رسیدن به درآمد هدف " +
@@ -3358,11 +4018,136 @@ async function resetAll(){
   };
 
 
-  saveState();
+  setInput(
+    "leads",
+    state.core.leads
+  );
+
+  setInput(
+    "contact",
+    state.core.contact
+  );
+
+  setInput(
+    "conversion",
+    state.core.conversion
+  );
+
+  setInput(
+    "deal",
+    state.core.deal
+  );
+
+  setInput(
+    "frequency",
+    state.core.frequency
+  );
+
+  setInput(
+    "margin",
+    state.core.margin
+  );
+
+  setInput(
+    "target",
+    state.core.target
+  );
+
+
+  setInput(
+    "surv-rent",
+    state.survival.rent
+  );
+
+  setInput(
+    "surv-food",
+    state.survival.food
+  );
+
+  setInput(
+    "surv-health",
+    state.survival.health
+  );
+
+  setInput(
+    "surv-staff",
+    state.survival.staff
+  );
+
+  setInput(
+    "surv-bills",
+    state.survival.bills
+  );
+
+  setInput(
+    "surv-cash",
+    state.survival.cash
+  );
+
+
+  setInput(
+    "decision-lever",
+    ""
+  );
+
+  setInput(
+    "decision-reason",
+    ""
+  );
+
+  setInput(
+    "decision-current",
+    ""
+  );
+
+  setInput(
+    "decision-goal",
+    ""
+  );
+
+  setInput(
+    "decision-action",
+    ""
+  );
+
+  setInput(
+    "decision-start",
+    ""
+  );
+
+  setInput(
+    "decision-review",
+    ""
+  );
+
+
+  setInput(
+    "commitment",
+    ""
+  );
+
+  setInput(
+    "signature",
+    ""
+  );
+
+  setInput(
+    "signature-date",
+    ""
+  );
+
 
   calculateAll();
 
   calculateReverse();
+
+
+  /*
+    بعد از آماده بودن برنامه،
+    reset واقعاً در Supabase ذخیره می‌شود.
+  */
+
+  saveState();
 
 
   alert(
@@ -3381,10 +4166,15 @@ function updateSurvival(){
   const values = [
 
     "surv-rent",
+
     "surv-food",
+
     "surv-health",
+
     "surv-staff",
+
     "surv-bills",
+
     "surv-cash"
 
   ];
@@ -3400,10 +4190,17 @@ function updateSurvival(){
 
       if(el){
 
+        /*
+          به جای oninput، این بخش listener مستقل دارد.
+          اگر listener قبلاً وجود داشته باشد،
+          با نام‌گذاری مشخص دوباره‌کاری نمی‌کنیم.
+        */
+
         el.oninput =
           function(){
 
             calculateSurvival();
+
 
             state.survival.rent =
               num("surv-rent");
@@ -3447,64 +4244,140 @@ function updateSurvival(){
 function attachAutoSave(){
 
   const coreIds = [
+
     "leads",
+
     "contact",
+
     "conversion",
+
     "deal",
+
     "frequency",
+
     "margin",
+
     "target"
+
   ];
 
-  coreIds.forEach(id => {
 
-    const el = document.getElementById(id);
+  coreIds.forEach(
+    id => {
 
-    if(!el) return;
+      const el =
+        document.getElementById(id);
 
-    el.addEventListener("input", function(){
 
-      state.core.leads = num("leads");
-      state.core.contact = num("contact");
-      state.core.conversion = num("conversion");
-      state.core.deal = num("deal");
-      state.core.frequency = num("frequency");
-      state.core.margin = num("margin");
-      state.core.target = num("target");
+      if(!el)
+        return;
 
-      calculateAll();
-      saveState();
-    });
-  });
+
+      el.oninput =
+        function(){
+
+          state.core.leads =
+            num("leads");
+
+          state.core.contact =
+            num("contact");
+
+          state.core.conversion =
+            num("conversion");
+
+          state.core.deal =
+            num("deal");
+
+          state.core.frequency =
+            num("frequency");
+
+          state.core.margin =
+            num("margin");
+
+          state.core.target =
+            num("target");
+
+
+          /*
+            calculateAll فقط محاسبه می‌کند
+            و دیگر saveState داخل آن نیست.
+          */
+
+          calculateAll();
+
+          saveState();
+
+        };
+
+    }
+  );
+
+
+  /*
+    ذخیره ورودی‌های بقا در همین تابع انجام می‌شود.
+    بنابراین نیازی نیست updateSurvival یک
+    handler دوم برای همان inputها بسازد.
+  */
 
   const survivalIds = [
+
     "surv-rent",
+
     "surv-food",
+
     "surv-health",
+
     "surv-staff",
+
     "surv-bills",
+
     "surv-cash"
+
   ];
 
-  survivalIds.forEach(id => {
 
-    const el = document.getElementById(id);
+  survivalIds.forEach(
+    id => {
 
-    if(!el) return;
+      const el =
+        document.getElementById(id);
 
-    el.addEventListener("input", function(){
 
-      state.survival.rent = num("surv-rent");
-      state.survival.food = num("surv-food");
-      state.survival.health = num("surv-health");
-      state.survival.staff = num("surv-staff");
-      state.survival.bills = num("surv-bills");
-      state.survival.cash = num("surv-cash");
+      if(!el)
+        return;
 
-      calculateSurvival();
-      saveState();
-    });
-  });
+
+      el.oninput =
+        function(){
+
+          state.survival.rent =
+            num("surv-rent");
+
+          state.survival.food =
+            num("surv-food");
+
+          state.survival.health =
+            num("surv-health");
+
+          state.survival.staff =
+            num("surv-staff");
+
+          state.survival.bills =
+            num("surv-bills");
+
+          state.survival.cash =
+            num("surv-cash");
+
+
+          calculateSurvival();
+
+          saveState();
+
+        };
+
+    }
+  );
+
 }
 
 
@@ -3513,39 +4386,52 @@ function attachAutoSave(){
 ========================================================= */
 
 document.addEventListener(
-
   "DOMContentLoaded",
-
   async function(){
+
+    /*
+      برنامه هنوز اجازه ذخیره ندارد.
+    */
+
+    appReady = false;
+
+
+    /*
+      اگر دانشجو قبلاً وارد شده باشد،
+      checkStudentAccess داخل خودش
+      loadState را انجام می‌دهد.
+    */
 
     const loggedIn =
       await checkStudentAccess();
 
 
-    attachAutoSave();
+    /*
+      اگر دانشجو وارد نشده،
+      هنوز هیچ ذخیره‌ای فعال نمی‌کنیم.
+    */
 
-    updateSurvival();
+    if(!loggedIn){
 
-    calculateAll();
+      appReady = false;
 
-    calculateReverse();
-
-    updateLevers();
-
-    updateDashboard();
-
-    updateMine();
-
-
-    if(loggedIn){
-
-      console.log(
-        "Current student:",
-        currentStudent
-      );
+      return;
 
     }
 
+
+    /*
+      در این نقطه loadState قبلاً کامل شده.
+      حالا برنامه اجازه ذخیره دارد.
+    */
+
+    appReady = true;
+
+
+    /*
+      تاریخ‌های پیش‌فرض فقط اگر خالی باشند
+      تنظیم می‌شوند.
+    */
 
     const dateInput =
       document.getElementById(
@@ -3619,6 +4505,33 @@ document.addEventListener(
           .split("T")[0];
 
     }
+
+
+    /*
+      بعد از loadState و تنظیم تاریخ‌ها،
+      listenerها فعال می‌شوند.
+    */
+
+    attachAutoSave();
+
+
+    updateSurvival();
+
+    calculateAll();
+
+    calculateReverse();
+
+    updateLevers();
+
+    updateDashboard();
+
+    updateMine();
+
+
+    console.log(
+      "Current student:",
+      currentStudent
+    );
 
   }
 

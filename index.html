@@ -760,6 +760,9 @@ body.lang-en .header{direction:ltr;}
 /* PHASE 6 — trend/history layer. No new database table. */
 .history-card{margin-top:14px}.history-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}.trend-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:16px 0}.trend-stat{padding:12px;border:1px solid #eceef1;border-radius:15px;background:#fafafa}.trend-stat span{display:block;font-size:9px;color:#7d8592}.trend-stat b{display:block;margin-top:6px;font-size:14px;color:#101a2b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.trend-chart{height:150px;border:1px solid #eceef1;border-radius:17px;background:linear-gradient(180deg,#fff,#faf9f5);padding:10px;display:flex;align-items:flex-end;gap:5px;overflow:hidden}.trend-bar{flex:1;min-width:8px;border-radius:7px 7px 2px 2px;background:#c9a45c;position:relative}.trend-bar span{position:absolute;bottom:100%;left:50%;transform:translate(-50%,-4px);font-size:7px;color:#737b88;white-space:nowrap}.history-list{margin-top:12px;display:grid;gap:7px;max-height:260px;overflow:auto}.history-row{display:grid;grid-template-columns:90px 1fr auto;gap:9px;align-items:center;padding:10px 11px;border:1px solid #eef0f3;border-radius:13px;font-size:9px}.history-row b{font-size:10px;color:#101a2b}.history-row .muted{color:#818997;line-height:1.6}.history-row .tag{padding:4px 7px;border-radius:999px;background:#f3f4f6;color:#606978;font-weight:900;white-space:nowrap}
 @media(max-width:560px){.history-head{flex-direction:column}.history-head .btn{width:100%}.trend-grid{grid-template-columns:1fr 1fr}.trend-chart{height:125px}.history-row{grid-template-columns:70px 1fr}.history-row .tag{grid-column:2}}
+</style><style>
+/* PHASE 7 — decision insight: minimal, data-driven, no new backend. */
+#phase7-insights{margin-top:14px}.insight-main{margin-top:12px;padding:14px 15px;border-radius:15px;background:#f8f8f6;font-size:12px;font-weight:900;line-height:1.9;color:#101a2b}.insight-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:9px}.insight-grid>div{padding:11px;border:1px solid #eceef1;border-radius:14px}.insight-grid span{display:block;font-size:8px;color:#7d8592}.insight-grid b{display:block;margin-top:5px;font-size:11px;color:#101a2b}.insight-action{margin-top:9px;padding:11px 13px;border-right:3px solid #c9a45c;border-radius:11px;background:#fff;font-size:10px;line-height:1.8;color:#626872}@media(max-width:560px){.insight-grid{grid-template-columns:1fr 1fr}.insight-grid>div:last-child{grid-column:1/-1}}
 </style></head>
 
 <body>
@@ -1463,6 +1466,19 @@ body.lang-en .header{direction:ltr;}
     <button class="btn btn-gold" id="phase5-save" type="button" data-fa="ثبت وضعیت اجرا" data-en="Save Execution Status">ثبت وضعیت اجرا</button>
     <span id="phase5-saved" class="small-note">—</span>
   </div>
+</div>
+
+<div id="phase7-insights" class="card">
+  <div class="dash-eyebrow" data-fa="تحلیل تصمیم" data-en="DECISION INSIGHT">تحلیل تصمیم</div>
+  <h2 class="card-title" data-fa="الان روی چه چیزی تمرکز کنم؟" data-en="What should I focus on now?">الان روی چه چیزی تمرکز کنم؟</h2>
+  <div class="insight-main" id="phase7-main">—</div>
+  <div class="insight-grid">
+    <div><span data-fa="اهرم اصلی" data-en="Main lever">اهرم اصلی</span><b id="phase7-lever">—</b></div>
+    <div><span data-fa="فاصله تا هدف" data-en="Gap to target">فاصله تا هدف</span><b id="phase7-gap">—</b></div>
+    <div><span data-fa="پیشرفت اجرا" data-en="Execution progress">پیشرفت اجرا</span><b id="phase7-progress">—</b></div>
+  </div>
+  <div class="insight-action" id="phase7-action">—</div>
+  <div class="small-note" data-fa="این بخش فقط داده‌های ثبت‌شده خودت را تحلیل می‌کند و نتیجه درآمدی را تضمین نمی‌کند." data-en="This section analyzes only your recorded data and does not guarantee income results.">این بخش فقط داده‌های ثبت‌شده خودت را تحلیل می‌کند و نتیجه درآمدی را تضمین نمی‌کند.</div>
 </div>
 
 <div id="phase6-history" class="card history-card">
@@ -4444,6 +4460,49 @@ function statusLabel(s){const m={not_started:["شروع نشده","Not started"]
 function init(){E("phase6-snapshot")?.addEventListener("click",snapshot);setTimeout(render,400);setInterval(render,1800)}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 window.onePercentPhase6={snapshot,refresh:render};
+})();
+</script><script>
+/* PHASE 7 — derives one useful next-focus insight from existing calculator data. */
+(function(){
+"use strict";
+const E=id=>document.getElementById(id);
+const L=(fa,en)=>(localStorage.getItem("one_percent_calculator_language")||"fa")==="en"?en:fa;
+function labelLever(k){const m={conversion:["نرخ تبدیل","Conversion"],deal:["ارزش معامله","Deal value"],leads:["تعداد لید","Leads"],execution:["اجرای تصمیم","Decision execution"]};const a=m[k]||m.execution;return L(a[0],a[1])}
+function render(){
+ if(!window.state)return;
+ const r=typeof calculateEngine==="function"?calculateEngine():null;
+ const l=typeof calculateLevers==="function"?calculateLevers():null;
+ const d=state.decision||{};
+ const current=Number(r?.annualRevenue)||0;
+ const goal=Number(d.goal)||0;
+ const gap=goal>0?goal-current:0;
+ const progress=Math.max(0,Math.min(100,Number(d.progress)||0));
+ let key="execution", main="", action="";
+ const impacts=[["conversion",Number(l?.conversionImpact)||0],["deal",Number(l?.dealImpact)||0],["leads",Number(l?.leadImpact)||0]];
+ impacts.sort((a,b)=>b[1]-a[1]);
+ if(!d.lever && impacts[0][1]>0) key=impacts[0][0]; else if(d.lever) key=d.lever;
+ if(!d.execution_status || d.execution_status==="not_started"){
+   main=L("تصمیم ثبت‌شده هنوز وارد مرحله اجرا نشده است.","Your recorded decision has not entered execution yet.");
+   action=d.action?L("قدم بعدی: ","Next move: ")+d.action:L("یک اقدام مشخص برای تصمیم فعلی ثبت کن.","Record one concrete next action for your current decision.");
+ }else if(goal>0 && current<goal){
+   main=L("هدف ثبت شده، اما هنوز فاصله وجود دارد. فعلاً روی یک اهرم و اجرای آن تمرکز کن.","A target is recorded, but a gap remains. Focus on one lever and its execution.");
+   action=d.action?L("قدم بعدی: ","Next move: ")+d.action:L("عدد هدف و اقدام بعدی را بازبینی کن.","Review the target number and next action.");
+ }else if(progress<100){
+   main=L("مسیر اجرا فعال است؛ مهم‌ترین کار فعلاً ادامه و ثبت نتیجه واقعی است.","Execution is active; the priority is to continue and record the actual result.");
+   action=L("در بررسی بعدی، عدد واقعی و نتیجه اقدام را ثبت کن.","At the next check-in, record the actual number and outcome.");
+ }else{
+   main=L("این مرحله تکمیل شده است؛ نتیجه واقعی را بررسی و تصمیم بعدی را ثبت کن.","This stage is complete; review the actual result and record the next decision.");
+   action=L("یک مرور کوتاه انجام بده و مرحله بعدی را مشخص کن.","Do a short review and define the next stage.");
+ }
+ E("phase7-main").textContent=main;
+ E("phase7-lever").textContent=labelLever(key);
+ E("phase7-gap").textContent=goal>0?(gap>0?String(typeof money==="function"?money(gap):gap):L("به هدف رسیده","Target reached")):L("ثبت نشده","Not set");
+ E("phase7-progress").textContent=progress+"%";
+ E("phase7-action").textContent=action;
+}
+function init(){setTimeout(render,500);setInterval(render,2000)}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
+window.onePercentPhase7={refresh:render};
 })();
 </script></body>
 </html>

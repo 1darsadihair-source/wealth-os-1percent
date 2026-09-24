@@ -756,6 +756,10 @@ body.lang-en .header{direction:ltr;}
 .tracker-actions{display:flex;align-items:center;gap:12px;margin-top:12px}.tracker-actions .small-note{margin:0}
 #phase5-outcome{resize:vertical;min-height:76px}
 @media(max-width:560px){.tracker-head{flex-direction:column}.tracker-actions{align-items:stretch;flex-direction:column}.tracker-actions .btn{width:100%}}
+</style><style>
+/* PHASE 6 — trend/history layer. No new database table. */
+.history-card{margin-top:14px}.history-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}.trend-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:16px 0}.trend-stat{padding:12px;border:1px solid #eceef1;border-radius:15px;background:#fafafa}.trend-stat span{display:block;font-size:9px;color:#7d8592}.trend-stat b{display:block;margin-top:6px;font-size:14px;color:#101a2b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.trend-chart{height:150px;border:1px solid #eceef1;border-radius:17px;background:linear-gradient(180deg,#fff,#faf9f5);padding:10px;display:flex;align-items:flex-end;gap:5px;overflow:hidden}.trend-bar{flex:1;min-width:8px;border-radius:7px 7px 2px 2px;background:#c9a45c;position:relative}.trend-bar span{position:absolute;bottom:100%;left:50%;transform:translate(-50%,-4px);font-size:7px;color:#737b88;white-space:nowrap}.history-list{margin-top:12px;display:grid;gap:7px;max-height:260px;overflow:auto}.history-row{display:grid;grid-template-columns:90px 1fr auto;gap:9px;align-items:center;padding:10px 11px;border:1px solid #eef0f3;border-radius:13px;font-size:9px}.history-row b{font-size:10px;color:#101a2b}.history-row .muted{color:#818997;line-height:1.6}.history-row .tag{padding:4px 7px;border-radius:999px;background:#f3f4f6;color:#606978;font-weight:900;white-space:nowrap}
+@media(max-width:560px){.history-head{flex-direction:column}.history-head .btn{width:100%}.trend-grid{grid-template-columns:1fr 1fr}.trend-chart{height:125px}.history-row{grid-template-columns:70px 1fr}.history-row .tag{grid-column:2}}
 </style></head>
 
 <body>
@@ -1459,6 +1463,26 @@ body.lang-en .header{direction:ltr;}
     <button class="btn btn-gold" id="phase5-save" type="button" data-fa="ثبت وضعیت اجرا" data-en="Save Execution Status">ثبت وضعیت اجرا</button>
     <span id="phase5-saved" class="small-note">—</span>
   </div>
+</div>
+
+<div id="phase6-history" class="card history-card">
+  <div class="history-head">
+    <div>
+      <div class="dash-eyebrow" data-fa="تاریخچه تصمیم" data-en="DECISION HISTORY">تاریخچه تصمیم</div>
+      <h2 class="card-title" data-fa="روند من" data-en="My Trend">روند من</h2>
+      <div class="small-note" data-fa="هر بار که وضعیت اجرا را ثبت می‌کنی، یک نقطه از مسیرت ذخیره می‌شود." data-en="Each execution check-in adds a point to your journey.">هر بار که وضعیت اجرا را ثبت می‌کنی، یک نقطه از مسیرت ذخیره می‌شود.</div>
+    </div>
+    <button id="phase6-snapshot" class="btn btn-gold" type="button" data-fa="ثبت نقطه امروز" data-en="Save Today">ثبت نقطه امروز</button>
+  </div>
+  <div class="trend-grid">
+    <div class="trend-stat"><span data-fa="شروع مسیر" data-en="Starting Point">شروع مسیر</span><b id="phase6-start">—</b></div>
+    <div class="trend-stat"><span data-fa="وضعیت فعلی" data-en="Current">وضعیت فعلی</span><b id="phase6-current">—</b></div>
+    <div class="trend-stat"><span data-fa="تغییر" data-en="Change">تغییر</span><b id="phase6-change">—</b></div>
+    <div class="trend-stat"><span data-fa="تعداد ثبت‌ها" data-en="Check-ins">تعداد ثبت‌ها</span><b id="phase6-count">۰</b></div>
+  </div>
+  <div class="trend-chart" id="phase6-chart" aria-label="Trend chart"></div>
+  <div class="history-list" id="phase6-list"></div>
+  <div class="small-note" data-fa="تاریخچه در همان decision_data ذخیره می‌شود و همراه اطلاعات دانشجو بارگذاری می‌شود." data-en="History is stored inside the existing decision_data and loaded with the student record.">تاریخچه در همان decision_data ذخیره می‌شود و همراه اطلاعات دانشجو بارگذاری می‌شود.</div>
 </div>
 
 <div class="small-note dash-disclaimer" data-fa="این داشبورد برای کمک به تصمیم‌گیری ساخته شده است؛ «اهرم اصلی» و «قدم بعدی» پیشنهاد مدل هستند و تضمین نتیجه نیستند." data-en="This dashboard supports decision-making; the main lever and next move are model suggestions, not guarantees.">این داشبورد برای کمک به تصمیم‌گیری ساخته شده است؛ «اهرم اصلی» و «قدم بعدی» پیشنهاد مدل هستند و تضمین نتیجه نیستند.</div>
@@ -4387,6 +4411,39 @@ function bind(){
 function init(){bind();setTimeout(setUI,300);setInterval(setUI,1500)}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 window.onePercentPhase5={refresh:setUI,save};
+})();
+</script><script>
+/* PHASE 6 — decision history. Keeps a bounded local history inside existing decision_data. */
+(function(){
+"use strict";
+function E(id){return document.getElementById(id)}
+function T(fa,en){return (window.onePercentI18n?.lang?.()||localStorage.getItem("one_percent_calculator_language")||"fa")==="en"?en:fa}
+function hist(){return Array.isArray(window.state?.decision?.history)?state.decision.history:[]}
+function now(){return new Date().toISOString().slice(0,16).replace("T"," ")}
+function snapshot(){
+ if(!window.state)return;
+ const r=typeof calculateEngine==="function"?calculateEngine():null;
+ const d=state.decision||{};
+ const entry={date:now(),annual_revenue:Number(r?.annualRevenue)||0,actual_current:Number(d.actual_current)||0,progress:Number(d.progress)||0,status:d.execution_status||"not_started",goal:Number(d.goal)||0,action:d.action||"",note:d.outcome_note||""};
+ const arr=hist();
+ const last=arr[arr.length-1];
+ if(last && last.date===entry.date){arr[arr.length-1]=entry}else arr.push(entry);
+ state.decision.history=arr.slice(-30);
+ if(typeof saveState==="function")saveState();
+ render();
+}
+function moneySafe(v){return typeof money==="function"?money(v):String(Math.round(v||0))}
+function render(){
+ const arr=hist(), d=window.state?.decision||{}, r=typeof calculateEngine==="function"?calculateEngine():null;
+ const current=Number(r?.annualRevenue)||0, first=Number(arr[0]?.annual_revenue)||current, change=current-first;
+ E("phase6-start").textContent=moneySafe(first);E("phase6-current").textContent=moneySafe(current);E("phase6-change").textContent=(change>=0?"+":"-")+moneySafe(Math.abs(change));E("phase6-count").textContent=String(arr.length);
+ const chart=E("phase6-chart");if(chart){chart.innerHTML="";const vals=arr.map(x=>Number(x.annual_revenue)||0);const max=Math.max(...vals,1);vals.forEach((v,i)=>{const b=document.createElement("div");b.className="trend-bar";b.style.height=Math.max(5,v/max*100)+"%";const s=document.createElement("span");s.textContent=moneySafe(v);b.appendChild(s);chart.appendChild(b)})}
+ const list=E("phase6-list");if(list){list.innerHTML=arr.slice().reverse().map(x=>'<div class="history-row"><b>'+x.date+'</b><div class="muted">'+T("درآمد مدل‌شده: ","Modeled revenue: ")+moneySafe(x.annual_revenue)+(x.actual_current?T(" · عدد واقعی: "," · Actual: ")+x.actual_current:"")+(x.action?'<br>'+x.action:"")+'</div><span class="tag">'+(x.progress||0)+"% · "+statusLabel(x.status)+"</span></div>").join("")||'<div class="small-note">'+T("هنوز نقطه‌ای ثبت نشده است.","No check-ins yet.")+"</div>"}
+}
+function statusLabel(s){const m={not_started:["شروع نشده","Not started"],in_progress:["در حال اجرا","In progress"],completed:["تکمیل شده","Completed"],paused:["متوقف شده","Paused"]};const a=m[s]||m.not_started;return T(a[0],a[1])}
+function init(){E("phase6-snapshot")?.addEventListener("click",snapshot);setTimeout(render,400);setInterval(render,1800)}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
+window.onePercentPhase6={snapshot,refresh:render};
 })();
 </script></body>
 </html>

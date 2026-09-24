@@ -748,6 +748,14 @@ body.lang-en .header{direction:ltr;}
 @media(max-width:900px){.decision-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.dash-hero{align-items:flex-start}.dash-score{min-width:68px;height:68px;border-radius:20px}.dash-score span{font-size:20px}.decision-grid{grid-template-columns:1fr 1fr;gap:8px}.decision-card{min-height:132px;padding:13px}.decision-big{font-size:18px}.decision-text{font-size:12px}.dash-two{grid-template-columns:1fr}.next-move-card{padding:15px}}
 @media(max-width:390px){.decision-grid{grid-template-columns:1fr}.decision-card{min-height:auto}.dash-score{display:none}}
+</style><style>
+/* PHASE 5 — execution tracking layer. Uses existing decision_data JSON; no schema replacement. */
+.action-tracker{margin-top:14px;border:1px solid #e3e5e9;background:linear-gradient(145deg,#fff,#fbfaf6)}
+.tracker-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}.tracker-status{font-size:10px;font-weight:950;padding:7px 10px;border-radius:999px;background:#f2f3f5;color:#626a77;white-space:nowrap}
+.tracker-progress-row{display:flex;align-items:center;gap:12px;margin:18px 0 14px}.tracker-progress{height:10px;flex:1;background:#eceef1;border-radius:999px;overflow:hidden}.tracker-progress div{height:100%;width:0;background:#c9a45c;border-radius:999px;transition:width .25s ease}.tracker-progress-row strong{font-size:12px;color:#101a2b;min-width:35px;text-align:left}
+.tracker-actions{display:flex;align-items:center;gap:12px;margin-top:12px}.tracker-actions .small-note{margin:0}
+#phase5-outcome{resize:vertical;min-height:76px}
+@media(max-width:560px){.tracker-head{flex-direction:column}.tracker-actions{align-items:stretch;flex-direction:column}.tracker-actions .btn{width:100%}}
 </style></head>
 
 <body>
@@ -1423,7 +1431,37 @@ body.lang-en .header{direction:ltr;}
     <div class="actions"><button class="btn btn-gold" onclick="saveDecision()" data-fa="ذخیره تصمیم" data-en="Save Decision">ذخیره تصمیم</button></div>
   </div>
 
-  <div class="small-note dash-disclaimer" data-fa="این داشبورد برای کمک به تصمیم‌گیری ساخته شده است؛ «اهرم اصلی» و «قدم بعدی» پیشنهاد مدل هستند و تضمین نتیجه نیستند." data-en="This dashboard supports decision-making; the main lever and next move are model suggestions, not guarantees.">این داشبورد برای کمک به تصمیم‌گیری ساخته شده است؛ «اهرم اصلی» و «قدم بعدی» پیشنهاد مدل هستند و تضمین نتیجه نیستند.</div>
+  <div id="phase5-tracker" class="card action-tracker">
+  <div class="tracker-head">
+    <div>
+      <div class="dash-eyebrow" data-fa="پیگیری اجرا" data-en="EXECUTION TRACKER">پیگیری اجرا</div>
+      <h2 class="card-title" data-fa="اقدام ۳۰ روزه را دنبال کن" data-en="Track your 30-day action">اقدام ۳۰ روزه را دنبال کن</h2>
+      <div class="small-note" data-fa="تصمیم وقتی ارزش دارد که اجرا، پیشرفت و نتیجه‌اش ثبت شود." data-en="A decision becomes useful when execution, progress, and outcome are tracked.">تصمیم وقتی ارزش دارد که اجرا، پیشرفت و نتیجه‌اش ثبت شود.</div>
+    </div>
+    <div class="tracker-status" id="phase5-status">—</div>
+  </div>
+  <div class="tracker-progress-row"><div class="tracker-progress"><div id="phase5-progress-bar"></div></div><strong id="phase5-progress-value">۰٪</strong></div>
+  <div class="grid">
+    <div class="field"><label data-fa="وضعیت اجرا" data-en="Execution Status">وضعیت اجرا</label>
+      <select id="phase5-status-select">
+        <option value="not_started" data-fa="شروع نشده" data-en="Not started">شروع نشده</option>
+        <option value="in_progress" data-fa="در حال اجرا" data-en="In progress">در حال اجرا</option>
+        <option value="completed" data-fa="تکمیل شده" data-en="Completed">تکمیل شده</option>
+        <option value="paused" data-fa="متوقف شده" data-en="Paused">متوقف شده</option>
+      </select>
+    </div>
+    <div class="field"><label data-fa="درصد پیشرفت" data-en="Progress">درصد پیشرفت</label><input id="phase5-progress" type="number" min="0" max="100" step="1" inputmode="numeric" placeholder="۰ تا ۱۰۰"></div>
+    <div class="field"><label data-fa="عدد واقعی فعلی" data-en="Actual Current Number">عدد واقعی فعلی</label><input id="phase5-actual" type="number" min="0" step="0.1" inputmode="decimal" placeholder="عدد واقعی امروز"></div>
+    <div class="field"><label data-fa="آخرین پیگیری" data-en="Last Check-in">آخرین پیگیری</label><input id="phase5-checkin" type="date"></div>
+  </div>
+  <div class="field"><label data-fa="نتیجه / یادداشت اجرا" data-en="Outcome / Execution Note">نتیجه / یادداشت اجرا</label><textarea id="phase5-outcome" rows="3" placeholder="چه چیزی انجام شد؟ چه نتیجه‌ای گرفتی؟ چه چیزی باید اصلاح شود؟"></textarea></div>
+  <div class="tracker-actions">
+    <button class="btn btn-gold" id="phase5-save" type="button" data-fa="ثبت وضعیت اجرا" data-en="Save Execution Status">ثبت وضعیت اجرا</button>
+    <span id="phase5-saved" class="small-note">—</span>
+  </div>
+</div>
+
+<div class="small-note dash-disclaimer" data-fa="این داشبورد برای کمک به تصمیم‌گیری ساخته شده است؛ «اهرم اصلی» و «قدم بعدی» پیشنهاد مدل هستند و تضمین نتیجه نیستند." data-en="This dashboard supports decision-making; the main lever and next move are model suggestions, not guarantees.">این داشبورد برای کمک به تصمیم‌گیری ساخته شده است؛ «اهرم اصلی» و «قدم بعدی» پیشنهاد مدل هستند و تضمین نتیجه نیستند.</div>
 
 </section>
 
@@ -4301,6 +4339,54 @@ function init(){
   setTimeout(refreshDecisionDashboard,200);
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
+})();
+</script><script>
+/* PHASE 5 — execution tracker. Persists inside existing decision_data via saveState(). */
+(function(){
+"use strict";
+function E(id){return document.getElementById(id)}
+function T(fa,en){return (window.onePercentI18n?.lang?.()||localStorage.getItem("one_percent_calculator_language")||"fa")==="en"?en:fa}
+function pct(v){let n=Math.max(0,Math.min(100,Number(v)||0));return Math.round(n)}
+function statusText(s){return ({not_started:["شروع نشده","Not started"],in_progress:["در حال اجرا","In progress"],completed:["تکمیل شده","Completed"],paused:["متوقف شده","Paused"]}[s]||["—","—"])[T("0","1")==="0"?0:1]}
+function setUI(){
+  const d=window.state?.decision||{};
+  const p=pct(d.progress);
+  const s=d.execution_status||"not_started";
+  if(E("phase5-progress"))E("phase5-progress").value=p;
+  if(E("phase5-progress-bar"))E("phase5-progress-bar").style.width=p+"%";
+  if(E("phase5-progress-value"))E("phase5-progress-value").textContent=p+"%";
+  if(E("phase5-status-select"))E("phase5-status-select").value=s;
+  if(E("phase5-actual"))E("phase5-actual").value=d.actual_current??"";
+  if(E("phase5-checkin"))E("phase5-checkin").value=d.last_checkin||"";
+  if(E("phase5-outcome"))E("phase5-outcome").value=d.outcome_note||"";
+  const st=statusText(s);
+  if(E("phase5-status")){E("phase5-status").textContent=st;E("phase5-status").dataset.status=s}
+  if(E("phase5-saved"))E("phase5-saved").textContent=d.updated_at?T("آخرین ثبت: ","Last saved: ")+d.updated_at:"";
+}
+function collect(){
+  if(!window.state)return;
+  state.decision.execution_status=E("phase5-status-select")?.value||"not_started";
+  state.decision.progress=pct(E("phase5-progress")?.value);
+  state.decision.actual_current=E("phase5-actual")?.value||"";
+  state.decision.last_checkin=E("phase5-checkin")?.value||"";
+  state.decision.outcome_note=E("phase5-outcome")?.value||"";
+  state.decision.updated_at=new Date().toISOString().slice(0,16).replace("T"," ");
+  if(state.decision.execution_status==="completed")state.decision.progress=100;
+}
+function save(){
+  collect();
+  if(typeof saveState==="function")saveState();
+  if(typeof updateDashboard==="function")updateDashboard();
+  setUI();
+}
+function bind(){
+  E("phase5-save")?.addEventListener("click",save);
+  E("phase5-progress")?.addEventListener("input",function(){const v=pct(this.value);if(E("phase5-progress-value"))E("phase5-progress-value").textContent=v+"%";if(E("phase5-progress-bar"))E("phase5-progress-bar").style.width=v+"%"});
+  E("phase5-status-select")?.addEventListener("change",function(){if(this.value==="completed"){E("phase5-progress").value=100;E("phase5-progress").dispatchEvent(new Event("input"))}});
+}
+function init(){bind();setTimeout(setUI,300);setInterval(setUI,1500)}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
+window.onePercentPhase5={refresh:setUI,save};
 })();
 </script></body>
 </html>

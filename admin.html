@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <meta name="theme-color" content="#101A2B">
 <meta name="description" content="پنل مدیریت سیستم عامل ثروت و درآمد — یک درصدی‌ها">
-<title>پنل مدیریت — یک درصدی‌ها</title>
+<title>پنل مدیریت | ماشین حساب یک درصدی‌ها</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -18,7 +18,20 @@
 .container{width:min(1400px,100%);margin:auto;padding:22px 20px 50px}.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:15px;margin-bottom:18px}.page-head h2{margin:0;color:var(--navy);font-size:23px}.page-head p{margin:5px 0 0;color:var(--muted);font-size:12px}.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}.stat{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}.stat .label{font-size:11px;color:var(--muted);font-weight:700}.stat .value{font-size:28px;font-weight:900;color:var(--navy);margin-top:7px}.stat .hint{font-size:10px;color:var(--muted);margin-top:3px}.panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}.panel-head{padding:17px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.panel-title{font-weight:800;color:var(--navy);font-size:15px}.filters{display:flex;gap:8px;flex-wrap:wrap;flex:1;justify-content:flex-start}.filters input,.filters select{border:1px solid #d9dee5;border-radius:10px;padding:10px 11px;background:#fff;outline:none;min-width:150px}.filters input:focus,.filters select:focus{border-color:var(--gold)}.search-wrap{display:flex;gap:7px;flex:1;min-width:220px}.search-wrap input{width:100%}.btn{border:0;border-radius:10px;padding:10px 13px;font-size:12px;font-weight:700}.btn-gold{background:var(--gold);color:#151b25}.btn-dark{background:var(--navy);color:#fff}.btn-light{background:#f0f2f5;color:var(--navy)}.btn-danger{background:#fff0f0;color:var(--danger);border:1px solid #f2cccc}.btn-success{background:#eef9f3;color:var(--success);border:1px solid #cce9d8}.btn:disabled{opacity:.5;cursor:not-allowed}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:980px}th,td{padding:13px 12px;text-align:right;border-bottom:1px solid #edf0f3;vertical-align:middle}th{font-size:11px;color:#6c7581;background:#fafbfc;font-weight:800;white-space:nowrap}td{font-size:12px}tr:hover td{background:#fcfcfd}.student-name{font-weight:800;color:var(--navy)}.student-code{direction:ltr;display:inline-block;font-family:monospace;font-size:11px;background:#f2f4f7;padding:4px 7px;border-radius:7px}.status{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:999px;font-size:10px;font-weight:800}.status.active{background:#edf8f2;color:var(--success)}.status.inactive{background:#fff0f0;color:var(--danger)}.actions{display:flex;gap:6px;flex-wrap:wrap}.empty,.loading{padding:45px 20px;text-align:center;color:var(--muted);font-size:13px}.spinner{width:22px;height:22px;border:3px solid #e2e5e9;border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 10px}@keyframes spin{to{transform:rotate(360deg)}}.footer-bar{padding:13px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;border-top:1px solid var(--line)}.pagination{display:flex;align-items:center;gap:6px}.page-info{font-size:11px;color:var(--muted);margin:0 8px}.toast{position:fixed;bottom:20px;left:20px;z-index:100;max-width:min(380px,calc(100vw - 40px));padding:13px 16px;border-radius:13px;color:#fff;background:var(--navy);box-shadow:0 16px 40px rgba(0,0,0,.2);font-size:12px;transform:translateY(20px);opacity:0;pointer-events:none;transition:.25s}.toast.show{transform:translateY(0);opacity:1}.toast.success{background:var(--success)}.toast.error{background:var(--danger)}.modal{position:fixed;inset:0;z-index:80;background:rgba(8,14,24,.65);display:flex;align-items:center;justify-content:center;padding:18px}.modal-card{width:min(620px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:20px;box-shadow:0 30px 90px rgba(0,0,0,.3)}.modal-head{padding:17px 19px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.modal-head h3{margin:0;color:var(--navy);font-size:16px}.close{width:34px;height:34px;border:0;border-radius:9px;background:#f0f2f5;color:var(--navy);font-size:18px}.modal-body{padding:19px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.form-grid .full{grid-column:1/-1}.modal-actions{display:flex;justify-content:flex-start;gap:8px;margin-top:18px;padding-top:15px;border-top:1px solid var(--line)}.small-note{font-size:10px;color:var(--muted);line-height:1.8}
 @media(max-width:900px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.topbar-inner{padding:11px 13px}.brand-title span{display:none}.role-badge{display:none}.container{padding:16px 12px 35px}.page-head{align-items:flex-start}.page-head h2{font-size:19px}.cards{grid-template-columns:1fr 1fr;gap:9px}.stat{padding:14px}.stat .value{font-size:22px}.filters{width:100%}.search-wrap{min-width:100%}.filters select{flex:1;min-width:0}.form-grid{grid-template-columns:1fr}.form-grid .full{grid-column:auto}.modal-actions{flex-direction:column}.modal-actions .btn{width:100%}}
 </style>
-</head>
+<style>
+/* PHASE 1 — Premium visual layer; admin logic untouched */
+:root{--navy:#101a2b;--navy2:#18253b;--gold:#c9a45c;--gold2:#e6c982;}
+body{background:linear-gradient(180deg,#f6f7f9 0%,#f1f3f6 100%);}
+.language-switch{
+ position:fixed;z-index:99999;top:14px;right:14px;border:1px solid rgba(201,164,92,.5);
+ background:rgba(16,26,43,.92);color:#fff;border-radius:999px;padding:8px 12px;
+ font:800 12px Vazirmatn,Tahoma,sans-serif;backdrop-filter:blur(10px);
+ box-shadow:0 8px 25px rgba(0,0,0,.16);
+}
+body.lang-en{font-family:Inter,Vazirmatn,Arial,sans-serif;direction:ltr;}
+body.lang-en table th,body.lang-en table td{text-align:left;}
+body.lang-en .language-switch{right:14px;left:auto;}
+</style></head>
 <body>
 <section id="loginPage"><div class="login-card"><div class="brand-mark">1%</div><h1>پنل مدیریت یک درصدی‌ها</h1><div class="sub">سیستم عامل ثروت و درآمد</div><form id="loginForm" onsubmit="return false;"><div class="field"><label for="email">ایمیل مدیر</label><input id="email" type="email" autocomplete="username" required placeholder="admin@example.com"></div><div class="field"><label for="password">رمز عبور</label><input id="password" type="password" autocomplete="current-password" required placeholder="رمز عبور"></div><button id="loginBtn" class="primary" type="submit">ورود به پنل</button></form><div class="login-note">دسترسی این صفحه فقط برای حساب‌های مدیریتی فعال است.</div></div></section>
 <section id="app" class="hidden"><header class="topbar"><div class="topbar-inner"><div class="brand-title"><div class="brand-mini">1%</div><div><strong>یک درصدی‌ها</strong><span>پنل مدیریت سیستم عامل ثروت و درآمد</span></div></div><div class="top-actions"><span id="roleBadge" class="role-badge">—</span><button id="refreshBtn" class="ghost" type="button">به‌روزرسانی</button><button id="logoutBtn" class="ghost" type="button">خروج</button></div></div></header><main class="container"><div class="page-head"><div><h2>مدیریت دانشجویان</h2><p id="welcomeText">در حال دریافت اطلاعات...</p></div></div><section class="cards"><div class="stat"><div class="label">کل دانشجویان</div><div id="totalStat" class="value">—</div><div class="hint">مطابق نتیجه جست‌وجو/فیلتر</div></div><div class="stat"><div class="label">تعداد فعال</div><div id="activeStat" class="value">—</div><div class="hint">در صفحه فعلی</div></div><div class="stat"><div class="label">تعداد غیرفعال</div><div id="inactiveStat" class="value">—</div><div class="hint">در صفحه فعلی</div></div><div class="stat"><div class="label">صفحه</div><div id="pageStat" class="value">—</div><div class="hint">از مجموع صفحات</div></div></section><section class="panel"><div class="panel-head"><div class="panel-title">فهرست دانشجویان</div><div class="filters"><div class="search-wrap"><input id="searchInput" type="search" placeholder="جست‌وجو: نام، نام خانوادگی، کد، تلفن یا ایمیل"><button id="searchBtn" class="btn btn-dark" type="button">جست‌وجو</button></div><select id="activeFilter" aria-label="وضعیت"><option value="all">همه وضعیت‌ها</option><option value="true">فعال</option><option value="false">غیرفعال</option></select><select id="pageSize" aria-label="تعداد در صفحه"><option value="25">۲۵ در صفحه</option><option value="50">۵۰ در صفحه</option><option value="100">۱۰۰ در صفحه</option></select></div></div><div id="tableArea"><div class="loading"><div class="spinner"></div>در حال دریافت دانشجویان...</div></div><div class="footer-bar"><div id="resultInfo" class="small-note">—</div><div class="pagination"><button id="prevBtn" class="btn btn-light" type="button">قبلی</button><span id="pageInfo" class="page-info">—</span><button id="nextBtn" class="btn btn-light" type="button">بعدی</button></div></div></section></main></section>
@@ -94,5 +107,90 @@
   })();
 })();
 </script>
-</body>
+<script>
+(function(){
+"use strict";
+const I18N_MAP={"پنل مدیریت یک درصدی‌ها":"1% Club Admin","سیستم عامل ثروت و درآمد":"Revenue & Wealth Operating System","ایمیل مدیر":"Admin Email","رمز عبور":"Password","ورود به پنل":"Sign in to Admin","دسترسی این صفحه فقط برای حساب‌های مدیریتی فعال است.":"This page is restricted to active admin accounts.","یک درصدی‌ها":"1% Club","پنل مدیریت سیستم عامل ثروت و درآمد":"Revenue & Wealth Operating System Admin","به‌روزرسانی":"Refresh","خروج":"Sign out","مدیریت دانشجویان":"Student Management","در حال دریافت اطلاعات...":"Loading information...","کل دانشجویان":"Total Students","مطابق نتیجه جست‌وجو/فیلتر":"Matching search/filter results","تعداد فعال":"Active","در صفحه فعلی":"On current page","تعداد غیرفعال":"Inactive","صفحه":"Page","از مجموع صفحات":"of total pages","فهرست دانشجویان":"Student List","جست‌وجو":"Search","همه وضعیت‌ها":"All Statuses","فعال":"Active","غیرفعال":"Inactive","۲۵ در صفحه":"25 per page","۵۰ در صفحه":"50 per page","۱۰۰ در صفحه":"100 per page","در حال دریافت دانشجویان...":"Loading students...","قبلی":"Previous","بعدی":"Next","ویرایش اطلاعات دانشجو":"Edit Student Information","نام":"First Name","نام خانوادگی":"Last Name","کد دانشجو":"Student Code","تلفن":"Phone","ایمیل":"Email","یادداشت":"Notes","وضعیت":"Status","فقط فیلدهای مجاز به API ارسال می‌شوند. تغییر کد دانشجو در صورت تکراری بودن رد خواهد شد.":"Only allowed fields are sent to the API. Duplicate student codes will be rejected.","ذخیره تغییرات":"Save Changes","انصراف":"Cancel","دانشجویی مطابق فیلترهای فعلی پیدا نشد.":"No students match the current filters.","دانشجو":"student","تاریخ ایجاد":"Created","عملیات":"Actions","ویرایش":"Edit","غیرفعال‌سازی":"Deactivate","فعال‌سازی":"Activate","فقط مشاهده":"View Only","نتیجه‌ای وجود ندارد.":"No results.","دریافت اطلاعات انجام نشد.":"Failed to load information.","خطای نامشخص":"Unknown error","ایمیل و رمز عبور را وارد کنید.":"Enter email and password.","در حال بررسی حساب مدیر...":"Checking admin account...","این حساب دسترسی مدیریتی ندارد.":"This account does not have admin access.","اتصال پنل برقرار است.":"Admin panel connected.","ورود با موفقیت انجام شد.":"Signed in successfully.","نشست مدیریتی معتبر نیست. دوباره وارد شوید.":"Admin session is invalid. Please sign in again.","دسترسی مدیریتی مجاز نیست. دوباره وارد شوید.":"Admin access is not allowed. Please sign in again.","عملیات با خطا مواجه شد.":"The operation failed.","برای ورود اطلاعات مدیر را وارد کنید.":"Enter your admin credentials to sign in.","بدون نام":"Unnamed","سطح دسترسی:":"Access level:","نمایش":"Showing","از":"of"};
+const I18N_KEY='one_percent_admin_language';
+const originalTitle=document.title;
+const reverseMap=Object.fromEntries(Object.entries(I18N_MAP).map(([fa,en])=>[en,fa]));
+function lang(){return localStorage.getItem(I18N_KEY)||"fa";}
+function setLang(v){localStorage.setItem(I18N_KEY,v);applyLang(v);}
+function translateString(s,v){
+  if(!s)return s;
+  if(v==="fa"){
+    return Object.prototype.hasOwnProperty.call(reverseMap,s)?reverseMap[s]:s;
+  }
+  if(Object.prototype.hasOwnProperty.call(I18N_MAP,s)) return I18N_MAP[s];
+  let out=s;
+  Object.keys(I18N_MAP).sort((a,b)=>b.length-a.length).forEach(k=>{
+    if(k && out.includes(k)) out=out.split(k).join(I18N_MAP[k]);
+  });
+  return out;
+}
+function translateNode(node,v){
+  if(node.nodeType!==3)return;
+  const p=node.parentElement;
+  if(!p || /^(SCRIPT|STYLE|NOSCRIPT|TEXTAREA)$/i.test(p.tagName))return;
+  const raw=node.nodeValue.replace(/\s+/g," ").trim();
+  if(!raw)return;
+  const translated=translateString(raw,v);
+  if(translated!==raw){
+    const leading=node.nodeValue.match(/^\s*/)?.[0]||"";
+    const trailing=node.nodeValue.match(/\s*$/)?.[0]||"";
+    node.nodeValue=leading+translated+trailing;
+  }
+}
+function walk(root,v){
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+  const nodes=[]; while(w.nextNode())nodes.push(w.currentNode);
+  nodes.forEach(n=>translateNode(n,v));
+  root.querySelectorAll?.("input[placeholder],textarea[placeholder],option").forEach(el=>{
+    const a="placeholder" in el?"placeholder":null;
+    if(a && el.getAttribute(a)) el.setAttribute(a,translateString(el.getAttribute(a),v));
+    else if(el.textContent.trim()) el.textContent=translateString(el.textContent.trim(),v);
+  });
+}
+function updateChrome(v){
+  document.documentElement.lang=v==="en"?"en":"fa";
+  document.documentElement.dir=v==="en"?"ltr":"rtl";
+  document.body.classList.toggle("lang-en",v==="en");
+  const b=document.getElementById("language-switch");
+  if(b)b.innerHTML=v==="en"?"🇮🇷 فارسی":"🇬🇧 English";
+  const title=v==="en"?"1% Calculator":"ماشین حساب | یک درصدی‌ها";
+  document.title=title;
+  const desc=document.querySelector('meta[name="description"]');
+  if(desc)desc.setAttribute("content",v==="en"?"1% Calculator — Revenue & Wealth Operating System":"ماشین حساب یک درصدی‌ها — سیستم عامل ثروت و درآمد");
+}
+function applyLang(v){
+  updateChrome(v);
+  walk(document.body,v);
+}
+function addSwitcher(){
+  if(document.getElementById("language-switch"))return;
+  const b=document.createElement("button");
+  b.id="language-switch";
+  b.type="button";
+  b.className="language-switch";
+  b.onclick=()=>setLang(lang()==="en"?"fa":"en");
+  b.setAttribute("aria-label","Change language");
+  document.body.appendChild(b);
+  updateChrome(lang());
+}
+const observer=new MutationObserver(muts=>{
+  const v=lang();
+  if(v!=="en")return;
+  muts.forEach(m=>{
+    m.addedNodes?.forEach(n=>{
+      if(n.nodeType===3)translateNode(n,v);
+      else if(n.nodeType===1 && n.id!=="language-switch")walk(n,v);
+    });
+  });
+});
+addSwitcher();
+applyLang(lang());
+observer.observe(document.body,{subtree:true,childList:true});
+window.onePercentI18n={setLang,lang,applyLang};
+})();
+</script></body>
 </html>

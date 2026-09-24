@@ -649,6 +649,76 @@ body.lang-en .nav-btn{font-size:10px;}
   main{padding:14px;}
   .language-switch{top:10px;right:10px;}
 }
+</style><style>
+/* PHASE 2 — Mobile-first UX layer. No calculation/storage logic changes. */
+body{background:linear-gradient(180deg,#f8f8f6 0%,#f1f3f6 100%);}
+.app{max-width:1280px;}
+.header{position:relative;overflow:hidden;padding:22px 20px 24px;border-radius:0 0 30px 30px;}
+.header:before{content:"";position:absolute;inset:auto -80px -120px auto;width:280px;height:280px;border-radius:50%;background:rgba(201,164,92,.08);pointer-events:none;}
+.header:after{content:"";position:absolute;left:-90px;top:-120px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.035);pointer-events:none;}
+.brand{position:relative;z-index:1;align-items:flex-start;}
+.brand-title{letter-spacing:-.4px;}
+.header-tools{position:relative;z-index:2;display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.student-chip{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid rgba(201,164,92,.25);background:rgba(255,255,255,.055);border-radius:14px;min-width:0;}
+.student-chip-avatar{width:32px;height:32px;border-radius:11px;display:grid;place-items:center;background:rgba(201,164,92,.15);color:var(--gold2);font-weight:900;font-size:13px;}
+.student-chip-text{min-width:0;}
+.student-chip-label{font-size:9px;color:#9daabd;line-height:1.2;}
+.student-chip-name{font-size:11px;color:#fff;font-weight:800;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.header-logout{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.055);color:#fff;border-radius:12px;padding:9px 10px;font:800 11px Vazirmatn,Tahoma,sans-serif;}
+.phase2-status{
+ margin:14px 0 18px;padding:13px 14px;border:1px solid #e8e0ca;border-radius:17px;
+ background:linear-gradient(135deg,#fffdf7,#fff9ea);display:flex;align-items:center;justify-content:space-between;gap:12px;
+ box-shadow:0 8px 24px rgba(16,26,43,.045);
+}
+.phase2-status-main{display:flex;align-items:center;gap:10px;min-width:0;}
+.phase2-status-dot{width:9px;height:9px;border-radius:50%;background:#27a66f;box-shadow:0 0 0 5px rgba(39,166,111,.10);flex:0 0 auto;}
+.phase2-status-title{font-size:12px;font-weight:900;color:var(--navy);}
+.phase2-status-sub{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.phase2-status-value{text-align:left;direction:ltr;font-size:14px;font-weight:900;color:var(--navy);white-space:nowrap;}
+.section-title{letter-spacing:-.35px;}
+.section-title:after{content:"";display:block;width:34px;height:3px;border-radius:99px;background:var(--gold);margin-top:7px;}
+.card{position:relative;overflow:hidden;}
+.card:has(.card-title) .card-title{letter-spacing:-.15px;}
+.card-title{display:flex;align-items:center;gap:8px;}
+.field input,.field select,.field textarea{transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease;}
+.field input:focus,.field select:focus,.field textarea:focus{transform:translateY(-1px);}
+.actions .btn{flex:1;min-width:145px;}
+.kpi{transition:transform .16s ease,box-shadow .16s ease;}
+.kpi:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(16,26,43,.08);}
+.kpi.main{background:linear-gradient(135deg,#101a2b,#1c2b45);}
+.decision{position:relative;overflow:hidden;}
+.decision:after{content:"";position:absolute;right:-70px;bottom:-100px;width:220px;height:220px;border-radius:50%;background:rgba(201,164,92,.08);pointer-events:none;}
+.bottom-nav{padding-top:9px;box-shadow:0 -12px 32px rgba(16,26,43,.09);}
+.nav-btn{position:relative;transition:.18s ease;}
+.nav-btn.active{transform:translateY(-2px);}
+.nav-btn.active:after{content:"";position:absolute;bottom:-1px;left:24%;right:24%;height:3px;border-radius:99px;background:var(--gold);}
+#student-login{background:radial-gradient(circle at 20% 10%,rgba(201,164,92,.13),transparent 30%),linear-gradient(145deg,#0b1220,#18253b)!important;}
+#student-login>div{position:relative;border:1px solid rgba(201,164,92,.22);padding:34px 24px!important;box-shadow:0 30px 100px rgba(0,0,0,.38)!important;}
+#student-login>div:before{content:"1%";width:58px;height:58px;margin:0 auto 15px;border-radius:18px;display:grid;place-items:center;background:#101a2b;border:1px solid rgba(201,164,92,.45);color:#e6c982;font-weight:900;font-size:17px;box-shadow:0 12px 30px rgba(16,26,43,.18);}
+#student-login #student-code{background:#fbfcfe!important;border:1px solid #dfe3e9!important;font-weight:800;}
+#student-login button[onclick="checkStudentCode()"]{background:linear-gradient(135deg,#101a2b,#1e304d)!important;box-shadow:0 10px 22px rgba(16,26,43,.18);}
+#student-login .language-switch{top:16px;right:16px;}
+@media(max-width:760px){
+ .header{padding:19px 14px 21px;}
+ .brand{align-items:center;}
+ .header-tools{gap:5px;}
+ .student-chip{padding:6px 7px;}
+ .student-chip-avatar{width:29px;height:29px;}
+ .student-chip-name{max-width:82px;}
+ .header-logout{padding:8px;}
+ .phase2-status{margin:11px 0 14px;}
+ .phase2-status-value{font-size:12px;}
+ .actions{flex-direction:column;}
+ .actions .btn{width:100%;}
+ main{padding:13px;}
+}
+@media(max-width:390px){
+ .student-chip-text{display:none;}
+ .student-chip{padding:6px;}
+}
+body.lang-en .phase2-status-value{text-align:right;}
+body.lang-en .student-chip{text-align:left;}
+body.lang-en .header{direction:ltr;}
 </style></head>
 
 <body>
@@ -4116,6 +4186,67 @@ addSwitcher();
 applyLang(lang());
 observer.observe(document.body,{subtree:true,childList:true});
 window.onePercentI18n={setLang,lang,applyLang};
+})();
+</script><script>
+/* PHASE 2 — presentation helpers only; existing business logic remains untouched. */
+(function(){
+"use strict";
+function el(id){return document.getElementById(id);}
+function currentLang(){return window.onePercentI18n?.lang?.() || localStorage.getItem("one_percent_calculator_language") || "fa";}
+function txt(fa,en){return currentLang()==="en"?en:fa;}
+function refreshPhase2UI(){
+  const chip=el("phase2-student-name");
+  if(chip){
+    const name=(typeof getStudentName==="function"?getStudentName():"").trim();
+    chip.textContent=name || txt("دانشجو","Student");
+    chip.title=name || "";
+  }
+  const revenue=el("out-annual")?.textContent?.trim() || "۰";
+  const value=el("phase2-revenue");
+  if(value)value.textContent=revenue;
+  const subtitle=el("phase2-status-sub");
+  if(subtitle)subtitle.textContent=txt("درآمد سالانه مدل‌شده فعلی","Current modeled annual revenue");
+}
+function addHeaderTools(){
+  const brand=document.querySelector(".header .brand");
+  if(!brand || el("phase2-header-tools"))return;
+  const tools=document.createElement("div");
+  tools.id="phase2-header-tools";
+  tools.className="header-tools";
+  tools.innerHTML='<div class="student-chip"><div class="student-chip-avatar">1%</div><div class="student-chip-text"><div class="student-chip-label" data-fa="ورود فعال" data-en="Active session">ورود فعال</div><div id="phase2-student-name" class="student-chip-name">دانشجو</div></div></div><button id="phase2-logout" class="header-logout" type="button" data-fa="خروج" data-en="Sign out">خروج</button>';
+  brand.appendChild(tools);
+  el("phase2-logout").addEventListener("click",function(){if(typeof logoutStudent==="function")logoutStudent();});
+  applyDataLanguage();
+}
+function addStatusStrip(){
+  const main=document.querySelector("main");
+  const first=document.querySelector("#view-home");
+  if(!main||!first||el("phase2-status"))return;
+  const s=document.createElement("div");
+  s.id="phase2-status";
+  s.className="phase2-status";
+  s.innerHTML='<div class="phase2-status-main"><span class="phase2-status-dot"></span><div><div class="phase2-status-title" id="phase2-status-title">ماشین حساب فعال است</div><div class="phase2-status-sub" id="phase2-status-sub">درآمد سالانه مدل‌شده فعلی</div></div></div><div id="phase2-revenue" class="phase2-status-value">۰</div>';
+  main.insertBefore(s,first);
+}
+function applyDataLanguage(){
+  document.querySelectorAll("[data-fa][data-en]").forEach(n=>{
+    n.textContent=currentLang()==="en"?n.dataset.en:n.dataset.fa;
+  });
+  const title=el("phase2-status-title");
+  if(title)title.textContent=txt("ماشین حساب فعال است","Calculator is active");
+  refreshPhase2UI();
+}
+function init(){
+  addHeaderTools();
+  addStatusStrip();
+  applyDataLanguage();
+  setInterval(function(){refreshPhase2UI();applyDataLanguage();},1200);
+  const oldApply=window.onePercentI18n?.applyLang;
+  if(window.onePercentI18n && oldApply){
+    window.onePercentI18n.applyLang=function(v){oldApply(v);setTimeout(applyDataLanguage,0);};
+  }
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
 </script></body>
 </html>

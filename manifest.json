@@ -1,0 +1,17 @@
+{
+  "name": "ماشین حساب یک درصدی‌ها",
+  "short_name": "ماشین حساب",
+  "description": "ماشین حساب یک درصدی‌ها — سیستم عامل ثروت و درآمد",
+  "lang": "fa",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4f5f7",
+  "theme_color": "#101a2b",
+  "categories": ["business", "finance", "productivity"],
+  "icons": [
+    {"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
+}

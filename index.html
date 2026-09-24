@@ -719,6 +719,13 @@ body{background:linear-gradient(180deg,#f8f8f6 0%,#f1f3f6 100%);}
 body.lang-en .phase2-status-value{text-align:right;}
 body.lang-en .student-chip{text-align:left;}
 body.lang-en .header{direction:ltr;}
+</style><style>
+/* PHASE 3 — installable mobile app layer. */
+.install-card{display:none;margin:0 0 16px;padding:14px 15px;border:1px solid #e7dcc0;border-radius:18px;background:linear-gradient(135deg,#fffdf7,#fff8e7);box-shadow:0 10px 28px rgba(16,26,43,.06);}
+.install-card.show{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.install-copy{min-width:0}.install-title{font-size:12px;font-weight:900;color:#101a2b}.install-sub{font-size:10px;color:#697386;margin-top:2px}
+.install-btn{border:0;border-radius:11px;padding:9px 12px;background:#101a2b;color:#fff;font:800 11px Vazirmatn,Tahoma,sans-serif;white-space:nowrap}
+@media(max-width:390px){.install-card.show{align-items:flex-start;flex-direction:column}.install-btn{width:100%}}
 </style></head>
 
 <body>
@@ -835,7 +842,7 @@ body.lang-en .header{direction:ltr;}
   </div>
 </header>
 
-<main>
+<main><div id="pwa-install-card" class="install-card"><div class="install-copy"><div id="pwa-install-title" class="install-title">نصب ماشین حساب</div><div id="pwa-install-sub" class="install-sub">ماشین حساب را روی گوشی نصب کن تا مثل یک اپلیکیشن مستقل استفاده شود.</div></div><button id="pwa-install-btn" class="install-btn" type="button">نصب</button></div>
 
 <section id="view-home" class="view active">
 
@@ -4247,6 +4254,43 @@ function init(){
   }
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
+})();
+</script><script>
+/* PHASE 3 — PWA registration only; no calculator/storage logic changes. */
+(function(){
+"use strict";
+let deferredInstallPrompt=null;
+function lang(){return window.onePercentI18n?.lang?.()||localStorage.getItem("one_percent_calculator_language")||"fa";}
+function renderInstall(){
+ const card=document.getElementById("pwa-install-card"),btn=document.getElementById("pwa-install-btn");
+ if(!card||!btn||!deferredInstallPrompt)return;
+ card.classList.add("show");
+ const en=lang()==="en";
+ document.getElementById("pwa-install-title").textContent=en?"Install 1% Calculator":"نصب ماشین حساب";
+ document.getElementById("pwa-install-sub").textContent=en?"Install it on your phone for a faster app-like experience.":"ماشین حساب را روی گوشی نصب کن تا مثل یک اپلیکیشن مستقل استفاده شود.";
+ btn.textContent=en?"Install":"نصب";
+}
+function initPWA(){
+ if("serviceWorker" in navigator){
+   navigator.serviceWorker.register("./sw.js").catch(()=>{});
+ }
+ window.addEventListener("beforeinstallprompt",e=>{
+   e.preventDefault();deferredInstallPrompt=e;renderInstall();
+ });
+ window.addEventListener("appinstalled",()=>{
+   deferredInstallPrompt=null;
+   document.getElementById("pwa-install-card")?.classList.remove("show");
+ });
+ const btn=document.getElementById("pwa-install-btn");
+ if(btn)btn.addEventListener("click",async()=>{
+   if(!deferredInstallPrompt)return;
+   deferredInstallPrompt.prompt();
+   await deferredInstallPrompt.userChoice;
+   deferredInstallPrompt=null;
+   document.getElementById("pwa-install-card")?.classList.remove("show");
+ });
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",initPWA);else initPWA();
 })();
 </script></body>
 </html>

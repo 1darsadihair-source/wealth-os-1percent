@@ -726,6 +726,28 @@ body.lang-en .header{direction:ltr;}
 .install-copy{min-width:0}.install-title{font-size:12px;font-weight:900;color:#101a2b}.install-sub{font-size:10px;color:#697386;margin-top:2px}
 .install-btn{border:0;border-radius:11px;padding:9px 12px;background:#101a2b;color:#fff;font:800 11px Vazirmatn,Tahoma,sans-serif;white-space:nowrap}
 @media(max-width:390px){.install-card.show{align-items:flex-start;flex-direction:column}.install-btn{width:100%}}
+</style><style>
+/* PHASE 4 — decision dashboard. Presentation + existing state only. */
+.dash-hero{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:6px 0 18px}
+.dash-eyebrow{font-size:10px;font-weight:900;letter-spacing:.08em;color:#a17e39;margin-bottom:5px}
+.dash-score{min-width:82px;height:82px;border-radius:24px;background:#101a2b;color:#e6c982;display:grid;place-items:center;align-content:center;box-shadow:0 16px 35px rgba(16,26,43,.15)}
+.dash-score span{font-size:25px;font-weight:950;line-height:1}.dash-score small{font-size:9px;color:#d8dce3;margin-top:5px}
+.decision-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.decision-card{background:#fff;border:1px solid #e7e9ed;border-radius:20px;padding:15px;min-height:145px;box-shadow:0 8px 25px rgba(16,26,43,.045)}
+.decision-card.primary{background:linear-gradient(145deg,#101a2b,#1c2c45);color:#fff;border-color:#101a2b}
+.decision-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.decision-number{font-size:9px;font-weight:900;opacity:.55}.decision-tag{font-size:9px;font-weight:900;color:#e6c982}
+.decision-label{font-size:10px;font-weight:800;color:#737b88}.primary .decision-label{color:#b9c1cd}
+.decision-big{font-size:22px;font-weight:950;color:#101a2b;margin-top:7px;line-height:1.25}.primary .decision-big{color:#fff}.decision-text{font-size:14px;min-height:36px}
+.decision-help{font-size:9px;color:#9198a4;margin-top:7px;line-height:1.6}.primary .decision-help{color:#aeb7c5}
+.dash-progress-card{padding-bottom:16px}.dash-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.dash-card-head>.small-note{margin-top:3px}
+.dash-card-head>strong{font-size:18px;color:#101a2b}.dash-target-row{display:flex;justify-content:space-between;gap:15px;margin-top:10px;font-size:10px;color:#7a8290}.dash-target-row span{display:flex;gap:6px;flex-wrap:wrap}.dash-target-row b{color:#101a2b}
+.dash-two{margin-top:14px}.bottleneck{margin:16px 0;padding:14px;border-radius:15px;background:#f8f4e9;color:#806225;font-weight:950;font-size:13px}.impact-row{display:flex;justify-content:space-between;border-bottom:1px solid #eef0f3;padding:10px 0;font-size:10px}.impact-row:last-child{border-bottom:0}.impact-row b{color:#101a2b}
+.mini-metric{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid #eef0f3;font-size:10px;color:#6f7785}.mini-metric:last-child{border-bottom:0}.mini-metric b{font-size:13px;color:#101a2b}
+.next-move-card{display:flex;gap:15px;align-items:flex-start;background:linear-gradient(145deg,#101a2b,#17263d);color:#fff;border:0;margin-top:14px}.next-move-icon{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:#c9a45c;color:#101a2b;font-size:24px;font-weight:900;flex:none}.next-move-content{min-width:0}.next-move-content .dash-eyebrow{color:#e6c982}.next-move-content h2{margin:0;font-size:17px}.next-move-content p{margin:7px 0 12px;color:#cbd1da;font-size:11px;line-height:1.8}.next-move-meta{display:flex;gap:7px;align-items:center;flex-wrap:wrap;font-size:9px;color:#aeb7c5}.next-move-meta b{color:#fff;margin-left:8px}
+.dash-disclaimer{padding:4px 3px 15px;text-align:center}
+@media(max-width:900px){.decision-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.dash-hero{align-items:flex-start}.dash-score{min-width:68px;height:68px;border-radius:20px}.dash-score span{font-size:20px}.decision-grid{grid-template-columns:1fr 1fr;gap:8px}.decision-card{min-height:132px;padding:13px}.decision-big{font-size:18px}.decision-text{font-size:12px}.dash-two{grid-template-columns:1fr}.next-move-card{padding:15px}}
+@media(max-width:390px){.decision-grid{grid-template-columns:1fr}.decision-card{min-height:auto}.dash-score{display:none}}
 </style></head>
 
 <body>
@@ -1315,153 +1337,93 @@ body.lang-en .header{direction:ltr;}
 
 <section id="view-dashboard" class="view">
 
-  <h1 class="section-title">داشبورد</h1>
-  <p class="section-sub">
-    تصویر یک‌صفحه‌ای از وضعیت موتور درآمد و تصمیم بعدی.
-  </p>
-
-  <div class="grid-4">
-
-    <div class="kpi main">
-      <div class="kpi-label">درآمد فعلی سالانه</div>
-      <div class="kpi-value" id="dash-current">۰</div>
+  <div class="dash-hero">
+    <div>
+      <div class="dash-eyebrow" data-fa="مرکز تصمیم‌گیری شخصی" data-en="PERSONAL DECISION CENTER">مرکز تصمیم‌گیری شخصی</div>
+      <h1 class="section-title" data-fa="داشبورد من" data-en="My Dashboard">داشبورد من</h1>
+      <p class="section-sub" data-fa="به‌جای نگاه‌کردن به چند عدد، بدان الان کجا هستی، گلوگاهت چیست و قدم بعدی چیست." data-en="See where you are, identify the bottleneck, and know your next move.">به‌جای نگاه‌کردن به چند عدد، بدان الان کجا هستی، گلوگاهت چیست و قدم بعدی چیست.</p>
     </div>
-
-    <div class="kpi green">
-      <div class="kpi-label">سود ناخالص</div>
-      <div class="kpi-value" id="dash-profit">۰</div>
-    </div>
-
-    <div class="kpi blue">
-      <div class="kpi-label">مشتری</div>
-      <div class="kpi-value" id="dash-customers">۰</div>
-    </div>
-
-    <div class="kpi gold">
-      <div class="kpi-label">هدف درآمد</div>
-      <div class="kpi-value" id="dash-target">۰</div>
-    </div>
-
+    <div class="dash-score"><span id="dash-score">—</span><small data-fa="وضعیت سیستم" data-en="System Status">وضعیت سیستم</small></div>
   </div>
 
-  <div style="height:15px"></div>
-
-  <div class="card">
-
-    <h2 class="card-title">فاصله تا هدف</h2>
-
-    <div class="grid mobile-2">
-
-      <div>
-        <div class="kpi-label">وضعیت</div>
-        <div class="kpi-value" id="dash-gap">۰</div>
-      </div>
-
-      <div>
-        <div class="kpi-label">پیشرفت</div>
-        <div class="kpi-value" id="dash-progress">۰٪</div>
-      </div>
-
+  <div class="decision-grid">
+    <div class="decision-card primary">
+      <div class="decision-card-top"><span class="decision-number">01</span><span class="decision-tag" id="dash-status-tag">—</span></div>
+      <div class="decision-label" data-fa="وضعیت فعلی" data-en="Current State">وضعیت فعلی</div>
+      <div class="decision-big" id="dash-current">۰</div>
+      <div class="decision-help" data-fa="درآمد سالانه مدل‌شده" data-en="Modeled annual revenue">درآمد سالانه مدل‌شده</div>
     </div>
-
-    <div class="progress-wrap">
-      <div class="progress">
-        <div class="progress-bar" id="dash-progress-bar"></div>
-      </div>
+    <div class="decision-card">
+      <div class="decision-card-top"><span class="decision-number">02</span></div>
+      <div class="decision-label" data-fa="فاصله تا هدف" data-en="Gap to Target">فاصله تا هدف</div>
+      <div class="decision-big" id="dash-gap">۰</div>
+      <div class="decision-help" id="dash-gap-help">—</div>
     </div>
-
+    <div class="decision-card">
+      <div class="decision-card-top"><span class="decision-number">03</span></div>
+      <div class="decision-label" data-fa="اهرم اصلی" data-en="Main Lever">اهرم اصلی</div>
+      <div class="decision-big decision-text" id="dash-winner">—</div>
+      <div class="decision-help" data-fa="بیشترین اثر مدل‌شده روی درآمد" data-en="Largest modeled revenue impact">بیشترین اثر مدل‌شده روی درآمد</div>
+    </div>
+    <div class="decision-card">
+      <div class="decision-card-top"><span class="decision-number">04</span></div>
+      <div class="decision-label" data-fa="اقدام بعدی" data-en="Next Move">اقدام بعدی</div>
+      <div class="decision-big decision-text" id="dash-action">ثبت نشده</div>
+      <div class="decision-help" data-fa="اقدام ثبت‌شده برای ۳۰ روز آینده" data-en="Your recorded 30-day action">اقدام ثبت‌شده برای ۳۰ روز آینده</div>
+    </div>
   </div>
 
-  <div class="card">
+  <div class="card dash-progress-card">
+    <div class="dash-card-head">
+      <div><h2 class="card-title" data-fa="موقعیت نسبت به هدف" data-en="Position vs Target">موقعیت نسبت به هدف</h2><div class="small-note" data-fa="این درصد فقط بر اساس مدل فعلی تو محاسبه می‌شود." data-en="This percentage is based only on your current model.">این درصد فقط بر اساس مدل فعلی تو محاسبه می‌شود.</div></div>
+      <strong id="dash-progress">۰٪</strong>
+    </div>
+    <div class="progress-wrap"><div class="progress"><div class="progress-bar" id="dash-progress-bar"></div></div></div>
+    <div class="dash-target-row"><span><b data-fa="درآمد فعلی" data-en="Current Revenue">درآمد فعلی</b><span id="dash-current-mini">۰</span></span><span><b data-fa="هدف" data-en="Target">هدف</b><span id="dash-target">۰</span></span></div>
+  </div>
 
-    <h2 class="card-title">اهرم‌های رشد</h2>
-
-    <div class="chart">
-
-      <div class="bar-wrap">
-        <div class="bar-value" id="dash-bar-conv-value">۰</div>
-        <div class="bar" id="dash-bar-conv" style="height:5%"></div>
-        <div class="bar-label">تبدیل</div>
-      </div>
-
-      <div class="bar-wrap">
-        <div class="bar-value" id="dash-bar-deal-value">۰</div>
-        <div class="bar" id="dash-bar-deal" style="height:5%"></div>
-        <div class="bar-label">ارزش معامله</div>
-      </div>
-
-      <div class="bar-wrap">
-        <div class="bar-value" id="dash-bar-leads-value">۰</div>
-        <div class="bar" id="dash-bar-leads" style="height:5%"></div>
-        <div class="bar-label">لید</div>
-      </div>
-
+  <div class="grid-2 dash-two">
+    <div class="card">
+      <div class="dash-card-head"><div><h2 class="card-title" data-fa="گلوگاه فعلی" data-en="Current Bottleneck">گلوگاه فعلی</h2><div class="small-note" data-fa="مدل از بین سه اهرم اصلی، بیشترین اثر را نشان می‌دهد." data-en="The model identifies the strongest impact among three core levers.">مدل از بین سه اهرم اصلی، بیشترین اثر را نشان می‌دهد.</div></div></div>
+      <div class="bottleneck" id="dash-bottleneck">—</div>
+      <div class="impact-row"><span data-fa="اثر تبدیل" data-en="Conversion Impact">اثر تبدیل</span><b id="dash-bar-conv-value">۰</b></div>
+      <div class="impact-row"><span data-fa="اثر ارزش معامله" data-en="Deal Value Impact">اثر ارزش معامله</span><b id="dash-bar-deal-value">۰</b></div>
+      <div class="impact-row"><span data-fa="اثر لید" data-en="Lead Impact">اثر لید</span><b id="dash-bar-leads-value">۰</b></div>
     </div>
 
+    <div class="card">
+      <div class="dash-card-head"><div><h2 class="card-title" data-fa="اعداد کلیدی" data-en="Key Numbers">اعداد کلیدی</h2></div></div>
+      <div class="mini-metric"><span data-fa="سود ناخالص سالانه" data-en="Annual Gross Profit">سود ناخالص سالانه</span><b id="dash-profit">۰</b></div>
+      <div class="mini-metric"><span data-fa="مشتری سالانه" data-en="Annual Customers">مشتری سالانه</span><b id="dash-customers">۰</b></div>
+      <div class="mini-metric"><span data-fa="درآمد ماهانه" data-en="Monthly Revenue">درآمد ماهانه</span><b id="dash-monthly">۰</b></div>
+    </div>
+  </div>
+
+  <div class="card next-move-card">
+    <div class="next-move-icon">→</div>
+    <div class="next-move-content">
+      <div class="dash-eyebrow" data-fa="NEXT MOVE / قدم بعدی" data-en="NEXT MOVE">NEXT MOVE / قدم بعدی</div>
+      <h2 id="dash-next-title">—</h2>
+      <p id="dash-next-text">—</p>
+      <div class="next-move-meta"><span data-fa="شروع" data-en="Start">شروع</span><b id="dash-start">—</b><span data-fa="بازبینی" data-en="Review">بازبینی</span><b id="dash-review">—</b></div>
+    </div>
   </div>
 
   <div class="card">
-
-    <h2 class="card-title">تصمیم ۳۰ روز آینده</h2>
-
+    <div class="dash-card-head"><div><h2 class="card-title" data-fa="تصمیم ۳۰ روز آینده" data-en="30-Day Decision">تصمیم ۳۰ روز آینده</h2><div class="small-note" data-fa="یک اهرم، یک عدد هدف، یک اقدام مشخص." data-en="One lever, one target number, one concrete action.">یک اهرم، یک عدد هدف، یک اقدام مشخص.</div></div></div>
     <div class="grid">
-
-      <div class="field">
-        <label>اهرم انتخابی</label>
-        <input id="decision-lever" type="text" placeholder="مثلاً افزایش نرخ تبدیل">
-      </div>
-
-      <div class="field">
-        <label>دلیل انتخاب</label>
-        <input id="decision-reason" type="text" placeholder="مثلاً بیشترین اثر درآمدی">
-      </div>
-
-      <div class="field">
-        <label>عدد فعلی</label>
-        <input id="decision-current" type="number" min="0" step="0.1" placeholder="مثلاً 5">
-      </div>
-
-      <div class="field">
-        <label>عدد هدف</label>
-        <input id="decision-goal" type="number" min="0" step="0.1" placeholder="مثلاً 7">
-      </div>
-
-      <div class="field">
-        <label>اقدام اول</label>
-        <input id="decision-action" type="text" placeholder="اولین اقدام اجرایی من">
-      </div>
-
-      <div class="field">
-        <label>تاریخ شروع</label>
-        <input id="decision-start" type="date">
-      </div>
-
-      <div class="field">
-        <label>تاریخ بازبینی</label>
-        <input id="decision-review" type="date">
-      </div>
-
+      <div class="field"><label data-fa="اهرم انتخابی" data-en="Selected Lever">اهرم انتخابی</label><input id="decision-lever" type="text" placeholder="مثلاً افزایش نرخ تبدیل"></div>
+      <div class="field"><label data-fa="دلیل انتخاب" data-en="Reason">دلیل انتخاب</label><input id="decision-reason" type="text" placeholder="مثلاً بیشترین اثر درآمدی"></div>
+      <div class="field"><label data-fa="عدد فعلی" data-en="Current Number">عدد فعلی</label><input id="decision-current" type="number" min="0" step="0.1" placeholder="مثلاً 5"></div>
+      <div class="field"><label data-fa="عدد هدف" data-en="Target Number">عدد هدف</label><input id="decision-goal" type="number" min="0" step="0.1" placeholder="مثلاً 7"></div>
+      <div class="field"><label data-fa="اقدام اول" data-en="First Action">اقدام اول</label><input id="decision-action" type="text" placeholder="اولین اقدام اجرایی من"></div>
+      <div class="field"><label data-fa="تاریخ شروع" data-en="Start Date">تاریخ شروع</label><input id="decision-start" type="date"></div>
+      <div class="field"><label data-fa="تاریخ بازبینی" data-en="Review Date">تاریخ بازبینی</label><input id="decision-review" type="date"></div>
     </div>
-
-    <div class="actions">
-      <button class="btn btn-gold" onclick="saveDecision()">ذخیره تصمیم</button>
-    </div>
-
+    <div class="actions"><button class="btn btn-gold" onclick="saveDecision()" data-fa="ذخیره تصمیم" data-en="Save Decision">ذخیره تصمیم</button></div>
   </div>
 
-  <div class="decision">
-
-    <div class="muted">اهرم اصلی من:</div>
-    <div class="decision-value" id="dash-winner">—</div>
-
-    <hr style="border-color:rgba(255,255,255,.15)">
-
-    <div class="muted">اولین اقدام من:</div>
-    <div id="dash-action" style="font-weight:800;margin-top:4px">
-      هنوز اقدامی ثبت نشده است.
-    </div>
-
-  </div>
+  <div class="small-note dash-disclaimer" data-fa="این داشبورد برای کمک به تصمیم‌گیری ساخته شده است؛ «اهرم اصلی» و «قدم بعدی» پیشنهاد مدل هستند و تضمین نتیجه نیستند." data-en="This dashboard supports decision-making; the main lever and next move are model suggestions, not guarantees.">این داشبورد برای کمک به تصمیم‌گیری ساخته شده است؛ «اهرم اصلی» و «قدم بعدی» پیشنهاد مدل هستند و تضمین نتیجه نیستند.</div>
 
 </section>
 
@@ -4291,6 +4253,54 @@ function initPWA(){
  });
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",initPWA);else initPWA();
+})();
+</script><script>
+/* PHASE 4 — dashboard intelligence layer. Reads existing calculations/state; does not replace them. */
+(function(){
+"use strict";
+function D(id){return document.getElementById(id)}
+function L(fa,en){return (window.onePercentI18n?.lang?.()||localStorage.getItem("one_percent_calculator_language")||"fa")==="en"?en:fa}
+function setD(id,v){if(D(id))D(id).textContent=v}
+function refreshDecisionDashboard(){
+  try{
+    const r=typeof calculateEngine==="function"?calculateEngine():null;
+    const l=typeof calculateLevers==="function"?calculateLevers():null;
+    if(!r||!l)return;
+    const target=typeof num==="function"?num("target"):0;
+    const progress=target>0?Math.max(0,Math.min(100,r.annualRevenue/target*100)):0;
+    const impacts=[l.conversionImpact||0,l.dealImpact||0,l.leadImpact||0];
+    const maxIndex=impacts.indexOf(Math.max(...impacts));
+    const winner=maxIndex===0?L("افزایش نرخ تبدیل +۲ واحد درصد","+2pp conversion rate"):maxIndex===1?L("افزایش ارزش معامله +۱۰٪","+10% deal value"):L("افزایش لید +۲۰٪","+20% leads");
+    const gap=target-r.annualRevenue;
+    const saved=(window.state&&state.decision)||{};
+    setD("dash-score",Math.round(progress)+"%");
+    setD("dash-current",money(r.annualRevenue));
+    setD("dash-current-mini",money(r.annualRevenue));
+    setD("dash-target",money(target));
+    setD("dash-profit",money(r.grossProfit));
+    setD("dash-customers",number(r.customers));
+    setD("dash-monthly",money(r.annualRevenue/12));
+    setD("dash-progress",percent(progress));
+    setD("dash-gap",gap>0?money(gap):money(Math.abs(gap)));
+    setD("dash-gap-help",gap>0?L("برای رسیدن به هدف باقی مانده","Remaining to target"):L("بالاتر از هدف مدل‌شده","Above modeled target"));
+    setD("dash-status-tag",progress>=100?L("هدف عبور کرد","Target reached"):progress>=70?L("نزدیک هدف","Near target"):L("نیازمند تمرکز","Needs focus"));
+    setD("dash-winner",winner);
+    setD("dash-bottleneck",winner);
+    setD("dash-action",saved.action||L("ثبت نشده","Not recorded"));
+    setD("dash-next-title",saved.action||winner);
+    setD("dash-next-text",saved.reason||L("یک اقدام مشخص برای این اهرم ثبت کن و عدد هدف را برای ۳۰ روز آینده تعیین کن.","Record one concrete action for this lever and set a target number for the next 30 days."));
+    setD("dash-start",saved.start||"—");setD("dash-review",saved.review||"—");
+    if(D("dash-progress-bar"))D("dash-progress-bar").style.width=progress+"%";
+    setD("dash-bar-conv-value",money(impacts[0]));setD("dash-bar-deal-value",money(impacts[1]));setD("dash-bar-leads-value",money(impacts[2]));
+  }catch(e){}
+}
+function init(){
+  const original=window.updateDashboard;
+  window.updateDashboard=function(){if(typeof original==="function")original();refreshDecisionDashboard()};
+  setInterval(refreshDecisionDashboard,1200);
+  setTimeout(refreshDecisionDashboard,200);
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
 </script></body>
 </html>

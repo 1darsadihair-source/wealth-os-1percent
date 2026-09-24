@@ -31,6 +31,36 @@ body{background:linear-gradient(180deg,#f6f7f9 0%,#f1f3f6 100%);}
 body.lang-en{font-family:Inter,Vazirmatn,Arial,sans-serif;direction:ltr;}
 body.lang-en table th,body.lang-en table td{text-align:left;}
 body.lang-en .language-switch{right:14px;left:auto;}
+</style><style>
+/* PHASE 2 — admin UX polish; backend/auth/data logic untouched. */
+.topbar{box-shadow:0 10px 30px rgba(16,26,43,.14);}
+.topbar-inner{padding:12px 20px;}
+.brand-mini{background:rgba(201,164,92,.08);box-shadow:0 6px 18px rgba(0,0,0,.12);}
+.page-head{padding:4px 2px;}
+.page-head h2{letter-spacing:-.3px;}
+.stat{position:relative;overflow:hidden;transition:transform .16s ease,box-shadow .16s ease;}
+.stat:hover{transform:translateY(-2px);box-shadow:0 20px 48px rgba(16,26,43,.12);}
+.stat:after{content:"";position:absolute;right:-45px;bottom:-55px;width:120px;height:120px;border-radius:50%;background:rgba(201,164,92,.07);pointer-events:none;}
+.panel{box-shadow:0 16px 42px rgba(16,26,43,.08);}
+.panel-head{background:linear-gradient(180deg,#fff,#fcfcfb);}
+.filters input,.filters select{min-height:42px;}
+.btn{min-height:40px;transition:.16s ease;}
+.btn:hover{transform:translateY(-1px);}
+.status{border:1px solid transparent;}
+.modal-card{border:1px solid rgba(201,164,92,.22);}
+#loginPage{background:radial-gradient(circle at 80% 10%,rgba(201,164,92,.14),transparent 28%),linear-gradient(145deg,#0b1220,#18253b);}
+.login-card{border:1px solid rgba(201,164,92,.22);}
+.login-card:before{content:"1%";width:62px;height:62px;margin:0 auto 16px;border-radius:19px;display:grid;place-items:center;background:#101a2b;color:#e6c982;border:1px solid rgba(201,164,92,.45);font-weight:900;font-size:17px;box-shadow:0 12px 30px rgba(16,26,43,.18);}
+@media(max-width:600px){
+ .topbar-inner{padding:10px 11px;}
+ .container{padding:14px 10px 30px;}
+ .cards{gap:8px;}
+ .stat{padding:12px;}
+ .stat .value{font-size:20px;}
+ .panel-head{padding:14px;}
+}
+body.lang-en{direction:ltr;}
+body.lang-en .topbar-inner,body.lang-en .page-head,body.lang-en .panel-head,body.lang-en .footer-bar{direction:ltr;}
 </style></head>
 <body>
 <section id="loginPage"><div class="login-card"><div class="brand-mark">1%</div><h1>پنل مدیریت یک درصدی‌ها</h1><div class="sub">سیستم عامل ثروت و درآمد</div><form id="loginForm" onsubmit="return false;"><div class="field"><label for="email">ایمیل مدیر</label><input id="email" type="email" autocomplete="username" required placeholder="admin@example.com"></div><div class="field"><label for="password">رمز عبور</label><input id="password" type="password" autocomplete="current-password" required placeholder="رمز عبور"></div><button id="loginBtn" class="primary" type="submit">ورود به پنل</button></form><div class="login-note">دسترسی این صفحه فقط برای حساب‌های مدیریتی فعال است.</div></div></section>
@@ -191,6 +221,17 @@ addSwitcher();
 applyLang(lang());
 observer.observe(document.body,{subtree:true,childList:true});
 window.onePercentI18n={setLang,lang,applyLang};
+})();
+</script><script>
+/* PHASE 2 — small presentation-only admin helpers. */
+(function(){
+"use strict";
+function applyAdminDataLanguage(){
+ const v=localStorage.getItem("one_percent_admin_language")||"fa";
+ document.documentElement.lang=v==="en"?"en":"fa";
+ document.documentElement.dir=v==="en"?"ltr":"rtl";
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",applyAdminDataLanguage);else applyAdminDataLanguage();
 })();
 </script></body>
 </html>

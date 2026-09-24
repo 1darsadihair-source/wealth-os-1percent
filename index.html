@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-<title>سیستم عامل ثروت و درآمد — یک درصدی‌ها</title>
+<title>ماشین حساب | یک درصدی‌ها</title>
 
 <meta name="theme-color" content="#0b1220">
-<meta name="description" content="سیستم عامل ثروت و درآمد یک درصدی‌ها">
+<meta name="description" content="ماشین حساب یک درصدی‌ها — سیستم عامل ثروت و درآمد">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -602,7 +602,54 @@ hr{
   }
 }
 </style>
-</head>
+<style>
+/* PHASE 1 — Premium visual layer; calculation/storage logic untouched */
+:root{
+  --navy:#101a2b;
+  --navy2:#18253b;
+  --gold:#c9a45c;
+  --gold2:#e6c982;
+  --cream:#f7f4ed;
+  --bg:#f4f5f7;
+  --border:#e2e5ea;
+  --shadow:0 14px 42px rgba(16,26,43,.09);
+  --radius:20px;
+}
+body{background:linear-gradient(180deg,#f6f7f9 0%,#f2f3f5 100%);}
+.header{background:linear-gradient(135deg,#101a2b 0%,#18253b 70%,#22334d 100%);padding:25px 22px 30px;box-shadow:0 18px 45px rgba(16,26,43,.18);}
+.brand-name{color:var(--gold2);font-size:13px;letter-spacing:.7px;}
+.brand-title{font-size:29px;letter-spacing:-.3px;}
+.brand-sub{color:#cfd6e2;}
+.header-badge{border-color:rgba(201,164,92,.55);background:rgba(201,164,92,.08);}
+.card{border-color:#e4e6ea;box-shadow:var(--shadow);border-radius:20px;}
+.btn{min-height:44px;border-radius:13px;transition:transform .15s ease,box-shadow .15s ease,background .15s ease;}
+.btn:active{transform:translateY(1px);}
+.btn-primary{background:#101a2b;box-shadow:0 7px 18px rgba(16,26,43,.16);}
+.btn-gold{background:var(--gold);}
+input{background:#fff;border-radius:13px;border-color:#d9dde5;min-height:46px;}
+input:focus{border-color:var(--gold);box-shadow:0 0 0 4px rgba(201,164,92,.13);}
+.kpi{border-radius:18px;box-shadow:0 6px 20px rgba(16,26,43,.045);}
+.decision{box-shadow:0 14px 35px rgba(16,26,43,.16);}
+.bottom-nav{box-shadow:0 -8px 25px rgba(16,26,43,.06);}
+.nav-btn{min-height:52px;border-radius:12px;}
+.nav-btn.active{background:rgba(201,164,92,.09);}
+.language-switch{
+  position:fixed;z-index:100001;top:14px;right:14px;
+  border:1px solid rgba(201,164,92,.45);background:rgba(16,26,43,.88);
+  color:#fff;border-radius:999px;padding:8px 12px;font:800 12px Vazirmatn,Tahoma,sans-serif;
+  backdrop-filter:blur(10px);box-shadow:0 8px 25px rgba(0,0,0,.16);
+}
+#student-login .language-switch{top:14px;right:14px;}
+body.lang-en{font-family:Inter,Vazirmatn,Arial,sans-serif;}
+body.lang-en .kpi-value{direction:ltr;}
+body.lang-en th,body.lang-en td{text-align:left;}
+body.lang-en .nav-btn{font-size:10px;}
+@media(max-width:760px){
+  .brand-title{font-size:24px;}
+  main{padding:14px;}
+  .language-switch{top:10px;right:10px;}
+}
+</style></head>
 
 <body>
 
@@ -641,7 +688,7 @@ hr{
       font-size:23px;
       color:#172033;
     ">
-      سیستم عامل ثروت و درآمد
+      ماشین حساب
     </h1>
 
     <p style="
@@ -708,8 +755,8 @@ hr{
   <div class="brand">
     <div>
       <div class="brand-name">یک درصدی‌ها</div>
-      <div class="brand-title">سیستم عامل ثروت و درآمد</div>
-      <div class="brand-sub">Revenue & Wealth Operating System</div>
+      <div class="brand-title">ماشین حساب</div>
+      <div class="brand-sub">سیستم عامل ثروت و درآمد</div>
     </div>
 
     <div class="header-badge">
@@ -3985,5 +4032,90 @@ document.addEventListener(
 
 </script>
 
-</body>
+<script>
+(function(){
+"use strict";
+const I18N_MAP={"یک درصدی‌ها":"1% Club","سیستم عامل ثروت و درآمد":"Revenue & Wealth Operating System","برای ورود، کد اختصاصی خود را وارد کنید.":"Enter your access code to continue.","ورود به سیستم":"Sign in","ابزار اجرایی دوره":"Course Tool","موتور درآمد من":"My Revenue Engine","درآمد یک عدد جادویی نیست؛ نتیجه رابطه چند متغیر قابل‌اندازه‌گیری است.":"Revenue is not a magic number; it is the result of measurable variables working together.","هدف این بخش:":"Purpose of this section:","اعداد واقعی کسب‌وکارت را وارد کن تا موتور درآمدت را ببینی و بفهمی درآمد دقیقاً از کجا ساخته می‌شود.":"Enter your real business numbers to see how your revenue is actually built.","ورودی‌های واقعی":"Real Inputs","تا جای ممکن از میانگین واقعی ۳۰ تا ۹۰ روز گذشته استفاده کن.":"Use the real average from the last 30–90 days whenever possible.","تعداد لید ماهانه":"Monthly Leads","تعداد لید جدید در هر ماه":"New leads per month","نرخ ارتباط":"Contact Rate","درصد لیدهایی که با آنها ارتباط برقرار می‌شود":"Percentage of leads you actually contact","نرخ تبدیل":"Conversion Rate","درصد تماس‌هایی که به مشتری تبدیل می‌شوند":"Percentage of contacts that become customers","میانگین ارزش هر معامله":"Average Deal Value","واحد پولی را در کل فایل ثابت نگه دار":"Keep the currency unit consistent throughout the calculator","دفعات خرید در سال":"Purchases per Year","میانگین تعداد تراکنش‌های هر مشتری در سال":"Average transactions per customer per year","حاشیه سود ناخالص":"Gross Margin","درصد سود ناخالص از درآمد":"Gross profit as a percentage of revenue","محاسبه موتور درآمد":"Calculate Revenue Engine","بازنشانی":"Reset","خروجی موتور درآمد":"Revenue Engine Output","نتیجه محاسبات بر اساس اعداد فعلی تو":"Results based on your current inputs","درآمد سالانه":"Annual Revenue","مدل‌شده":"Modeled","سود ناخالص سالانه":"Annual Gross Profit","بر اساس حاشیه سود":"Based on gross margin","درآمد ماهانه":"Monthly Revenue","میانگین":"Average","مشتری سالانه":"Annual Customers","مشتری جدید مدل‌شده":"Modeled new customers","تراکنش سالانه":"Annual Transactions","سود ناخالص ماهانه":"Monthly Gross Profit","تماس سالانه":"Annual Contacts","منطق موتور":"Engine Logic","فرمول ساده:":"Simple formula:","لید × نرخ ارتباط × نرخ تبدیل × ۱۲ ماه × دفعات خرید در سال × ارزش متوسط معامله":"Leads × contact rate × conversion rate × 12 months × purchases/year × average deal value","✓ از حدس خوش‌بینانه استفاده نکن.":"✓ Do not use optimistic guesses.","✓ اعداد پولی را با یک واحد ثابت وارد کن.":"✓ Enter monetary values using one consistent currency unit.","✓ نرخ‌ها را به صورت درصد وارد کن.":"✓ Enter rates as percentages.","✓ اگر هنوز داده واقعی نداری، عدد را به‌عنوان «فرضیه» در نظر بگیر.":"✓ If you do not have real data yet, treat the number as a hypothesis.","✓ این ابزار درآمد را تضمین نمی‌کند؛ یک مدل محاسباتی است.":"✓ This tool does not guarantee income; it is a calculation model.","شبیه‌ساز اهرم درآمد":"Revenue Leverage Simulator","ببین تغییر کدام متغیر بیشترین اثر را روی درآمد سالانه دارد.":"See which variable has the greatest impact on annual revenue.","به جای اینکه کورکورانه بیشتر کار کنی، ببین کدام اهرم بیشترین اثر اقتصادی را دارد.":"Instead of simply working harder, identify the lever with the greatest economic impact.","درآمد پایه":"Base Revenue","وضعیت فعلی":"Current State","+۲ واحد درصد تبدیل":"+2 percentage points conversion","+۱۰٪ ارزش معامله":"+10% deal value","+۲۰٪ لید":"+20% leads","اهرم ۱: نرخ تبدیل":"Lever 1: Conversion Rate","نرخ تبدیل ۲ واحد درصد افزایش پیدا می‌کند. مثال: ۵٪ → ۷٪":"Conversion rate increases by 2 percentage points. Example: 5% → 7%","۰٪ رشد":"0% growth","اهرم ۲: ارزش معامله":"Lever 2: Deal Value","میانگین ارزش هر معامله ۱۰٪ افزایش پیدا می‌کند.":"Average deal value increases by 10%.","اهرم ۳: تعداد لید":"Lever 3: Lead Volume","تعداد لید ماهانه ۲۰٪ افزایش پیدا می‌کند.":"Monthly lead volume increases by 20%.","اهرم برنده":"Highest-Impact Lever","اهرم با بیشترین افزایش درآمد سالانه":"Lever with the largest annual revenue increase","تصمیم پیشنهادی مدل":"Model Suggested Decision","مقایسه اثر اهرم‌ها":"Leverage Impact Comparison","تبدیل":"Conversion","ارزش معامله":"Deal Value","لید":"Leads","مهندسی معکوس درآمد":"Revenue Reverse Engineering","به جای پرسیدن «چقدر درآمد دارم؟»، از هدف شروع کن و ببین چه تعداد لید لازم داری.":"Instead of asking “How much revenue do I have?”, start with your target and calculate the required leads.","درآمد هدف سالانه":"Annual Revenue Target","هدف درآمد سالانه موردنظر":"Desired annual revenue target","فرضیات موتور":"Engine Assumptions","این موارد به صورت خودکار از موتور درآمد گرفته می‌شوند.":"These values are automatically taken from the Revenue Engine.","ارزش متوسط معامله":"Average Deal Value","مشتری موردنیاز":"Required Customers","در سال":"Per year","تماس موردنیاز":"Required Contacts","لید موردنیاز":"Required Leads","لید ماهانه":"Monthly Leads","در ماه":"Per month","لید هفتگی":"Weekly Leads","درآمد هدف":"Target Revenue","با فرضیات فعلی، مدل قابل محاسبه است.":"With the current assumptions, the model can be calculated.","جمله مهندسی معکوس":"Reverse Engineering Statement","نتیجه مدل:":"Model result:","خط بقا و ذخیره مالی":"Financial Survival & Cash Buffer","قبل از رشد، باید بفهمی سیستم مالی فعلی‌ات چند ماه دوام می‌آورد.":"Before growth, understand how many months your current financial system can survive.","این بخش برای محاسبه":"This section calculates","Burn ماهانه، Burn روزانه و ذخیره نقدی موردنیاز":"monthly burn, daily burn, and required cash buffer","طراحی شده است.":"based on your essential costs and available cash.","هزینه‌های ضروری ماهانه":"Essential Monthly Costs","فقط هزینه‌هایی را وارد کن که برای ادامه زندگی یا فعالیت ضروری هستند.":"Enter only costs essential for continuing your life or operations.","اجاره / مسکن":"Rent / Housing","غذا":"Food","سلامت / درمان":"Health / Medical","حقوق / تیم":"Team / Payroll","قبوض و هزینه‌های ضروری":"Bills & Essential Costs","نقدینگی فعلی":"Current Cash","پولی که اکنون برای پوشش هزینه‌ها در دسترس است":"Cash currently available to cover expenses","Burn ماهانه":"Monthly Burn","هزینه ضروری":"Essential Cost","Burn روزانه":"Daily Burn","تقریبی":"Approximate","ذخیره ۶ ماهه":"6-Month Buffer","ذخیره پیشنهادی مدل":"Model Suggested Buffer","ماه‌های دوام":"Months of Runway","با نقدینگی فعلی":"With Current Cash","پیشرفت ساخت ذخیره":"Buffer Progress","ذخیره فعلی":"Current Buffer","هدف ذخیره ۶ ماهه":"6-Month Buffer Target","۰٪ از ذخیره هدف ساخته شده است.":"0% of the buffer target has been built.","برای دیدن وضعیت، هزینه‌ها و نقدینگی را وارد کن.":"Enter costs and cash to see your status.","داشبورد":"Dashboard","تصویر یک‌صفحه‌ای از وضعیت موتور درآمد و تصمیم بعدی.":"A one-page view of your revenue engine and next decision.","درآمد فعلی سالانه":"Current Annual Revenue","سود ناخالص":"Gross Profit","مشتری":"Customers","هدف درآمد":"Revenue Target","فاصله تا هدف":"Gap to Target","وضعیت":"Status","پیشرفت":"Progress","۰٪":"0%","اهرم‌های رشد":"Growth Levers","تصمیم ۳۰ روز آینده":"30-Day Decision","اهرم انتخابی":"Selected Lever","دلیل انتخاب":"Reason","عدد فعلی":"Current Number","عدد هدف":"Target Number","اقدام اول":"First Action","تاریخ شروع":"Start Date","تاریخ بازبینی":"Review Date","ذخیره تصمیم":"Save Decision","اهرم اصلی من:":"My Main Lever:","اولین اقدام من:":"My First Action:","هنوز اقدامی ثبت نشده است.":"No action has been recorded yet.","خلاصه شخصی موتور درآمد و تصمیم ۳۰ روز آینده.":"Personal summary of your revenue engine and 30-day decision.","ورودی‌های من":"My Inputs","خروجی‌های من":"My Outputs","اهرم اصلی من":"My Main Lever","مانیفست ۳۰ روزه من":"My 30-Day Manifesto","برای رسیدن به درآمد هدف:":"To reach my revenue target:","هنوز اطلاعات کافی وارد نشده است.":"Not enough information has been entered yet.","تعهد شخصی":"Personal Commitment","تعهد من برای ۳۰ روز آینده":"My commitment for the next 30 days","نام / امضا":"Name / Signature","تاریخ":"Date","ذخیره اطلاعات":"Save Information","این ابزار یک مدل محاسباتی برای تصمیم‌گیری است و هیچ نتیجه درآمدی را تضمین نمی‌کند.":"This tool is a decision-making calculation model and does not guarantee any income result.","موتور درآمد":"Revenue Engine","اهرم‌ها":"Levers","معکوس":"Reverse","خط بقا":"Survival","من":"Me","ورود با موفقیت انجام شد.":"Signed in successfully.","نشست شما معتبر نیست. لطفاً دوباره وارد شوید.":"Your session is invalid. Please sign in again.","نشست شما دیگر معتبر نیست یا دسترسی شما غیرفعال شده است.":"Your session is no longer valid or your access has been disabled.","نشست شما منقضی شده است.":"Your session has expired.","پاسخ ورود ناقص است و اطلاعات نشست دریافت نشد.":"The login response was incomplete and session information was not received.","ذخیره نشست در مرورگر انجام نشد.":"The session could not be saved in the browser."};
+const I18N_KEY='one_percent_calculator_language';
+const originalTitle=document.title;
+const reverseMap=Object.fromEntries(Object.entries(I18N_MAP).map(([fa,en])=>[en,fa]));
+function lang(){return localStorage.getItem(I18N_KEY)||"fa";}
+function setLang(v){localStorage.setItem(I18N_KEY,v);applyLang(v);}
+function translateString(s,v){
+  if(!s)return s;
+  if(v==="fa"){
+    return Object.prototype.hasOwnProperty.call(reverseMap,s)?reverseMap[s]:s;
+  }
+  if(Object.prototype.hasOwnProperty.call(I18N_MAP,s)) return I18N_MAP[s];
+  let out=s;
+  Object.keys(I18N_MAP).sort((a,b)=>b.length-a.length).forEach(k=>{
+    if(k && out.includes(k)) out=out.split(k).join(I18N_MAP[k]);
+  });
+  return out;
+}
+function translateNode(node,v){
+  if(node.nodeType!==3)return;
+  const p=node.parentElement;
+  if(!p || /^(SCRIPT|STYLE|NOSCRIPT|TEXTAREA)$/i.test(p.tagName))return;
+  const raw=node.nodeValue.replace(/\s+/g," ").trim();
+  if(!raw)return;
+  const translated=translateString(raw,v);
+  if(translated!==raw){
+    const leading=node.nodeValue.match(/^\s*/)?.[0]||"";
+    const trailing=node.nodeValue.match(/\s*$/)?.[0]||"";
+    node.nodeValue=leading+translated+trailing;
+  }
+}
+function walk(root,v){
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+  const nodes=[]; while(w.nextNode())nodes.push(w.currentNode);
+  nodes.forEach(n=>translateNode(n,v));
+  root.querySelectorAll?.("input[placeholder],textarea[placeholder],option").forEach(el=>{
+    const a="placeholder" in el?"placeholder":null;
+    if(a && el.getAttribute(a)) el.setAttribute(a,translateString(el.getAttribute(a),v));
+    else if(el.textContent.trim()) el.textContent=translateString(el.textContent.trim(),v);
+  });
+}
+function updateChrome(v){
+  document.documentElement.lang=v==="en"?"en":"fa";
+  document.documentElement.dir=v==="en"?"ltr":"rtl";
+  document.body.classList.toggle("lang-en",v==="en");
+  const b=document.getElementById("language-switch");
+  if(b)b.innerHTML=v==="en"?"🇮🇷 فارسی":"🇬🇧 English";
+  const title=v==="en"?"1% Calculator":"ماشین حساب | یک درصدی‌ها";
+  document.title=title;
+  const desc=document.querySelector('meta[name="description"]');
+  if(desc)desc.setAttribute("content",v==="en"?"1% Calculator — Revenue & Wealth Operating System":"ماشین حساب یک درصدی‌ها — سیستم عامل ثروت و درآمد");
+}
+function applyLang(v){
+  updateChrome(v);
+  walk(document.body,v);
+}
+function addSwitcher(){
+  if(document.getElementById("language-switch"))return;
+  const b=document.createElement("button");
+  b.id="language-switch";
+  b.type="button";
+  b.className="language-switch";
+  b.onclick=()=>setLang(lang()==="en"?"fa":"en");
+  b.setAttribute("aria-label","Change language");
+  document.body.appendChild(b);
+  updateChrome(lang());
+}
+const observer=new MutationObserver(muts=>{
+  const v=lang();
+  if(v!=="en")return;
+  muts.forEach(m=>{
+    m.addedNodes?.forEach(n=>{
+      if(n.nodeType===3)translateNode(n,v);
+      else if(n.nodeType===1 && n.id!=="language-switch")walk(n,v);
+    });
+  });
+});
+addSwitcher();
+applyLang(lang());
+observer.observe(document.body,{subtree:true,childList:true});
+window.onePercentI18n={setLang,lang,applyLang};
+})();
+</script></body>
 </html>

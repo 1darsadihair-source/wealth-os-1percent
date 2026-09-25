@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <meta name="theme-color" content="#101A2B">
 <meta name="description" content="پنل مدیریت سیستم عامل ثروت و درآمد — یک درصدی‌ها">
+<link rel="manifest" href="./admin-manifest.json">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
 <title>پنل مدیریت | ماشین حساب یک درصدی‌ها</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -236,5 +238,6 @@ function applyAdminDataLanguage(){
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",applyAdminDataLanguage);else applyAdminDataLanguage();
 })();
-</script></body>
+</script><script>(function(){if("serviceWorker" in navigator){navigator.serviceWorker.register("./sw.js").catch(function(){});}})();</script>
+</body>
 </html>

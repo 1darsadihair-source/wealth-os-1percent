@@ -1,4 +1,4 @@
-const CACHE_NAME="one-percent-calculator-v5";
+const CACHE_NAME="one-percent-calculator-v6";
 const APP_SHELL=["./","./index.html","./manifest.json","./icon.svg"];
 
 self.addEventListener("install",event=>{

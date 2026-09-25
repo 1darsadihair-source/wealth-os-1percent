@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 430" role="img" aria-label="یک درصدی‌ها">
+  <g transform="translate(250 18)">
+    <path d="M0 112 L94 55 L94 247 L0 304 Z" fill="#101A2B"/>
+    <path d="M112 43 L206 0 L206 151 L112 208 Z" fill="#C9A45C"/>
+    <path d="M112 248 L206 191 L206 286 Q206 306 190 316 L112 365 Z" fill="#101A2B"/>
+  </g>
+  <text x="380" y="402" text-anchor="middle" direction="rtl" unicode-bidi="plaintext" font-family="Vazirmatn, Tahoma, sans-serif" font-size="68" font-weight="800" fill="#101A2B">یک درصدی‌ها</text>
+</svg>

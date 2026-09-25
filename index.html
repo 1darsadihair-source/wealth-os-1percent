@@ -819,7 +819,7 @@ body.lang-en .header{direction:ltr;}
       inputmode="numeric"
       autocomplete="off"
       placeholder="کد دسترسی"
-      onkeydown="if(event.key==='Enter') checkStudentCode()"
+      onkeydown="if(event.key==='Enter'){event.preventDefault();checkStudentCode()}"
       style="
         width:100%;
         padding:15px;
@@ -2039,49 +2039,43 @@ async function callStudentAPI(body){
       "Bearer " + session.token;
   }
 
-  const response = await fetch(
-    SUPABASE_FUNCTION_URL,
-    {
-      method:"POST",
-      headers,
-      body:JSON.stringify(requestBody)
-    }
-  );
+  /*
+   * Use the Supabase Functions client for the API call.
+   * Passing a body makes this an HTTP POST.
+   */
+  const { data: result, error } =
+    await supabaseClient.functions.invoke(
+      "student-login",
+      {
+        body: requestBody,
+        headers
+      }
+    );
 
-  let result = null;
+  if(error){
+    let message = "";
+    try{
+      const context = error?.context;
+      if(context && typeof context.json === "function"){
+        const payload = await context.json();
+        message = payload?.error || payload?.message || "";
+      }
+    }catch(_){}
 
-  try{
-    result = await response.json();
-  }catch(error){
-    if(response.status === 401 && !isLogin){
+    if(!message) message = error?.message || "";
+
+    if(!isLogin && /401|unauthorized|session|نشست/i.test(message)){
       clearStudentSession();
     }
-    throw new Error(
-      response.status === 401
-        ? "نشست شما دیگر معتبر نیست."
-        : "پاسخ معتبر از سرور دریافت نشد."
-    );
+
+    throw new Error(message || "ارتباط با سرویس ورود برقرار نشد.");
   }
 
-  if(response.status === 401){
-
-    if(!isLogin){
-      clearStudentSession(
-        "نشست شما دیگر معتبر نیست یا دسترسی شما غیرفعال شده است."
-      );
+  if(!result?.success){
+    if(!isLogin && /نشست|session|expired|invalid/i.test(String(result?.error || ""))){
+      clearStudentSession();
     }
-
-    throw new Error(
-      result?.error ||
-      "نشست شما دیگر معتبر نیست."
-    );
-  }
-
-  if(!response.ok || !result?.success){
-    throw new Error(
-      result?.error ||
-      "عملیات انجام نشد."
-    );
+    throw new Error(result?.error || "عملیات انجام نشد.");
   }
 
   return result;

@@ -1,0 +1,16 @@
+{
+  "name": "پنل مدیریت | یک درصدی‌ها",
+  "short_name": "مدیریت یک درصدی‌ها",
+  "description": "پنل مدیریت ماشین حساب یک درصدی‌ها",
+  "lang": "fa",
+  "dir": "rtl",
+  "start_url": "./admin.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4f5f7",
+  "theme_color": "#101a2b",
+  "icons": [
+    {"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
+}

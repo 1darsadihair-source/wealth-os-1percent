@@ -2044,37 +2044,54 @@ async function callStudentAPI(body){
    * This avoids browser/CDN/service-worker edge cases where the
    * request can otherwise reach the function as GET.
    */
-  let response;
-  try{
-    response = await fetch(SUPABASE_FUNCTION_URL, {
-      method:"POST",
-      mode:"cors",
-      cache:"no-store",
-      headers:{
-        ...headers,
-        "apikey":SUPABASE_ANON_KEY
-      },
-      body:JSON.stringify(requestBody)
-    });
-  }catch(networkError){
-    throw new Error("ارتباط با سرویس ورود برقرار نشد. اتصال اینترنت را بررسی کنید.");
-  }
-
   let result = null;
+  let invokeError = null;
+
   try{
-    result = await response.json();
-  }catch(_){
-    result = null;
+    const invokeOptions = {};
+
+    if(!isLogin){
+      invokeOptions.headers = {
+        Authorization:"Bearer " + getStudentSession().token
+      };
+    }
+
+    const invoked = await supabaseClient.functions.invoke(
+      "student-login",
+      {
+        body:requestBody,
+        ...invokeOptions
+      }
+    );
+
+    result = invoked.data;
+    invokeError = invoked.error;
+  }catch(networkError){
+    throw new Error("ارتباط با سرویس ورود برقرار نشد. دوباره تلاش کنید.");
   }
 
-  if(!response.ok){
-    if(!isLogin && (response.status===401 || response.status===403)){
+  if(invokeError){
+    if(!isLogin && (invokeError.context?.status===401 || invokeError.context?.status===403)){
       clearStudentSession();
     }
+
+    let serverMessage = "";
+    try{
+      if(invokeError.context){
+        const cloned = invokeError.context.clone
+          ? invokeError.context.clone()
+          : invokeError.context;
+        if(cloned?.json){
+          const payload = await cloned.json();
+          serverMessage = payload?.error || payload?.message || "";
+        }
+      }
+    }catch(_){}
+
     throw new Error(
-      result?.error ||
-      result?.message ||
-      "خطای سرویس ورود (" + response.status + ")."
+      serverMessage ||
+      invokeError.message ||
+      "خطای سرویس ورود."
     );
   }
 

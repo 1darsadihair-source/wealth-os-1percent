@@ -4077,6 +4077,15 @@ document.addEventListener(
 
     attachAutoSave();
 
+    /* Backend is the source of truth for a logged-in student. */
+    if(loggedIn){
+      try{
+        await loadState();
+      }catch(error){
+        console.error("Initial student state reload failed:",error);
+      }
+    }
+
     updateSurvival();
 
     calculateAll();
